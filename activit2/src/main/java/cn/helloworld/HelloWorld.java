@@ -86,7 +86,7 @@ public class HelloWorld
 		processEngine.getTaskService()//与正在执行的任务管理相关的service
 					.complete( taskIdString );	
 		System.out.println("完成任务：任务ID"+taskIdString);
-		
+		System.out.println("完成任务：任务ID"+taskIdString);
 	}
 	
 	
