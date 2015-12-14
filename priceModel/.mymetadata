@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-module
+  type="WEB"
+  name="priceModel"
+  id="myeclipse.1406790084892"
+  context-root="/priceModel"
+  j2ee-spec="5.0"
+  archive="priceModel.war">
+  <attributes>
+    <attribute name="webrootdir" value="WebRoot" />
+  </attributes>
+</project-module>
+

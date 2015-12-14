@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- 线路EXCEL文件导入表 -->
+<hibernate-mapping>
+	<class name="com.chnl.pojo.PrLegfileimport" table="PR_LEGFILEIMPORT"
+		dynamic-insert="true" dynamic-update="true">
+		<id name="id" type="java.lang.Integer">
+			<column name="ID" precision="0" />
+			<generator class="sequence">
+				<param name="sequence">S_PR_LEGFILEIMPORT</param>
+			</generator>
+		</id>
+		<property name="loopflag" type="java.lang.Double">
+			<column name="LOOPFLAG" />
+		</property>
+		<property name="startcity" type="java.lang.String">
+			<column name="STARTCITY" length="30" />
+		</property>
+		<property name="startpoint" type="java.lang.String">
+			<column name="STARTPOINT" length="30" />
+		</property>
+		<property name="endcity" type="java.lang.String">
+			<column name="ENDCITY" length="30" />
+		</property>
+		<property name="emptlyFlag" type="java.lang.Integer">
+			<column name="EMPTLYFLAG" />
+		</property>
+		<property name="emptlyDistance" type="java.lang.Double">
+			<column name="EMPTLYDISTANCE" />
+		</property>
+		<property name="incomeDistance" type="java.lang.Double">
+			<column name="INCOMEDISTANCE" />
+		</property>
+		<property name="actualCostDistance" type="java.lang.Double">
+			<column name="ACTUALCOSTDISTANCE" />
+		</property>
+		<property name="aroundDistance" type="java.lang.Double">
+			<column name="AROUNDDISTANCE" />
+		</property>
+		<property name="costDistance" type="java.lang.Double">
+			<column name="COSTDISTANCE" />
+		</property>
+		<property name="message" type="java.lang.String">
+			<column name="MESSAGE" length="100" />
+		</property>
+		<property name="username" type="java.lang.String">
+			<column name="USERNAME" length="50" />
+		</property>
+		<property name="selectCustomer" type="java.lang.String">
+			<column name="CUSTOMERNAME" length="50" />
+		</property>
+		<property name="customerId" type="java.lang.Integer">
+			<column name="CUSTOMERID" />
+		</property>
+	</class>
+</hibernate-mapping>
