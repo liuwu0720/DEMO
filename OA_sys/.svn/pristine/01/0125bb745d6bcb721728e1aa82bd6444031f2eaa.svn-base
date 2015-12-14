@@ -1,0 +1,16 @@
+package clt.com.cn.dao.impl;
+
+import clt.com.cn.base.BaseDao;
+import clt.com.cn.dao.ICostBudgetDao;
+
+/** 
+ * @Package clt.com.cn.dao.impl 
+ * @Description:用一句话描述该文件做什么 
+ * @author liuwu
+ * @date 2015年11月20日 上午9:36:37 
+ * @version V1.0 
+ */
+public class CostBudgetDaoImp extends BaseDao implements ICostBudgetDao
+{	
+	
+}

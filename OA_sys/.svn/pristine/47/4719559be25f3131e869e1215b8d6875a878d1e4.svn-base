@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>travel_table.html</title>
+<meta name="content-type" content="text/html; charset=UTF-8">
+
+<!--<link rel="stylesheet" type="text/css" href="./styles.css">-->
+<link rel="stylesheet" type="text/css" href="/css/style.css" />
+</head>
+
+<body>
+	<table class="table">
+		<tbody id="travel_tbody1">
+			<tr style="font-size: 5;height: 20px;">
+				<td>开始日期</td>
+				<td>到达日期</td>
+				<td>交通工具</td>
+				<td>交通费单据张数</td>
+				<td>交通费金额</td>
+				<td>出差地点</td>
+				<td>出差天数</td>
+				<td>出差补贴</td>
+				<td>住宿费金额</td>
+				<td>住宿费单据张数</td>
+				<td>杂费单据张数</td>
+				<td>杂费</td>
+				
+				<td style="width: 35px;">操作</td>
+			</tr>
+
+
+			<tr id="travel_tr2">
+				<td><input type="text" name="travelfees[0].dtStart"  style="width: 120px" onFocus="WdatePicker({startDate:'%y-%M-01',dateFmt:'yyyy-MM-dd',alwaysUseStartDate:true})" />
+				<td>
+				<input type="text" name="travelfees[0].dtEnd"  style="width: 120px" onFocus="WdatePicker({startDate:'%y-%M-01',dateFmt:'yyyy-MM-dd',alwaysUseStartDate:true})" />
+				</td>
+				<td><select name="travelfees[0].vcTool">
+						<option value="火车">火车</option>
+						<option value="轮船">轮船</option>
+						<option value="飞机">飞机</option>
+						<option value="大巴">大巴</option>
+						<option value="公交">公交</option>
+						<option value="的士">的士</option>
+				</select></td>
+				<td><input type="text" size="5" name="travelfees[0].nToollist" value="0"></td>
+				<td><input type="text" size="5" name="travelfees[0].nTool" value="0"></td>
+				<td><input type="text" size="5" name="travelfees[0].vcPlace"></td>
+				<td><input type="text" size="5" name="travelfees[0].nDays" value="0"></td>
+				<td><input type="text" size="5" name="travelfees[0].nSubsidies" value="0"></td>
+				<td><input type="text" size="5" name="travelfees[0].nHotel" value="0"></td>
+				<td><input type="text" size="5" name="travelfees[0].nHotellist" value="0"></td>
+				<td><input type="text" size="5" name="travelfees[0].nOtherlist" value="0"></td>
+				<td><input type="text" size="5" name="travelfees[0].nOther" value="0"></td>
+				
+				<td><img src="<%=path%>/img/add.png" onclick="addBtn(this)"
+					style="width: 15px;heigth:15px;vertical-align:middle;cursor: pointer;">
+					<img src="<%=path%>/img/bin.png" onclick="delBtn(this)"
+					style="width: 15px;heigth:15px;vertical-align:middle;cursor: pointer;"></td>
+			</tr>
+		</tbody>
+	</table>
+</body>
+</html>

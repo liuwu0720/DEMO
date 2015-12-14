@@ -1,0 +1,74 @@
+<%@ page language="java" import="java.util.*" pageEncoding="utf-8"%>
+<%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
+<!DOCTYPE HTML>
+<html>
+<head>
+<base href="<%=basePath%>">
+
+<title>My JSP 'travel_table.jsp' starting page</title>
+
+<meta http-equiv="pragma" content="no-cache">
+<meta http-equiv="cache-control" content="no-cache">
+<meta http-equiv="expires" content="0">
+<meta http-equiv="keywords" content="keyword1,keyword2,keyword3">
+<meta http-equiv="description" content="This is my page">
+
+</head>
+
+<body>
+	<table  class="table">
+			<tr style="font-size: 5;">
+				<td style="width: 55px;">开始日期</td>
+				<td style="width: 55px;">到达日期</td>
+				<td style="width: 55px;">交通工具</td>
+				<td style="width: 55px;">交通费单据张数</td>
+				<td style="width: 55px;">交通费金额</td>
+				<td style="width: 55px;">出差地点</td>
+				<td style="width: 55px;">出差天数</td>
+				<td style="width: 55px;">出差补贴</td>
+				<td style="width: 55px;">住宿费金额</td>
+				<td style="width: 55px;">住宿费单据张数</td>
+				<td style="width: 55px;">杂费单据张数</td>
+				<td style="width: 55px;">杂费</td>
+				<td style="width: 55px;">备注</td>
+			</tr>
+			<c:forEach items="${travelfees.travelfees }" var="t"
+				varStatus="vstatus">
+				<tr id="travel_tr2">
+					<td style="width: 55px;"><input type="text"  size="10"
+						 value="${t.dtStart }"/></td>
+					<td style="width: 55px;"><input type="text"  size="10"
+						 value="${t.dtEnd }"/></td>
+					<td style="width: 55px;">${t.vcTool }</td>
+					<td style="width: 55px;"><input type="text" size="5"
+						
+						value="${t.nToollist }"></td>
+					<td style="width: 55px;"><input type="text" size="5"
+						 value="${t.nTool }"></td>
+					<td style="width: 55px;"><input type="text" size="5"
+						 value="${t.vcPlace }"></td>
+					<td style="width: 55px;"><input type="text" size="5"
+						value="${t.nDays }"></td>
+					<td style="width: 55px;"><input type="text" size="5"
+						
+						value="${t.nSubsidies }"></td>
+					<td style="width: 55px;"><input type="text" size="5"
+						value="${t.nHotel }"></td>
+					<td style="width: 55px;"><input type="text" size="5"
+						
+						value="${t.nHotellist }"></td>
+					<td style="width: 55px;"><input type="text" size="5"
+						
+						value="${t.nOtherlist }"></td>
+					<td style="width: 55px;"><input type="text" size="5"
+						 value="${t.nOther }"></td>
+					<td style="width: 55px;"><input type="text" size="5"
+					value="${t.vcNote }"></td>
+				
+				</tr>
+			</c:forEach>
+		</table>	
+</body>
+</html>

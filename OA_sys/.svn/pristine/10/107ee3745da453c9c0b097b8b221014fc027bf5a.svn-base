@@ -1,0 +1,1494 @@
+--公司组织架构表
+Create Sequence s_DeptID;
+Create Table dept
+(
+  lineid      number default 0  not null,--id
+  deptname    varchar2(200)      not null,--部门名称
+  manageruserid  number          ,      --部门负责人
+  pid          number default 0  not null,--父类id
+  active      number default 1 not null,--有效
+  userno      varchar2(30)      not null,--操作员
+  currdate    date            default sysdate not null,--最后时间
+  constraint dept_pk primary key (lineid),
+  CONSTRAINT fk_dept_dept FOREIGN KEY (pid) REFERENCES dept (lineid)
+);
+
+
+Create Table Module
+(
+  LineID         number          default 0 not null,  --模块流水号
+  ModuleNo      varchar2(30)    not null,  --模块编号
+  ModuleName    varchar2(100)   not null,  --模块名称
+  Sort           number          default 0 not null,  --排序号
+  constraint ind_module unique (ModuleNo),
+  constraint Module_PK primary key(lineid)
+);
+Insert Into Module(lineid,ModuleNo,ModuleName,Sort) values(1000,'sm','系统管理',1000);
+
+
+--权限静态表
+Create Table Privilege --用户权限表静态表
+(
+  lineid		number default 0 not null, --序号
+  pid		  number	default 0 not null, --父类ID
+  PrivilegeNo    varchar2(30)    not null, --节点编号
+  PrivilegeName    varchar2(50)    not null , --权限名称
+  title			varchar2(50)     null, --alt 显示的文字
+  urlpath      varchar2(50)     null, --路径
+  type 			number     null, --类型  是否是子节点
+  description          varchar2(1000)    null, --菜单功能说明
+  constraint Privilege_PK primary key (lineid)
+);
+
+Create Sequence S_RoleID;
+Create Table role--角色信息
+(
+  lineid         number     default 0 NOT NULL, --流水号
+  RoleName      varchar2(100)    not null,--角色说明
+  Active         number      default 1 not null,--是否有效
+  userno        varchar2(30)  null,
+  currdate          date        default sysdate not null,
+  constraint role_pk primary key (lineid)
+);
+--角色权限表
+Create Sequence S_RolePrivilegeID;
+Create Table RolePrivilege
+(
+      lineid      number     default 0 NOT NULL, --流水号
+      RoleID       number     default 0 NOT NULL, --角色流水号
+      privilegeid  number     default 0 not null, --权限编号
+      UserNo      varchar2(30)    null, --设置用户
+      currDate        date        default sysdate not null,--最后更新时间
+      constraint ind_RolePrivilege unique (lineid,RoleID),--唯一性约束
+      constraint RolePrivilege_PK primary key (LineID),
+      CONSTRAINT fk_roleprivilege_role FOREIGN KEY (roleid) REFERENCES role (lineid),
+      CONSTRAINT fk_roleprivilege_privilege FOREIGN KEY (privilegeid) REFERENCES privilege (lineid)
+);
+
+--系统操作员表
+Create Sequence S_smUserID;
+Create Table smUser
+(
+  lineid       	number     default 0 NOT NULL, --流水号
+  recordid	number     default 0 NOT NULL, --档案号
+  userno	varchar2(30)    not null  ,  --员工编号
+  password    	varchar2(100)    null  ,  --用户密码(md5加密)
+  admin          number      default 0 not null , --0：普通人员，1：部门管理员，2：公司管理员
+  active         number      default 1 not null, -- 是否有效
+  lastUpdateDate  date      default sysdate not null, --密码最后修改时间
+  roleID          number 		default 0 not null, --角色ID
+  cuserno2        varchar2(30)  null,--操作人
+  currdate          date        default sysdate not null,--操作时间
+  constraint ind_user unique (UserNo),
+  constraint USER_PK primary key( LineID ),
+  CONSTRAINT fk_user_role FOREIGN KEY (roleid) REFERENCES role (lineid)
+  
+);
+--日志
+Create Sequence S_UserLogID;
+Create Table UserLog
+(
+  lineid         	number   NOT NULL, --流水号
+  privilegeid   	number default 0 not null,  --权限编号
+  userid		number default 0 not null,  --用户编号
+  currDatedate          default sysdate not null,--操作时间
+  Memo          	varchar2(4000)       null,--备注
+  IP            	varchar2(100)       null,--IP地址
+  constraint USERLOG_PK primary key( lineid ),
+  CONSTRAINT fk_userlog_privilege FOREIGN KEY (privilegeid) REFERENCES privilege (lineid),
+  CONSTRAINT fk_userlog_user FOREIGN KEY (userid) REFERENCES smUser (lineid)
+);
+
+--用户权限
+Create Sequence S_UserPrivilegeID;
+create table userprivilege
+(
+  LineID       number     default 0 not null, --序号
+  UserID       number     default 0 not null, --用户编号
+  PrivilegeID  number     default 0 not null, --权限编号
+  UserNo      varchar2(30)    null, --设置用户
+  currDate        date        default sysdate not null,--最后更新时间
+  constraint ind_userprivilege unique (UserID,PrivilegeID),
+  CONSTRAINT fk_userprivilege_user FOREIGN KEY (userid) REFERENCES smUser (lineid),
+  CONSTRAINT fk_userprivilege_privilege FOREIGN KEY (privilegeid) REFERENCES privilege (lineid),
+  constraint UserPrivilege_PK primary key (LineID)
+);
+--职务/岗位表
+Create Sequence S_PositionID;
+Create Table position
+(
+		lineid		number     default 0 not null, --序号
+		positionname	varchar2(100)			not null,--职位名称
+		constraint position_PK primary key (LineID)
+);
+--学历表
+Create Sequence S_educationlevelID;
+Create Table educationlevel
+(
+		lineid		number     default 0 not null, --序号
+		levelname	varchar2(100)			not null,--学历名称
+		constraint educationlevel_PK primary key (LineID)
+);
+--员工档案
+Create Sequence S_employrecordID;
+Create Table employrecord
+(
+	LineID       number     default 0 not null, --序号
+	fileno		varchar2(20)	not null,--员工编号
+	employname	 varchar2(20)	not null,--员工姓名
+	deptid		number     default 0 not null, --所属部门
+	positionid	number     default 0 not null, --职位
+	comedatedate	default sysdate		not null,--入职时间
+
+	mobile		varchar2(11)	null,--手机号
+	email		varchar(100)  null,--email
+	tel1		varchar2(30)	null,--固定电话
+	tel2		varchar2(30)	null,-- 分机号
+	telline		varchar2(30)	null,--直线号码
+	contactno	varchar2(30)	null,--通讯联系号码(QQ,skype等)
+	
+	cardno		varchar2(18)	not null,--证件编号
+	birthday	date	not null,--出生日期
+	Accountadd	varchar2(100)	 null,--户口所在地
+	bankcardno      varchar2(100)	 null,--银行卡号
+	marriage	number	default 0 not null,--婚姻状况
+	
+	
+	address		varchar2(100)	not null,--家庭住址
+	hometel		 varchar2(30)	null,--家庭电话
+	emergencyContact  varchar2(30)	null,--紧急联系人
+	emergencytel	varchar2(30)	null,--紧急联系电话
+	
+	educationlevel	number	default 0	not null,--	教育程度
+	school		varchar(100)	null,--毕业学校
+	graduationdate	date	null,--毕业时间
+	technology	varchar(100)	null,--所学专业
+	certificate     varchar(100)    null,--所持证书
+	resume		varchar(2000)	null,--个人简历
+	UserNo          varchar2(30)    null, --设置用户
+	currDate        date  default sysdate not null,--最后更新时间
+	status		number		null, --档案状态   0初始  在个人桌面HR和IT确认后为1 已入职  
+	hrstatus	number		null,   --档案HR确认状态   因为要HR和IT并发确认 所以只能分2个字段确认
+	itstatus	number		null,	--档案IT确认
+	hrprepare	varchar(100)	null,	--员工入职 HR需做的准备 (座位 电脑安排)
+	itprepare	varchar(100)	null,	--员工入职 IT需做的准备 (OMS OA)
+
+	deptaddressID   number null,		--员工办公地址外键id  
+	contractTypeID	number	null,		--档案合同类别   通讯录只显示正式员工的信息
+	constraint employrecordid_PK primary key (LineID),
+	CONSTRAINT fk_employrecord_dept FOREIGN KEY (deptid) REFERENCES dept (lineid),
+	CONSTRAINT fk_employrecord_position FOREIGN KEY (positionid) REFERENCES position (lineid)
+	
+);
+
+
+--通讯录表
+Create Sequence S_employAddressListID;
+Create Table employAddressList
+(
+	lineid           number     default 0 not null, --序号
+	name		varchar2(100) null,    --名称
+	positionName	varchar2(100) null,    --职位名称
+	companyName	varchar2(100) null,    --公司名称
+	address		varchar2(200) null,    --地址
+	mobile		varchar2(20) null,    --手机号码
+	tel		varchar2(20) null,    --固定电话
+	email		varchar2(100) null,    --邮箱
+	opuser		int	null,		--创建者
+	optime		date	null,		--创建时间
+	status		int	null,		--状态 是否可用
+	constraint employAddressList_PK primary key (lineid)
+)
+
+
+--外出表
+Create Sequence S_EmployoutID;
+Create Table employout
+(
+	LineID           number     default 0 not null, --序号
+	userid		 number     default 0 not null, --用户序号
+	recordid	 number     default 0 not null, --档序号
+	currdatedate	default sysdate not null,--填写时间
+	outdate1date	not null,--外出时间开始
+	outdate2date	not null,--外出时间结束
+	reason		 varchar2(1000) not null,--外出原因
+	ischeck		number	default 0 not null,--审核状态(0,未审核,1:未通过,2:已通过)
+	checkmemo	varchar2(1000) not null,--审核说明
+	checkuserid	 number	default 0 not null,--审核用户id
+	checkdate	 date	null,--审核时间
+	CONSTRAINT fk_employout_user FOREIGN KEY (userid) REFERENCES smUser (lineid),
+	CONSTRAINT fk_employout_checkuser FOREIGN KEY (checkuserid) REFERENCES smUser (lineid),
+	CONSTRAINT fk_employout_file FOREIGN KEY (recordid) REFERENCES employrecord (lineid),
+  constraint employout_PK primary key (LineID)
+);
+
+create sequence S_employholidayTypeID
+--请假类别表
+Create Table employholidayType
+(
+	lineid		number not null,   --id
+	typename	varchar2(100) null, --类别名称
+	constraint employholidayType_PK primary key (lineid)
+)
+
+--请假表
+Create Sequence S_Employholidayid;
+Create Table Employholiday
+(
+  LineID       number     default 0 not null, --序号
+  userid       number     default 0 not null, --用户序号
+  recordid       number     default 0 not null, --档案序号
+  currdate     date        default sysdate not null,--填写时间
+  date1     date        not null,--请假时间开始
+  date2     date        not null,--请假时间结束
+  reason       varchar2(1000) not null,--请假原因
+  ischeck       number      default 0 not null,--审核状态(0,未审核,1:未通过,2:已通过)
+  checkmemo     varchar2(1000) not null,--审核说明
+  checkuserid   number      default 0 not null,--审核用户id
+  checkdate     date        null,--审核时间
+  deptid	number     null  ,--所属部门
+  checkremarks   varchar2(200)  null, --审批备注
+  ACTUALUSERID	  number     null,    --实际审批用户
+  HOLIDAYTYPEID	  number  null,        --请假类型
+  hrstatus	  number   null,	--个人桌面 请假信息HR确认状态 
+  CONSTRAINT fk_Employholiday_user FOREIGN KEY (userid) REFERENCES smUser (lineid),
+  CONSTRAINT fk_Employholiday_checkuser FOREIGN KEY (checkuserid) REFERENCES smUser (lineid),
+  CONSTRAINT fk_Employholiday_file FOREIGN KEY (recordid) REFERENCES employrecord (lineid),
+  constraint Employholiday_PK primary key (LineID)
+);
+
+
+--加班类型表
+create sequence S_employovertimeTypeID
+create table EmployovertimeType
+(
+       lineid number not null,  --id
+       typename varchar2(100) null,  --类型名称
+       constraint EmployovertimeType_PK primary key (lineid)
+)
+
+-- 增加 EmployovertimeType  员工加班表
+create sequence S_EmployovertimeID
+create table Employovertime
+( 
+       lineid number not null,  --id
+       employovertimeTypeID number null,  --加班类型id
+        userid       number     default 0 not null, --用户序号
+        recordid       number     default 0 not null, --档案序号
+        deptid         number   null, --部门id
+        currdate     date        default sysdate not null,--填写时间
+        date1     date        not null,--开始时间
+        date2     date        not null,--结束时间
+        reason       varchar2(1000)  null,--加班原因
+        contents    varchar2(200) null,  --加班内容
+        ischeck       number      default 0 not null,--审核状态
+       checkremarks   varchar2(200)  null,     --审核备注
+        checkuserid   number      default 0 not null,--审核用户id
+        checkdate     date        null,--审核时间
+        ACTUALUSERID	  number     null,  --实际审批用户
+        constraint Employovertime_PK primary key (lineid)
+ )
+ 
+ create sequence S_EmployattendanceID
+ -- 考勤异常补打
+ create table Employattendance
+ ( 
+       lineid number not null,  --id
+        userid       number     default 0 not null, --用户序号
+        recordid       number     default 0 not null, --档案序号
+        deptid         number   null, --部门id
+        currdate     date        default sysdate not null,--填写时间
+        typename     varchar2(100) null,    --异常类型   上/下班
+        opdate      date        not null,--开始时间
+        reason       varchar2(1000)  null,--原因
+        ischeck       number      default 0 not null,--审核状态
+       checkremarks   varchar2(200)  null,     --审核备注
+        checkuserid   number      default 0 not null,--审核用户id
+        checkdate     date        null,--审核时间
+        ACTUALUSERID	  number     null,  --实际审批用户
+        constraint Employattendance_PK primary key (lineid)
+ )
+
+--出差工具表
+ create sequence S_EmploytripToolID
+create table  EmploytripTool
+(
+       lineid number not null,
+       toolname varchar2(100) null,  --工具名称
+       constraint EmploytripTool_PK primary key (lineid)
+)
+
+--员工出差表
+create sequence S_EmploytripID
+create table  Employtrip
+ (
+         lineid number not null,  --id
+        userid       number     default 0 not null, --用户序号
+        recordid       number     default 0 not null, --档案序号
+        deptid         number   null, --部门id
+        currdate     date        default sysdate not null,--填写时间
+        EmploytripToolID   number null,    -- 乘坐工具
+        address          varchar2(100) null, --出差地址
+        date1      date        not null,--开始时间  
+        date2      date        not null,--开始时间
+         reason       varchar2(100)  null,--原因
+         remarks      varchar2(200)  null, --备注
+          ischeck       number      default 0 not null,--审核状态
+         checkuserid   number      default 0 not null,--审核用户id
+         checkdate     date        null,--审核时间
+         ACTUALUSERID	  number     null,  --实际审批用户
+         checkremarks   varchar2(200)  null,     --审核备注
+         constraint Employtrip_PK primary key (lineid)
+ )
+
+--员工招聘类型
+create sequence S_employrecruitmentTypeID
+create table  employrecruitmentType
+(
+       lineid number not null,
+       typename varchar2(100) null,  --类型名称
+       constraint employrecruitmentType_PK primary key (lineid)
+)
+--员工招聘表
+create sequence S_EmployrecruitmentID
+create table  employrecruitment
+(
+         lineid number not null,  --id
+        userid       number     default 0 not null, --用户序号
+        recordid       number     default 0 not null, --档案序号
+        deptid         number   null, --部门id
+        employrecruitmentTypeID  number null,   --照片需求类型外键
+        currdate     date        default sysdate not null,--填写时间
+        sex          number  null,       --性别
+        peopleNumber   number  null,    --人数
+        checktime      date    null,     --到职时间
+        positionID   number   null,   --岗位表ID
+        marital        number  default 0        null,   --婚否
+        agerange       number          null,    --年龄范围
+        workyear       number          null,    --工作年限范围
+        educationlevelID       number           null,   --学历外键
+        professional           varchar2(100)    null,   --专业
+        expertise              varchar2(100)    null,   --专业技能
+        workcontents           varchar2(100)    null,   --工作内容
+        englevel               varchar2(100)       null,  --外语要求
+          ischeck       number      default 0 not null,--审核状态
+         checkuserid   number      default 0 not null,--审核用户id
+         checkdate     date        null,--审核时间
+         ACTUALUSERID	  number     null,  --实际审批用户
+         checkremarks   varchar2(200)  null,     --审核备注
+         constraint employrecruitment_PK primary key (lineid)
+)
+
+
+--考勤授权表
+Create Sequence S_EmployAccreditID
+Create Table EmployAccredit
+(
+	LineID		number  not null ,  --id
+	certigieruid	number	null，	    --授权人id	
+	authorizeruid	number  null,	    --被授权人id
+	accreditcause	varchar2(100)  null, --授权原因
+	accreditBeginTime	date	null, --授权开始时间
+	accreditEndTime		date	null,  --授权结束时间
+	currdate		date	null,	    --授权时间
+	constraint EmployAccredit_PK primary key (LineID)
+)
+
+
+--考勤表
+--根据考勤机定制
+
+
+--文件上传表
+Create Sequence S_recordid;
+create Table smFile
+(
+  LineID       number     default 0 not null, --序号
+  userid       number     default 0 not null, --用户序号
+  fileid       number     default 0 not null, --档序号
+  
+  filename     varchar2(100) not null,--文件名
+  filepath     varchar2(100) not null,--文件路径
+  currdate      date    default sysdate  not null,--上传时间
+  CONSTRAINT fk_File_user FOREIGN KEY (userid) REFERENCES smUser (lineid),
+  CONSTRAINT fk_File_file FOREIGN KEY (fileid) REFERENCES employrecord (lineid),
+  constraint File_PK primary key (LineID)  
+);
+--文件共享表
+Create Sequence S_FileShareID;
+
+Create Table FileShare
+(
+  LineID        number     default 0 not null, --序号
+  fileid        number     default 0 not null, --文件序号
+  sharetype      number     default 0 not null, --共享类型(0:全部共享，1：共享给部门，2：共享给某用户)
+  userid        number     default 0 not null, --接收userid
+  deptid        number     default 0 not null, --接收deptid
+  sharedate      date       default sysdate  not null,--共享时间
+  memo          varchar2(100) null,--共享说明
+  status        number     default 1 not null, --共享状态（0:关闭，1：户用)
+  CONSTRAINT fk_FileShare_user FOREIGN KEY (userid) REFERENCES smUser (lineid),
+  CONSTRAINT fk_FileShare_file FOREIGN KEY (fileid) REFERENCES smFile (lineid),
+  constraint FileShare_PK primary key (LineID)  
+);
+
+--通知/新闻表
+Create Table notify
+(
+	LineID          number     default 0 not null, --序号
+	type		number     default 0 not null, --类型（0:通知，1：公司新闻，2：行业动态/新闻,3,4,可扩充）
+	notifyno	varchar2(500) null,--通知编号
+	notifydate	date			default sysdate not null,--通知时间
+	title		varchar2(500) null,--通知标题
+	content		varchar2(4000) not null,--通知内容
+	deptid		number     default 0 not null, --部门序号
+	userid		number     default 0 not null, --用户序号
+	currdate	date	default sysdate not null,--当前时间
+	CONSTRAINT fk_notify_user FOREIGN KEY (userid) REFERENCES smUser (lineid),
+	CONSTRAINT fk_dept_file FOREIGN KEY (deptid) REFERENCES dept (lineid),
+  constraint notify_PK primary key (LineID)	
+);
+Create Sequence S_NotifyFileID;
+Create Table NotifyFile
+(
+	LineID          number     default 0 not null, --序号
+	notifyid	number     default 0 not null, --通知序号
+	
+	filename	 varchar2(100) not null,--文件名
+	filepath	 varchar2(100) not null,--文件路径
+	userid		number     default 0 not null, --用户序号
+	currdate	date	default sysdate not null,--当前时间
+	CONSTRAINT fk_NotifyFile_user FOREIGN KEY (userid) REFERENCES smUser (lineid),
+	CONSTRAINT fk_NotifyFile_id FOREIGN KEY (notifyid) REFERENCES notify (lineid),
+  constraint NotifyFile_PK primary key (LineID)	
+);
+--通知新闻共享表
+Create Sequence S_NotifyShareID;
+Create Table NotifyShare
+(
+	LineID          number     default 0 not null, --序号
+	notifyid	number     default 0 not null, --通知序号
+	sharetype	number     default 0 not null, --共享类型(0:全部共享，1：共享给部门，2：共享给某用户)
+	userid		number     default 0 not null, --接收userid
+	deptid		number     default 0 not null, --接收deptid
+	sharedate	date	   default sysdate	not null,--共享时间
+	memo		varchar2(100) null,--共享说明
+	status		number     default 1 not null, --共享状态（0:关闭，1：户用)
+	CONSTRAINT fk_notifyshare_user FOREIGN KEY (userid) REFERENCES smUser (lineid),
+	CONSTRAINT fk_notify_file FOREIGN KEY (notifyid) REFERENCES notify (lineid),
+  constraint notifyshare_PK primary key (LineID)	
+)
+
+--合同类型表
+Create Sequence S_EmploycontractTypeID
+Create Table EmploycontractType
+(
+	lineid		number		null, 	--序号
+	typename	varchar2(200)	null,	--类型名称
+	constraint EmploycontractType_PK primary key (lineid)
+)
+
+--合同表 
+Create Sequence S_EmploycontractID
+Create Table  Employcontract
+(
+	lineid 		number	not null,   --序号
+	conNumber	varchar2(100)  null,  --合同编号
+	employcontractTypeID	number null,  --合同类型外键ID
+	probation	number	null,		--试用期
+	beginDate	date	null,		--合同开始时间
+	conYears	number 	null,		--合同期限
+	endDate		date	null,		--合同结束时间
+	conRemarks	varchar2(200)	null,	--备注
+	opUserid		number 	null,		--合同操作人  用户ID
+	opDate		date	null,		--操作时间
+	confilepath		varchar2(200) null,	--合同路径
+	constraint Employcontract_PK primary key (lineid)
+)
+
+--部门关联表   在文件上传共享的时候用到 
+Create Sequence S_dept_mappingID;
+Create Table dept_mapping
+(
+  lineid         number          not null,  
+  deptid         number     null,  --部门编号
+  deptmappid    number      null,  --部门映射id 
+  opuserID      number      null, 
+  optime        Date        null,
+  constraint dept_mapping_PK primary key(lineid)
+)
+
+--部门地址表    因为要看员工实际的办公公司 办公地址 
+create sequence S_deptaddressID
+create table deptaddress
+(
+  lineid     number  not null,
+  deptid     number  null,   --部门id
+  isCompay   number  null,   --是否是公司id   0 不是 1 是
+  comPayID    number  null,
+  compayName   varchar2(100) null,
+  deptAddress   varchar2(100) null,   --部门地址
+  opTime        Date          null,   --操作时间
+ constraint deptaddress_PK primary key(lineid)
+)
+--档案申请修改表    改变部门 岗位 办公地点 需要审批 
+Create Sequence S_employrecordCheckID;
+create table employrecordCheck
+(
+      lineid         number         ,  
+      recordid       number         null,  --档案外键
+      bfCompid       number         null,   --修改前公司id
+      bfDeptid         number     null,    -- 修改前部门id
+      bfPosid           number      null,  --修改前岗位id
+      bfofCompid        number      null,     --修改前办公公司id
+      bfDeptAdresid      number      null,    --修改前办公所在地id
+      nowCompid          number      null,    --修改后公司id
+      nowDeptid          number      null,    --修改后部门id
+      nowPosid            number      null,   --修改后岗位id
+      nowofCompid         number      null,    --修改后办公公司id
+      nowDeptAdresid       number      null,   --修改后办公所在地id
+      ischeck              number      null,   --审批状态
+      status               number      default 0,  --是否可用  删除
+      hrstatus             number      default 0,     --人力行政确定  
+      userid               number      null,   --申请人id
+      opDate               Date        null,   --申请时间
+      checkusid             number      null,   --审批人
+      checkDate               Date        null,   --审批时间
+      checkremaks             varchar2(200)  null,  --审批备注
+      constraint employrecordCheck_PK primary key(lineid)  
+
+)
+
+--部门映射  用于文件上传时  (总部人力 映射多个分公司人力)
+Create Sequence S_dept_mappingID;
+Create Table dept_mapping
+(
+  lineid         number          not null,  
+  deptid         number     null,  --部门编号
+  deptmappid    number      null,  --部门映射id 
+  opuserID      number      null, 
+  optime        Date        null,
+  constraint dept_mapping_PK primary key(lineid)
+)
+
+--部门 公司地址  
+create sequence S_deptaddressID
+create table deptaddress
+(
+  lineid     number  not null,
+  deptid     number  null,   --部门id
+  isCompay   number  null,   --是否是公司id   0 不是 1 是
+  comPayID    number  null,
+  compayName   varchar2(100) null,
+  deptAddress   varchar2(100) null,   --部门地址
+  opTime        Date          null,   --操作时间
+ constraint deptaddress_PK primary key(lineid)
+)
+
+--人员档案管理 (配置该用户可查看哪些部门人员的档案)
+
+Create Sequence S_employmanagerID;
+Create Table employmanager
+(
+  lineid         number          not null,  
+  deptid         number     null,  --部门编号
+  userid          number      null,  --用户id 
+  opuserID      number      null, 
+  optime        Date        null,
+  constraint employmanager_PK primary key(lineid)
+)
+
+--用户待办 管理 (配置用户可查看哪些分公司的 待办事项 即请假加班审批完成后的HR确认)
+Create Sequence S_userScheduleID;
+Create Table userSchedule
+(
+  lineid         number          not null,  
+  deptid         number     null,  --部门编号
+  userid          number      null,  --用户id 
+  opuserID      number      null, 
+  optime        Date        null,
+  constraint userSchedule_PK primary key(lineid)
+)
+
+--部门负责人 对应的审批  (普通用户直接对应部门负责人审批)
+Create Sequence S_ManagerApprovalID;
+Create Table ManagerApproval
+(
+  lineid         number          not null,  
+  deptid         number     null,  --部门编号
+  smuserID          number      null,  --用户id 
+  opuserID      number      null, 
+  optime        Date        null,
+  constraint userSchedule_PK primary key(lineid)
+)
+
+
+--2015.11 后增加
+create sequence S_CONTRACT;
+create table CONTRACT
+(
+  lineid          NUMBER not null,
+  vc_contractname VARCHAR2(100),
+  vc_partya       VARCHAR2(100),
+  vc_partyb       VARCHAR2(100),
+  i_contracttype  NUMBER,
+  dt_start        DATE,
+  dt_end          DATE,
+  n_new           NUMBER default 0,
+  n_emergency     NUMBER default 0,
+  vc_content      VARCHAR2(4000),
+  dt_create       DATE default sysdate,
+  n_long          NUMBER default 0,
+  n_mainsign      NUMBER default 0,
+  n_outprice      NUMBER,
+  n_standprice    NUMBER,
+  vc_contractno   VARCHAR2(100),
+  n_state         NUMBER default 0,
+  n_totalmoney    NUMBER,
+  n_totalprice    NUMBER,
+  n_totalnum      NUMBER,
+  n_rate          NUMBER,
+  n_price         NUMBER default 0,
+  n_yearmoney     NUMBER default 0,
+  n_expect        NUMBER,
+  vc_filepaths    VARCHAR2(300),
+  i_user          NUMBER,
+  n_enable        NUMBER default 0
+)
+;
+comment on table CONTRACT
+  is '合同表';
+comment on column CONTRACT.vc_contractname
+  is '合同名称';
+comment on column CONTRACT.vc_partya
+  is '甲方';
+comment on column CONTRACT.vc_partyb
+  is '乙方';
+comment on column CONTRACT.i_contracttype
+  is '合同类型';
+comment on column CONTRACT.dt_start
+  is '生效日期';
+comment on column CONTRACT.dt_end
+  is '失效日期';
+comment on column CONTRACT.n_new
+  is '是否新签(0：新签，1：续签)';
+comment on column CONTRACT.n_emergency
+  is '是否紧急(0:正常；1：紧急)';
+comment on column CONTRACT.vc_content
+  is '合同内容';
+comment on column CONTRACT.dt_create
+  is '创建日期';
+comment on column CONTRACT.n_long
+  is '是否长期合同(0:是，1：不是)';
+comment on column CONTRACT.n_mainsign
+  is '是否与主机厂签订(0:是，1：不是)';
+comment on column CONTRACT.n_outprice
+  is '合同价';
+comment on column CONTRACT.n_standprice
+  is '标准价';
+comment on column CONTRACT.vc_contractno
+  is '合同编号';
+comment on column CONTRACT.n_state
+  is '合同状态(0:初始录入，1：审核中，2：审核通过，3审核失败) ';
+comment on column CONTRACT.n_totalmoney
+  is '总收入';
+comment on column CONTRACT.n_totalprice
+  is '总成本';
+comment on column CONTRACT.n_totalnum
+  is '总运量';
+comment on column CONTRACT.n_rate
+  is '毛利率';
+comment on column CONTRACT.n_price
+  is '单件单价(0:单件单价≤5万,1:单件单价＞5万)';
+comment on column CONTRACT.n_yearmoney
+  is '年度金额(0:年度金额≤50万,1:年度金额＞50万   0:年度金额≤20万,1:年度金额＞20万)';
+comment on column CONTRACT.n_expect
+  is '是否预期内(0：预期内,1：预期外)';
+comment on column CONTRACT.vc_filepaths
+  is '上传文件路径（,隔开拼接的路径） ';
+comment on column CONTRACT.i_user
+  is '用户id';
+comment on column CONTRACT.n_enable
+  is '是否可用（0：有效（默认），1：无效）';
+alter table CONTRACT
+  add constraint PK_ID primary key (LINEID);
+
+create sequence S_CONTRACTAUDITRECORD;
+create table CONTRACTAUDITRECORD
+(
+  ilineid     NUMBER not null,
+  icontractid NUMBER,
+  iuserid     NUMBER,
+  vcuserno    VARCHAR2(100),
+  vcaudit     VARCHAR2(500),
+  dtaudit     DATE default sysdate,
+  ideptid     NUMBER,
+  vcdeptname  VARCHAR2(200)
+)
+;
+comment on table CONTRACTAUDITRECORD
+  is '合同会签记录表';
+comment on column CONTRACTAUDITRECORD.icontractid
+  is '合同表ID';
+comment on column CONTRACTAUDITRECORD.iuserid
+  is '合同审核人ID';
+comment on column CONTRACTAUDITRECORD.vcuserno
+  is '合同审核人';
+comment on column CONTRACTAUDITRECORD.vcaudit
+  is '审核意见';
+comment on column CONTRACTAUDITRECORD.dtaudit
+  is '审核时间';
+comment on column CONTRACTAUDITRECORD.ideptid
+  is '审核部门ID';
+comment on column CONTRACTAUDITRECORD.vcdeptname
+  is '审核部门名称';
+alter table CONTRACTAUDITRECORD
+  add constraint PK_CONTRACTAUDITRECORD primary key (ILINEID);
+
+create sequence S_CONTRACTTYPE_B;
+create table CONTRACTTYPE_B
+(
+  id        NUMBER not null,
+  i_pid     NUMBER,
+  vc_type   VARCHAR2(30),
+  vc_typeno VARCHAR2(30)
+)
+;
+comment on table CONTRACTTYPE_B
+  is '商业合同类型表';
+comment on column CONTRACTTYPE_B.id
+  is 'ID';
+comment on column CONTRACTTYPE_B.i_pid
+  is '父ID';
+comment on column CONTRACTTYPE_B.vc_type
+  is '类型名称';
+comment on column CONTRACTTYPE_B.vc_typeno
+  is '合同类型编号';
+alter table CONTRACTTYPE_B
+  add constraint PK_CONTRACTTYPE_B primary key (ID);
+
+create sequence S_CONTRACTTYPE_POSITION_RE;
+create table CONTRACTTYPE_POSITION_RE
+(
+  lineid         NUMBER not null,
+  contracttypeid NUMBER,
+  positionid     NUMBER
+)
+;
+comment on table CONTRACTTYPE_POSITION_RE
+  is '合同类别与会签部门关联表';
+comment on column CONTRACTTYPE_POSITION_RE.lineid
+  is 'ID';
+comment on column CONTRACTTYPE_POSITION_RE.contracttypeid
+  is '合同类型ID';
+comment on column CONTRACTTYPE_POSITION_RE.positionid
+  is '部门类型ID';
+alter table CONTRACTTYPE_POSITION_RE
+  add constraint PK_CONTRACTTYPE_DEPT_RE primary key (LINEID);
+alter table CONTRACTTYPE_POSITION_RE
+  add constraint FK_CONTRACTTYPEID foreign key (CONTRACTTYPEID)
+  references CONTRACTTYPE_B (ID);
+alter table CONTRACTTYPE_POSITION_RE
+  add constraint FK_POSITIONID foreign key (POSITIONID)
+  references POSITION (LINEID);
+
+create sequence S_CONTRACT_APPROVAL;
+create table CONTRACT_APPROVAL
+(
+  id              NUMBER,
+  i_contract      NUMBER,
+  i_user          NUMBER,
+  i_dept          NUMBER,
+  vc_approvalname VARCHAR2(30),
+  dt_approval     DATE default sysdate,
+  vc_comment      VARCHAR2(100),
+  n_grade         NUMBER
+)
+;
+comment on table CONTRACT_APPROVAL
+  is '合同审批表';
+comment on column CONTRACT_APPROVAL.id
+  is '主键';
+comment on column CONTRACT_APPROVAL.i_contract
+  is '合同id';
+comment on column CONTRACT_APPROVAL.i_user
+  is '用户id';
+comment on column CONTRACT_APPROVAL.i_dept
+  is '评审人所属部门';
+comment on column CONTRACT_APPROVAL.vc_approvalname
+  is '评审人名字';
+comment on column CONTRACT_APPROVAL.dt_approval
+  is '评审日期';
+comment on column CONTRACT_APPROVAL.vc_comment
+  is '评审意见';
+comment on column CONTRACT_APPROVAL.n_grade
+  is '等级';
+
+create sequence S_CONTRACT_FILE;
+create table CONTRACT_FILE
+(
+  id          NUMBER,
+  i_contract  NUMBER,
+  vc_filename VARCHAR2(500),
+  dt_create   DATE default sysdate
+)
+;
+comment on table CONTRACT_FILE
+  is '合同上传附件表';
+comment on column CONTRACT_FILE.id
+  is '主键';
+comment on column CONTRACT_FILE.i_contract
+  is '合同id';
+comment on column CONTRACT_FILE.vc_filename
+  is '附件名';
+comment on column CONTRACT_FILE.dt_create
+  is '提交时间';
+
+create sequence S_SMUSERTOKEN;
+create table SMUSERTOKEN
+(
+  id          NUMBER not null,
+  vc_token    VARCHAR2(500),
+  vc_username VARCHAR2(500),
+  dt_add      DATE default sysdate
+)
+;
+comment on table SMUSERTOKEN
+  is '用户token表';
+comment on column SMUSERTOKEN.id
+  is 'ID';
+comment on column SMUSERTOKEN.vc_token
+  is '唯一编码';
+comment on column SMUSERTOKEN.vc_username
+  is '用户帐号';
+comment on column SMUSERTOKEN.dt_add
+  is '添加时间';
+alter table SMUSERTOKEN
+  add constraint PK_SMUSERTOKEN primary key (ID);
+
+prompt Disabling triggers for CONTRACT...
+alter table CONTRACT disable all triggers;
+prompt Disabling triggers for CONTRACTAUDITRECORD...
+alter table CONTRACTAUDITRECORD disable all triggers;
+prompt Disabling triggers for CONTRACTTYPE_B...
+alter table CONTRACTTYPE_B disable all triggers;
+prompt Disabling triggers for CONTRACTTYPE_POSITION_RE...
+alter table CONTRACTTYPE_POSITION_RE disable all triggers;
+prompt Disabling triggers for CONTRACT_APPROVAL...
+alter table CONTRACT_APPROVAL disable all triggers;
+prompt Disabling triggers for CONTRACT_FILE...
+alter table CONTRACT_FILE disable all triggers;
+prompt Disabling triggers for SMUSERTOKEN...
+alter table SMUSERTOKEN disable all triggers;
+prompt Deleting SMUSERTOKEN...
+delete from SMUSERTOKEN;
+commit;
+prompt Deleting CONTRACT_FILE...
+delete from CONTRACT_FILE;
+commit;
+prompt Deleting CONTRACT_APPROVAL...
+delete from CONTRACT_APPROVAL;
+commit;
+prompt Deleting CONTRACTTYPE_POSITION_RE...
+delete from CONTRACTTYPE_POSITION_RE;
+commit;
+prompt Deleting CONTRACTTYPE_B...
+delete from CONTRACTTYPE_B;
+commit;
+prompt Deleting CONTRACTAUDITRECORD...
+delete from CONTRACTAUDITRECORD;
+commit;
+prompt Deleting CONTRACT...
+delete from CONTRACT;
+commit;
+insert into CONTRACTTYPE_B (id, i_pid, vc_type, vc_typeno)
+values (1, 0, '收入合同', 'pincome');
+insert into CONTRACTTYPE_B (id, i_pid, vc_type, vc_typeno)
+values (2, 0, '运力采购合同', 'ptransport');
+insert into CONTRACTTYPE_B (id, i_pid, vc_type, vc_typeno)
+values (7, 0, '其他类合同', 'pother');
+insert into CONTRACTTYPE_B (id, i_pid, vc_type, vc_typeno)
+values (6, 0, '项目采购合同', 'ppurchase');
+insert into CONTRACTTYPE_B (id, i_pid, vc_type, vc_typeno)
+values (5, 0, '场地租赁合同', 'prent');
+insert into CONTRACTTYPE_B (id, i_pid, vc_type, vc_typeno)
+values (4, 0, '固定资产采购合同', 'passet');
+insert into CONTRACTTYPE_B (id, i_pid, vc_type, vc_typeno)
+values (3, 0, '零部件采购合同', 'pparts');
+insert into CONTRACTTYPE_B (id, i_pid, vc_type, vc_typeno)
+values (8, 1, '整车收入合同', 'scarload');
+insert into CONTRACTTYPE_B (id, i_pid, vc_type, vc_typeno)
+values (12, 4, '汽车类采购合同', 'scar');
+insert into CONTRACTTYPE_B (id, i_pid, vc_type, vc_typeno)
+values (10, 2, '长期运力采购合同', 'slong');
+insert into CONTRACTTYPE_B (id, i_pid, vc_type, vc_typeno)
+values (9, 1, '零部件收入合同', 'spartincome');
+insert into CONTRACTTYPE_B (id, i_pid, vc_type, vc_typeno)
+values (13, 4, '物流器具设备采购合同', 'sequipment');
+insert into CONTRACTTYPE_B (id, i_pid, vc_type, vc_typeno)
+values (16, 5, '房屋租赁合同', 'shouse');
+insert into CONTRACTTYPE_B (id, i_pid, vc_type, vc_typeno)
+values (15, 5, '土地租赁合同', 'sland');
+insert into CONTRACTTYPE_B (id, i_pid, vc_type, vc_typeno)
+values (14, 4, '办公设备采购合同', 'soffical');
+insert into CONTRACTTYPE_B (id, i_pid, vc_type, vc_typeno)
+values (17, 3, '零部件采购合同', 'spartbuy');
+insert into CONTRACTTYPE_B (id, i_pid, vc_type, vc_typeno)
+values (18, 6, '以项目向下采购合同', 'sproperty');
+insert into CONTRACTTYPE_B (id, i_pid, vc_type, vc_typeno)
+values (19, 7, '其他类合同', 'sother');
+commit;
+prompt 18 records loaded
+prompt Loading CONTRACTTYPE_POSITION_RE...
+insert into CONTRACTTYPE_POSITION_RE (lineid, contracttypeid, positionid)
+values (1, 8, 11);
+insert into CONTRACTTYPE_POSITION_RE (lineid, contracttypeid, positionid)
+values (2, 8, 516);
+insert into CONTRACTTYPE_POSITION_RE (lineid, contracttypeid, positionid)
+values (3, 8, 10);
+insert into CONTRACTTYPE_POSITION_RE (lineid, contracttypeid, positionid)
+values (4, 8, 26);
+insert into CONTRACTTYPE_POSITION_RE (lineid, contracttypeid, positionid)
+values (5, 8, 1);
+insert into CONTRACTTYPE_POSITION_RE (lineid, contracttypeid, positionid)
+values (6, 9, 11);
+insert into CONTRACTTYPE_POSITION_RE (lineid, contracttypeid, positionid)
+values (7, 9, 516);
+insert into CONTRACTTYPE_POSITION_RE (lineid, contracttypeid, positionid)
+values (8, 9, 10);
+insert into CONTRACTTYPE_POSITION_RE (lineid, contracttypeid, positionid)
+values (9, 9, 26);
+insert into CONTRACTTYPE_POSITION_RE (lineid, contracttypeid, positionid)
+values (10, 9, 1);
+insert into CONTRACTTYPE_POSITION_RE (lineid, contracttypeid, positionid)
+values (11, 3, 11);
+insert into CONTRACTTYPE_POSITION_RE (lineid, contracttypeid, positionid)
+values (12, 3, 516);
+insert into CONTRACTTYPE_POSITION_RE (lineid, contracttypeid, positionid)
+values (13, 3, 10);
+insert into CONTRACTTYPE_POSITION_RE (lineid, contracttypeid, positionid)
+values (14, 3, 26);
+insert into CONTRACTTYPE_POSITION_RE (lineid, contracttypeid, positionid)
+values (15, 3, 1);
+commit;
+
+prompt Enabling triggers for CONTRACT...
+alter table CONTRACT enable all triggers;
+prompt Enabling triggers for CONTRACTAUDITRECORD...
+alter table CONTRACTAUDITRECORD enable all triggers;
+prompt Enabling triggers for CONTRACTTYPE_B...
+alter table CONTRACTTYPE_B enable all triggers;
+prompt Enabling triggers for CONTRACTTYPE_POSITION_RE...
+alter table CONTRACTTYPE_POSITION_RE enable all triggers;
+prompt Enabling triggers for CONTRACT_APPROVAL...
+alter table CONTRACT_APPROVAL enable all triggers;
+prompt Enabling triggers for CONTRACT_FILE...
+alter table CONTRACT_FILE enable all triggers;
+prompt Enabling triggers for SMUSERTOKEN...
+alter table SMUSERTOKEN enable all triggers;
+set feedback on
+set define on
+prompt Done.
+
+
+--工作流23张表
+
+create table ACT_HI_PROCINST (
+    ID_ NVARCHAR2(64) not null,
+    PROC_INST_ID_ NVARCHAR2(64) not null,
+    BUSINESS_KEY_ NVARCHAR2(255),
+    PROC_DEF_ID_ NVARCHAR2(64) not null,
+    START_TIME_ TIMESTAMP(6) not null,
+    END_TIME_ TIMESTAMP(6),
+    DURATION_ NUMBER(19,0),
+    START_USER_ID_ NVARCHAR2(255),
+    START_ACT_ID_ NVARCHAR2(255),
+    END_ACT_ID_ NVARCHAR2(255),
+    SUPER_PROCESS_INSTANCE_ID_ NVARCHAR2(64),
+    DELETE_REASON_ NVARCHAR2(2000),
+    primary key (ID_),
+    unique (PROC_INST_ID_)
+);
+
+create table ACT_HI_ACTINST (
+    ID_ NVARCHAR2(64) not null,
+    PROC_DEF_ID_ NVARCHAR2(64) not null,
+    PROC_INST_ID_ NVARCHAR2(64) not null,
+    EXECUTION_ID_ NVARCHAR2(64) not null,
+    ACT_ID_ NVARCHAR2(255) not null,
+    TASK_ID_ NVARCHAR2(64),
+    CALL_PROC_INST_ID_ NVARCHAR2(64),
+    ACT_NAME_ NVARCHAR2(255),
+    ACT_TYPE_ NVARCHAR2(255) not null,
+    ASSIGNEE_ NVARCHAR2(64),
+    START_TIME_ TIMESTAMP(6) not null,
+    END_TIME_ TIMESTAMP(6),
+    DURATION_ NUMBER(19,0),
+    primary key (ID_)
+);
+
+create table ACT_HI_TASKINST (
+    ID_ NVARCHAR2(64) not null,
+    PROC_DEF_ID_ NVARCHAR2(64),
+    TASK_DEF_KEY_ NVARCHAR2(255),
+    PROC_INST_ID_ NVARCHAR2(64),
+    EXECUTION_ID_ NVARCHAR2(64),
+    PARENT_TASK_ID_ NVARCHAR2(64),
+    NAME_ NVARCHAR2(255),
+    DESCRIPTION_ NVARCHAR2(2000),
+    OWNER_ NVARCHAR2(255),
+    ASSIGNEE_ NVARCHAR2(255),
+    START_TIME_ TIMESTAMP(6) not null,
+    CLAIM_TIME_ TIMESTAMP(6),
+    END_TIME_ TIMESTAMP(6),
+    DURATION_ NUMBER(19,0),
+    DELETE_REASON_ NVARCHAR2(2000),
+    PRIORITY_ INTEGER,
+    DUE_DATE_ TIMESTAMP(6),
+    FORM_KEY_ NVARCHAR2(255),
+    primary key (ID_)
+);
+
+create table ACT_HI_VARINST (
+    ID_ NVARCHAR2(64) not null,
+    PROC_INST_ID_ NVARCHAR2(64),
+    EXECUTION_ID_ NVARCHAR2(64),
+    TASK_ID_ NVARCHAR2(64),
+    NAME_ NVARCHAR2(255) not null,
+    VAR_TYPE_ NVARCHAR2(100),
+    REV_ INTEGER,
+    BYTEARRAY_ID_ NVARCHAR2(64),
+    DOUBLE_ NUMBER(*,10),
+    LONG_ NUMBER(19,0),
+    TEXT_ NVARCHAR2(2000),
+    TEXT2_ NVARCHAR2(2000),
+    primary key (ID_)
+);
+
+create table ACT_HI_DETAIL (
+    ID_ NVARCHAR2(64) not null,
+    TYPE_ NVARCHAR2(255) not null,
+    PROC_INST_ID_ NVARCHAR2(64),
+    EXECUTION_ID_ NVARCHAR2(64),
+    TASK_ID_ NVARCHAR2(64),
+    ACT_INST_ID_ NVARCHAR2(64),
+    NAME_ NVARCHAR2(255) not null,
+    VAR_TYPE_ NVARCHAR2(64),
+    REV_ INTEGER,
+    TIME_ TIMESTAMP(6) not null,
+    BYTEARRAY_ID_ NVARCHAR2(64),
+    DOUBLE_ NUMBER(*,10),
+    LONG_ NUMBER(19,0),
+    TEXT_ NVARCHAR2(2000),
+    TEXT2_ NVARCHAR2(2000),
+    primary key (ID_)
+);
+
+create table ACT_HI_COMMENT (
+    ID_ NVARCHAR2(64) not null,
+    TYPE_ NVARCHAR2(255),
+    TIME_ TIMESTAMP(6) not null,
+    USER_ID_ NVARCHAR2(255),
+    TASK_ID_ NVARCHAR2(64),
+    PROC_INST_ID_ NVARCHAR2(64),
+    ACTION_ NVARCHAR2(255),
+    MESSAGE_ NVARCHAR2(2000),
+    FULL_MSG_ BLOB,
+    primary key (ID_)
+);
+
+create table ACT_HI_ATTACHMENT (
+    ID_ NVARCHAR2(64) not null,
+    REV_ INTEGER,
+    USER_ID_ NVARCHAR2(255),
+    NAME_ NVARCHAR2(255),
+    DESCRIPTION_ NVARCHAR2(2000),
+    TYPE_ NVARCHAR2(255),
+    TASK_ID_ NVARCHAR2(64),
+    PROC_INST_ID_ NVARCHAR2(64),
+    URL_ NVARCHAR2(2000),
+    CONTENT_ID_ NVARCHAR2(64),
+    primary key (ID_)
+);
+
+create table ACT_HI_IDENTITYLINK (
+    ID_ NVARCHAR2(64),
+    GROUP_ID_ NVARCHAR2(255),
+    TYPE_ NVARCHAR2(255),
+    USER_ID_ NVARCHAR2(255),
+    TASK_ID_ NVARCHAR2(64),
+    PROC_INST_ID_ NVARCHAR2(64),
+    primary key (ID_)
+);
+
+create index ACT_IDX_HI_PRO_INST_END on ACT_HI_PROCINST(END_TIME_);
+create index ACT_IDX_HI_PRO_I_BUSKEY on ACT_HI_PROCINST(BUSINESS_KEY_);
+create index ACT_IDX_HI_ACT_INST_START on ACT_HI_ACTINST(START_TIME_);
+create index ACT_IDX_HI_ACT_INST_END on ACT_HI_ACTINST(END_TIME_);
+create index ACT_IDX_HI_DETAIL_PROC_INST on ACT_HI_DETAIL(PROC_INST_ID_);
+create index ACT_IDX_HI_DETAIL_ACT_INST on ACT_HI_DETAIL(ACT_INST_ID_);
+create index ACT_IDX_HI_DETAIL_TIME on ACT_HI_DETAIL(TIME_);
+create index ACT_IDX_HI_DETAIL_NAME on ACT_HI_DETAIL(NAME_);
+create index ACT_IDX_HI_DETAIL_TASK_ID on ACT_HI_DETAIL(TASK_ID_);
+create index ACT_IDX_HI_PROCVAR_PROC_INST on ACT_HI_VARINST(PROC_INST_ID_);
+create index ACT_IDX_HI_PROCVAR_NAME_TYPE on ACT_HI_VARINST(NAME_, VAR_TYPE_);
+create index ACT_IDX_HI_IDENT_LNK_USER on ACT_HI_IDENTITYLINK(USER_ID_);
+create index ACT_IDX_HI_IDENT_LNK_TASK on ACT_HI_IDENTITYLINK(TASK_ID_);
+create index ACT_IDX_HI_IDENT_LNK_PROCINST on ACT_HI_IDENTITYLINK(PROC_INST_ID_);
+
+-- see http://stackoverflow.com/questions/675398/how-can-i-constrain-multiple-columns-to-prevent-duplicates-but-ignore-null-value
+create unique index ACT_UNIQ_HI_BUS_KEY on ACT_HI_PROCINST
+   (case when BUSINESS_KEY_ is null then null else PROC_DEF_ID_ end,
+    case when BUSINESS_KEY_ is null then null else BUSINESS_KEY_ end);
+
+create index ACT_IDX_HI_ACT_INST_PROCINST on ACT_HI_ACTINST(PROC_INST_ID_, ACT_ID_);
+create index ACT_IDX_HI_ACT_INST_EXEC on ACT_HI_ACTINST(EXECUTION_ID_, ACT_ID_);
+
+
+create table ACT_ID_GROUP (
+    ID_ NVARCHAR2(64),
+    REV_ INTEGER,
+    NAME_ NVARCHAR2(255),
+    TYPE_ NVARCHAR2(255),
+    primary key (ID_)
+);
+
+create table ACT_ID_MEMBERSHIP (
+    USER_ID_ NVARCHAR2(64),
+    GROUP_ID_ NVARCHAR2(64),
+    primary key (USER_ID_, GROUP_ID_)
+);
+
+create table ACT_ID_USER (
+    ID_ NVARCHAR2(64),
+    REV_ INTEGER,
+    FIRST_ NVARCHAR2(255),
+    LAST_ NVARCHAR2(255),
+    EMAIL_ NVARCHAR2(255),
+    PWD_ NVARCHAR2(255),
+    PICTURE_ID_ NVARCHAR2(64),
+    primary key (ID_)
+);
+
+create table ACT_ID_INFO (
+    ID_ NVARCHAR2(64),
+    REV_ INTEGER,
+    USER_ID_ NVARCHAR2(64),
+    TYPE_ NVARCHAR2(64),
+    KEY_ NVARCHAR2(255),
+    VALUE_ NVARCHAR2(255),
+    PASSWORD_ BLOB,
+    PARENT_ID_ NVARCHAR2(255),
+    primary key (ID_)
+);
+
+create index ACT_IDX_MEMB_GROUP on ACT_ID_MEMBERSHIP(GROUP_ID_);
+alter table ACT_ID_MEMBERSHIP 
+    add constraint ACT_FK_MEMB_GROUP 
+    foreign key (GROUP_ID_) 
+    references ACT_ID_GROUP (ID_);
+
+create index ACT_IDX_MEMB_USER on ACT_ID_MEMBERSHIP(USER_ID_);
+alter table ACT_ID_MEMBERSHIP 
+    add constraint ACT_FK_MEMB_USER
+    foreign key (USER_ID_) 
+    references ACT_ID_USER (ID_);
+
+
+
+create table ACT_GE_PROPERTY (
+    NAME_ NVARCHAR2(64),
+    VALUE_ NVARCHAR2(300),
+    REV_ INTEGER,
+    primary key (NAME_)
+);
+
+insert into ACT_GE_PROPERTY
+values ('schema.version', '5.13', 1);
+
+insert into ACT_GE_PROPERTY
+values ('schema.history', 'create(5.13)', 1);
+
+insert into ACT_GE_PROPERTY
+values ('next.dbid', '1', 1);
+
+create table ACT_GE_BYTEARRAY (
+    ID_ NVARCHAR2(64),
+    REV_ INTEGER,
+    NAME_ NVARCHAR2(255),
+    DEPLOYMENT_ID_ NVARCHAR2(64),
+    BYTES_ BLOB,
+    GENERATED_ NUMBER(1,0) CHECK (GENERATED_ IN (1,0)),
+    primary key (ID_)
+);
+
+create table ACT_RE_DEPLOYMENT (
+    ID_ NVARCHAR2(64),
+    NAME_ NVARCHAR2(255),
+    CATEGORY_ NVARCHAR2(255),
+    DEPLOY_TIME_ TIMESTAMP(6),
+    primary key (ID_)
+);
+
+create table ACT_RE_MODEL (
+    ID_ NVARCHAR2(64) not null,
+    REV_ INTEGER,
+    NAME_ NVARCHAR2(255),
+    KEY_ NVARCHAR2(255),
+    CATEGORY_ NVARCHAR2(255),
+    CREATE_TIME_ TIMESTAMP(6),
+    LAST_UPDATE_TIME_ TIMESTAMP(6),
+    VERSION_ INTEGER,
+    META_INFO_ NVARCHAR2(2000),
+    DEPLOYMENT_ID_ NVARCHAR2(64),
+    EDITOR_SOURCE_VALUE_ID_ NVARCHAR2(64),
+    EDITOR_SOURCE_EXTRA_VALUE_ID_ NVARCHAR2(64),
+    primary key (ID_)
+);
+
+create table ACT_RU_EXECUTION (
+    ID_ NVARCHAR2(64),
+    REV_ INTEGER,
+    PROC_INST_ID_ NVARCHAR2(64),
+    BUSINESS_KEY_ NVARCHAR2(255),
+    PARENT_ID_ NVARCHAR2(64),
+    PROC_DEF_ID_ NVARCHAR2(64),
+    SUPER_EXEC_ NVARCHAR2(64),
+    ACT_ID_ NVARCHAR2(255),
+    IS_ACTIVE_ NUMBER(1,0) CHECK (IS_ACTIVE_ IN (1,0)),
+    IS_CONCURRENT_ NUMBER(1,0) CHECK (IS_CONCURRENT_ IN (1,0)),
+    IS_SCOPE_ NUMBER(1,0) CHECK (IS_SCOPE_ IN (1,0)),
+    IS_EVENT_SCOPE_ NUMBER(1,0) CHECK (IS_EVENT_SCOPE_ IN (1,0)),
+    SUSPENSION_STATE_ INTEGER,
+    CACHED_ENT_STATE_ INTEGER,
+    primary key (ID_)
+);
+
+create table ACT_RU_JOB (
+    ID_ NVARCHAR2(64) NOT NULL,
+    REV_ INTEGER,
+    TYPE_ NVARCHAR2(255) NOT NULL,
+    LOCK_EXP_TIME_ TIMESTAMP(6),
+    LOCK_OWNER_ NVARCHAR2(255),
+    EXCLUSIVE_ NUMBER(1,0) CHECK (EXCLUSIVE_ IN (1,0)),
+    EXECUTION_ID_ NVARCHAR2(64),
+    PROCESS_INSTANCE_ID_ NVARCHAR2(64),
+    PROC_DEF_ID_ NVARCHAR2(64),
+    RETRIES_ INTEGER,
+    EXCEPTION_STACK_ID_ NVARCHAR2(64),
+    EXCEPTION_MSG_ NVARCHAR2(2000),
+    DUEDATE_ TIMESTAMP(6),
+    REPEAT_ NVARCHAR2(255),
+    HANDLER_TYPE_ NVARCHAR2(255),
+    HANDLER_CFG_ NVARCHAR2(2000),
+    primary key (ID_)
+);
+
+create table ACT_RE_PROCDEF (
+    ID_ NVARCHAR2(64) NOT NULL,
+    REV_ INTEGER,
+    CATEGORY_ NVARCHAR2(255),
+    NAME_ NVARCHAR2(255),
+    KEY_ NVARCHAR2(255) NOT NULL,
+    VERSION_ INTEGER NOT NULL,
+    DEPLOYMENT_ID_ NVARCHAR2(64),
+    RESOURCE_NAME_ NVARCHAR2(2000),
+    DGRM_RESOURCE_NAME_ varchar(4000),
+    DESCRIPTION_ NVARCHAR2(2000),
+    HAS_START_FORM_KEY_ NUMBER(1,0) CHECK (HAS_START_FORM_KEY_ IN (1,0)),
+    SUSPENSION_STATE_ INTEGER,
+    primary key (ID_)
+);
+
+create table ACT_RU_TASK (
+    ID_ NVARCHAR2(64),
+    REV_ INTEGER,
+    EXECUTION_ID_ NVARCHAR2(64),
+    PROC_INST_ID_ NVARCHAR2(64),
+    PROC_DEF_ID_ NVARCHAR2(64),
+    NAME_ NVARCHAR2(255),
+    PARENT_TASK_ID_ NVARCHAR2(64),
+    DESCRIPTION_ NVARCHAR2(2000),
+    TASK_DEF_KEY_ NVARCHAR2(255),
+    OWNER_ NVARCHAR2(255),
+    ASSIGNEE_ NVARCHAR2(255),
+    DELEGATION_ NVARCHAR2(64),
+    PRIORITY_ INTEGER,
+    CREATE_TIME_ TIMESTAMP(6),
+    DUE_DATE_ TIMESTAMP(6),
+    SUSPENSION_STATE_ INTEGER,
+    primary key (ID_)
+);
+
+create table ACT_RU_IDENTITYLINK (
+    ID_ NVARCHAR2(64),
+    REV_ INTEGER,
+    GROUP_ID_ NVARCHAR2(255),
+    TYPE_ NVARCHAR2(255),
+    USER_ID_ NVARCHAR2(255),
+    TASK_ID_ NVARCHAR2(64),
+    PROC_INST_ID_ NVARCHAR2(64),
+    PROC_DEF_ID_ NVARCHAR2(64),
+    primary key (ID_)
+);
+
+create table ACT_RU_VARIABLE (
+    ID_ NVARCHAR2(64) not null,
+    REV_ INTEGER,
+    TYPE_ NVARCHAR2(255) not null,
+    NAME_ NVARCHAR2(255) not null,
+    EXECUTION_ID_ NVARCHAR2(64),
+    PROC_INST_ID_ NVARCHAR2(64),
+    TASK_ID_ NVARCHAR2(64),
+    BYTEARRAY_ID_ NVARCHAR2(64),
+    DOUBLE_ NUMBER(*,10),
+    LONG_ NUMBER(19,0),
+    TEXT_ NVARCHAR2(2000),
+    TEXT2_ NVARCHAR2(2000),
+    primary key (ID_)
+);
+
+create table ACT_RU_EVENT_SUBSCR (
+    ID_ NVARCHAR2(64) not null,
+    REV_ integer,
+    EVENT_TYPE_ NVARCHAR2(255) not null,
+    EVENT_NAME_ NVARCHAR2(255),
+    EXECUTION_ID_ NVARCHAR2(64),
+    PROC_INST_ID_ NVARCHAR2(64),
+    ACTIVITY_ID_ NVARCHAR2(64),
+    CONFIGURATION_ NVARCHAR2(255),
+    CREATED_ TIMESTAMP(6) not null,
+    primary key (ID_)
+);
+
+create index ACT_IDX_EXEC_BUSKEY on ACT_RU_EXECUTION(BUSINESS_KEY_);
+create index ACT_IDX_TASK_CREATE on ACT_RU_TASK(CREATE_TIME_);
+create index ACT_IDX_IDENT_LNK_USER on ACT_RU_IDENTITYLINK(USER_ID_);
+create index ACT_IDX_IDENT_LNK_GROUP on ACT_RU_IDENTITYLINK(GROUP_ID_);
+create index ACT_IDX_EVENT_SUBSCR_CONFIG_ on ACT_RU_EVENT_SUBSCR(CONFIGURATION_);
+create index ACT_IDX_VARIABLE_TASK_ID on ACT_RU_VARIABLE(TASK_ID_);
+
+create index ACT_IDX_BYTEAR_DEPL on ACT_GE_BYTEARRAY(DEPLOYMENT_ID_);
+alter table ACT_GE_BYTEARRAY
+    add constraint ACT_FK_BYTEARR_DEPL
+    foreign key (DEPLOYMENT_ID_) 
+    references ACT_RE_DEPLOYMENT (ID_);
+
+alter table ACT_RE_PROCDEF
+    add constraint ACT_UNIQ_PROCDEF
+    unique (KEY_,VERSION_);
+    
+create index ACT_IDX_EXE_PROCINST on ACT_RU_EXECUTION(PROC_INST_ID_);
+alter table ACT_RU_EXECUTION
+    add constraint ACT_FK_EXE_PROCINST
+    foreign key (PROC_INST_ID_) 
+    references ACT_RU_EXECUTION (ID_);
+
+create index ACT_IDX_EXE_PARENT on ACT_RU_EXECUTION(PARENT_ID_);
+alter table ACT_RU_EXECUTION
+    add constraint ACT_FK_EXE_PARENT
+    foreign key (PARENT_ID_) 
+    references ACT_RU_EXECUTION (ID_);
+    
+create index ACT_IDX_EXE_SUPER on ACT_RU_EXECUTION(SUPER_EXEC_);
+alter table ACT_RU_EXECUTION
+    add constraint ACT_FK_EXE_SUPER
+    foreign key (SUPER_EXEC_) 
+    references ACT_RU_EXECUTION (ID_);
+    
+create index ACT_IDX_EXE_PROCDEF on ACT_RU_EXECUTION(PROC_DEF_ID_);
+alter table ACT_RU_EXECUTION
+    add constraint ACT_FK_EXE_PROCDEF 
+    foreign key (PROC_DEF_ID_) 
+    references ACT_RE_PROCDEF (ID_);    
+
+create index ACT_IDX_TSKASS_TASK on ACT_RU_IDENTITYLINK(TASK_ID_);
+alter table ACT_RU_IDENTITYLINK
+    add constraint ACT_FK_TSKASS_TASK
+    foreign key (TASK_ID_) 
+    references ACT_RU_TASK (ID_);
+
+create index ACT_IDX_ATHRZ_PROCEDEF  on ACT_RU_IDENTITYLINK(PROC_DEF_ID_);
+alter table ACT_RU_IDENTITYLINK
+    add constraint ACT_FK_ATHRZ_PROCEDEF
+    foreign key (PROC_DEF_ID_) 
+    references ACT_RE_PROCDEF (ID_);
+    
+create index ACT_IDX_IDL_PROCINST on ACT_RU_IDENTITYLINK(PROC_INST_ID_);
+alter table ACT_RU_IDENTITYLINK
+    add constraint ACT_FK_IDL_PROCINST
+    foreign key (PROC_INST_ID_) 
+    references ACT_RU_EXECUTION (ID_);    
+
+create index ACT_IDX_TASK_EXEC on ACT_RU_TASK(EXECUTION_ID_);
+alter table ACT_RU_TASK
+    add constraint ACT_FK_TASK_EXE
+    foreign key (EXECUTION_ID_)
+    references ACT_RU_EXECUTION (ID_);
+    
+create index ACT_IDX_TASK_PROCINST on ACT_RU_TASK(PROC_INST_ID_);
+alter table ACT_RU_TASK
+    add constraint ACT_FK_TASK_PROCINST
+    foreign key (PROC_INST_ID_)
+    references ACT_RU_EXECUTION (ID_);
+    
+create index ACT_IDX_TASK_PROCDEF on ACT_RU_TASK(PROC_DEF_ID_);
+alter table ACT_RU_TASK
+  add constraint ACT_FK_TASK_PROCDEF
+  foreign key (PROC_DEF_ID_)
+  references ACT_RE_PROCDEF (ID_);
+  
+create index ACT_IDX_VAR_EXE on ACT_RU_VARIABLE(EXECUTION_ID_);
+alter table ACT_RU_VARIABLE 
+    add constraint ACT_FK_VAR_EXE
+    foreign key (EXECUTION_ID_) 
+    references ACT_RU_EXECUTION (ID_);
+
+create index ACT_IDX_VAR_PROCINST on ACT_RU_VARIABLE(PROC_INST_ID_);
+alter table ACT_RU_VARIABLE
+    add constraint ACT_FK_VAR_PROCINST
+    foreign key (PROC_INST_ID_)
+    references ACT_RU_EXECUTION(ID_);
+
+create index ACT_IDX_VAR_BYTEARRAY on ACT_RU_VARIABLE(BYTEARRAY_ID_);
+alter table ACT_RU_VARIABLE 
+    add constraint ACT_FK_VAR_BYTEARRAY 
+    foreign key (BYTEARRAY_ID_) 
+    references ACT_GE_BYTEARRAY (ID_);
+
+create index ACT_IDX_JOB_EXCEPTION on ACT_RU_JOB(EXCEPTION_STACK_ID_);
+alter table ACT_RU_JOB 
+    add constraint ACT_FK_JOB_EXCEPTION
+    foreign key (EXCEPTION_STACK_ID_) 
+    references ACT_GE_BYTEARRAY (ID_);
+    
+create index ACT_IDX_EVENT_SUBSCR on ACT_RU_EVENT_SUBSCR(EXECUTION_ID_);
+alter table ACT_RU_EVENT_SUBSCR
+    add constraint ACT_FK_EVENT_EXEC
+    foreign key (EXECUTION_ID_)
+    references ACT_RU_EXECUTION(ID_);
+
+create index ACT_IDX_MODEL_SOURCE on ACT_RE_MODEL(EDITOR_SOURCE_VALUE_ID_);
+alter table ACT_RE_MODEL 
+    add constraint ACT_FK_MODEL_SOURCE 
+    foreign key (EDITOR_SOURCE_VALUE_ID_) 
+    references ACT_GE_BYTEARRAY (ID_);
+
+create index ACT_IDX_MODEL_SOURCE_EXTRA on ACT_RE_MODEL(EDITOR_SOURCE_EXTRA_VALUE_ID_);
+alter table ACT_RE_MODEL 
+    add constraint ACT_FK_MODEL_SOURCE_EXTRA 
+    foreign key (EDITOR_SOURCE_EXTRA_VALUE_ID_) 
+    references ACT_GE_BYTEARRAY (ID_);
+    
+create index ACT_IDX_MODEL_DEPLOYMENT on ACT_RE_MODEL(DEPLOYMENT_ID_);    
+alter table ACT_RE_MODEL 
+    add constraint ACT_FK_MODEL_DEPLOYMENT 
+    foreign key (DEPLOYMENT_ID_) 
+    references ACT_RE_DEPLOYMENT (ID_);        
+    
+-- see http://stackoverflow.com/questions/675398/how-can-i-constrain-multiple-columns-to-prevent-duplicates-but-ignore-null-value
+create unique index ACT_UNIQ_RU_BUS_KEY on ACT_RU_EXECUTION
+   (case when BUSINESS_KEY_ is null then null else PROC_DEF_ID_ end,
+    case when BUSINESS_KEY_ is null then null else BUSINESS_KEY_ end);
+
+

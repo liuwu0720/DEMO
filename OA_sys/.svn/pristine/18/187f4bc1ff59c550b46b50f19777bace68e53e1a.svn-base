@@ -1,0 +1,535 @@
+<%@ page language="java" import="java.util.*" pageEncoding="utf-8"%>
+<%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%
+	String path = request.getContextPath();
+	String basePath = request.getScheme() + "://"
+			+ request.getServerName() + ":" + request.getServerPort()
+			+ path + "/";
+%>
+
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8" />
+<base href="<%=basePath%>">
+
+<title>My JSP 'costfeeAdd.jsp' starting page</title>
+
+<meta http-equiv="pragma" content="no-cache">
+<meta http-equiv="cache-control" content="no-cache">
+<meta http-equiv="expires" content="0">
+<meta http-equiv="keywords" content="keyword1,keyword2,keyword3">
+<meta http-equiv="description" content="This is my page">
+<!--
+	<link rel="stylesheet" type="text/css" href="styles.css">
+	-->
+<link rel="stylesheet" type="text/css" href="<%=basePath%>css/style.css" />
+<style type="text/css">
+#tab {
+	border: 1px solid black;
+	border-collapse: collapse;
+	margin: 0 auto;
+	width: 60%;
+}
+
+#tab  td {
+	border: 1px solid black;
+	height: 30px;
+	padding: 5px;
+	margin: 0;
+	text-align: left;
+}
+</style>
+<script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="<%=path%>/ckeditor/ckeditor.js"></script>
+<script type="text/javascript"
+	src="<%=path%>/My97DatePicker/WdatePicker.js"></script>
+<script type="text/javascript">
+var temp ,temp1,phonetemp;
+		$(document).ready(function(){
+			
+			temp = "<tr>"+$("#travel_tr2").clone().html()+"</tr>";
+			temp1= "<tr>"+$("#traffic_tr2").clone().html()+"</tr>";
+			phonetemp = "<tr>"+$("#phone_tr2").clone().html()+"</tr>";
+			//获取费用类型列表
+			$('#sel1').change(function(){
+				var typeId=$('#sel1 option:selected').val();
+				//alert("typeId="+typeId);
+				$.post('<%=basePath%>feeController/getTypes',
+															{
+																pId : typeId
+															},
+															function(types) {
+																$('#sel2')
+																		.empty();
+																for (var i = 0; i < types.length; i++) {
+																	var option = '<option value="'+types[i].id+'">'
+																			+ types[i].vcName
+																			+ '</option>'
+																	$('#sel2')
+																			.append(
+																					option);
+																}
+																$("#other")
+																		.siblings()
+																		.hide();
+																$("#other")
+																.siblings()
+																.find(
+																		"input,select")
+																.each(
+																		function() {
+																			$(
+																					this)
+																					.attr(
+																							"disabled",
+																							"disabled");
+																		});
+																$("#other")
+																		.show();
+																$("#tab").css("width","60%");
+																if ($(
+																		'#sel2 option:selected')
+																		.text() == '差旅费') {
+																	$("#travel")
+																			.siblings()
+																			.hide();
+																	$("#travel")
+																			.siblings()
+																			.find(
+																					"input,select")
+																			.each(
+																					function() {
+																						$(
+																								this)
+																								.attr(
+																										"disabled",
+																										"disabled");
+																					});
+
+																	$("#travel")
+																			.find(
+																					"input,select")
+																			.removeAttr(
+																					"disabled");
+																	$("#travel")
+																			.show();
+																}
+																if ($(
+																		'#sel2 option:selected')
+																		.text() == '交通费') {
+																	$(
+																			"#traffic")
+																			.siblings()
+																			.hide();
+																	$(
+																			"#traffic")
+																			.siblings()
+																			.find(
+																					"input,select")
+																			.each(
+																					function() {
+																						$(
+																								this)
+																								.attr(
+																										"disabled",
+																										"disabled");
+																					});
+																	$(
+																			"#traffic")
+																			.find(
+																					"input,select")
+																			.removeAttr(
+																					"disabled");
+																	$(
+																			"#traffic")
+																			.show();
+																}
+																if ($('#sel2 option:selected')
+																		.text() == '移动通讯费') {
+																	$("#phone")
+																			.siblings()
+																			.hide();
+																	$("#phone")
+																			.siblings()
+																			.find(
+																					"input,select")
+																			.each(
+																					function() {
+																						$(
+																								this)
+																								.attr(
+																										"disabled",
+																										"disabled");
+																					});
+																	$("#phone")
+																			.find(
+																					"input,select")
+																			.removeAttr(
+																					"disabled");
+																	$("#phone")
+																			.show();
+																}
+															}, 'json');
+
+										})
+
+						//费用类型切换
+						$("#sel2")
+								.change(
+										function() {
+											$("#other").siblings().hide();
+											$("#other")
+											.siblings()
+											.find(
+													"input,select")
+											.each(
+													function() {
+														$(this)
+																.attr(
+																		"disabled",
+																		"disabled");
+													});
+											$("#other").show();
+											if ($('#sel2 option:selected')
+													.text() == '差旅费') {
+												$("#travel").siblings().hide();
+												$("#travel")
+														.siblings()
+														.find("input,select")
+														.each(
+																function() {
+																	$(this)
+																			.attr(
+																					"disabled",
+																					"disabled");
+																});
+												$("#travel").find(
+														"input,select")
+														.removeAttr("disabled");
+												$("#travel").show();
+											}
+											if ($('#sel2 option:selected')
+													.text() == '交通费') {
+												$("#traffic").siblings().hide();
+												$("#traffic")
+														.siblings()
+														.find("input,select")
+														.each(
+																function() {
+																	$(this)
+																			.attr(
+																					"disabled",
+																					"disabled");
+																});
+												$("#traffic").find(
+														"input,select")
+														.removeAttr("disabled");
+												$("#traffic").show();
+											}
+											if ($('#sel2 option:selected')
+													.text() == '移动通讯费') {
+												$("#phone").siblings().hide();
+												$("#phone")
+														.siblings()
+														.find("input,select")
+														.each(
+																function() {
+																	$(this)
+																			.attr(
+																					"disabled",
+																					"disabled");
+																});
+												$("#phone")
+														.find("input,select")
+														.removeAttr("disabled");
+												$("#phone").show();
+											}
+
+										})
+
+					});
+	//提交表单
+	function submitForm(myform) {
+		 var pcostType = $('#sel1').val();
+		if (pcostType == 0) {
+			alert('请选择一级费用类别');
+			return false;
+		}
+		var iCosttype = $('#sel2').val();
+		if (iCosttype == 0) {
+			alert('请选择二级费用类别');
+			return false;
+		}
+		var nCost = $('#nCost').val();
+		var regex = /^[0-9]+.?[0-9]*$/;
+		//alert('regex:'+regex.test(nCost));
+		if (!regex.test(nCost)) {
+			alert('请填写一个数字');
+			$('#nCost').focus();
+			return false;
+		}
+		
+		/*  if(!regex.test(myform.nOtherlist.value){
+			alert('请填写一个数字');
+			return;
+		}   */
+		
+	     var value = $("#iCompanyId2 option:selected").text();
+		$("#vcCompany2").val(value);
+		
+		$('#myform').submit();
+	}
+	//差旅费添加按钮
+	var index = 0;
+	function addBtn(obj) {
+		index++;
+		//$(obj).parent().parent().clone(true).insertAfter($(obj).parent().parent());
+
+		var temp1 = temp.replace(/\[0]/g, '[' + index + ']');
+
+		$("#travel_tbody1").append(temp1);
+	}
+	//差旅费按钮删除
+	function delBtn(obj) {
+		if (index > 0) {
+			index--;
+		}
+
+		var len = $(obj).parent().parent().parent().children().length;
+		if (len > 2) {
+			var div = $(obj).parent().parent().parent().children().last();
+			//alert(div.html());
+			div.remove();
+		}
+	}
+
+	//交通费
+	var index1 = 0;
+	function addTrafficBtn(obj) {
+		index1++;
+		var temp2 = temp1.replace(/\[0]/g, '[' + index + ']');
+
+		$("#traffic_tbody1").append(temp2);
+	}
+	function delTrafficBtn(obj) {
+		if (index1 > 0) {
+			index1--;
+		}
+
+		var len = $(obj).parent().parent().parent().children().length;
+		if (len > 2) {
+			var div = $(obj).parent().parent().parent().children().last();
+			//alert(div.html());
+			div.remove();
+		}
+	}
+	//通讯费
+	var index2 = 0;
+	function addPhoneBtn(obj) {
+		index2++;
+		var temp2 = phonetemp.replace(/\[0]/g, '[' + index + ']');
+
+		$("#phone_tbody1").append(temp2);
+	}
+	function delPhoneBtn(obj) {
+		if (index2 > 0) {
+			index2--;
+		}
+
+		var len = $(obj).parent().parent().parent().children().length;
+		if (len > 2) {
+			var div = $(obj).parent().parent().parent().children().last();
+			div.remove();
+		}
+	}
+</script>
+</head>
+
+<body>
+	<div class="rightsider">
+
+		<div class="info_tabs clearfix">
+			<a class="hover">费用申请添加</a>
+		</div>
+		<dl class="notice clearfix">
+			<dd>费用申请资料</dd>
+		</dl>
+		<form action="<%=basePath%>feeController/save" method="post" onsubmit="return submitForm(this)" name="myform"
+			id="myform">
+			<table id="tab">
+				<tr>
+					<td colspan="4" style="text-align: center;">
+						<div style="float:left;margin: 5px 100px 0px 5px">
+							<img src="<%=basePath%>css/unlcn.png">
+						</div>
+						<div>
+							<span
+								style="font-family: 黑体;font-size: 20px;font-weight: bolder;float:left">中联物流（中国）有限公司<br />费用申请表
+							</span>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<td>费用类别</td>
+					<c:if test="${type=='add' }">
+						<td><select name="pcostType" id="sel1">
+								<c:if test="${pTypeId==null}">
+									<option value="0">--请选择--</option>
+									<option value="1">日常费用</option>
+									<option value="2">特有费用</option>
+								</c:if>
+								<c:if test="${pTypeId==1}">
+									<option value="0">--请选择--</option>
+									<option value="1" selected="selected">日常费用</option>
+									<option value="2">特有费用</option>
+								</c:if>
+								<c:if test="${pTypeId==2}">
+									<option value="0">--请选择--</option>
+									<option value="1">日常费用</option>
+									<option value="2" selected="selected">特有费用</option>
+								</c:if>
+						</select></td>
+						<td><select name="iCosttype" id="sel2">
+								<option value="0">--请选择--</option>
+								<c:forEach items="${typeList}" var="type">
+									<c:if test="${type.id==costApply.iCosttype}" var="isTrue">
+										<option value="${type.id}" selected="selected">${type.vcName}</option>
+									</c:if>
+									<c:if test="${!isTrue}">
+										<option value="${type.id}">${type.vcName}</option>
+									</c:if>
+								</c:forEach>
+						</select></td>
+					</c:if>
+					<c:if test="${type=='update' }">
+						<td colspan="2"><select name="iCosttype" id="sel2">
+								<c:forEach items="${typeList}" var="type">
+									<c:if test="${type.id==costApply.iCosttype}" var="isTrue">
+										<option value="${type.id}" selected="selected">${type.vcName}</option>
+									</c:if>
+
+								</c:forEach>
+						</select></td>
+					</c:if>
+				</tr>
+				<tr>
+					<td>费用金额</td>
+					<td><input type="text" id="nCost" name="nCost"
+						value="${costApply.nCost}" /></td>
+					<td></td>
+				</tr>
+				<tr>
+					<td>收款人银行帐号</td>
+					<td colspan="2"><input type="text" name="vcBank"
+						value="${costApply.vcBank }"></td>
+				</tr>
+				<tr>
+					<td>结算方式</td>
+					<td colspan="2"><select name="iPayType">
+							<c:forEach items="${payTypes}" var="type">
+								<c:if test="${type.id==costApply.iPayType}" var="isTrue">
+									<option value="${type.id}" selected="selected">${type.vcName}</option>
+								</c:if>
+								<c:if test="${!isTrue}">
+									<option value="${type.id}">${type.vcName}</option>
+								</c:if>
+							</c:forEach>
+					</select></td>
+				</tr>
+				<tr>
+					<td>收款人</td>
+					<td colspan="2"><c:if test="${costApply.vcAcceptMan==null }">
+							<input type="text" name="vcAcceptMan" value="${vcAcceptMan }">
+						</c:if> <c:if test="${costApply.vcAcceptMan != null }">
+							<input type="text" name="vcAcceptMan"
+								value="${costApply.vcAcceptMan }">
+						</c:if></td>
+
+				</tr>
+				<tr>
+					<td>费用承担公司</td>
+					<td colspan="2"><select name="iCompanyId2" id="iCompanyId2">
+							<c:forEach items="${takeFeeCompanies}" var="type">
+								<c:if test="${type.id==costApply.iCompanyId2}" var="isTrue">
+									<option value="${type.id}" selected="selected">${type.vcCompany}</option>
+								</c:if>
+								<c:if test="${!isTrue}">
+									<option value="${type.id}">${type.vcCompany}</option>
+								</c:if>
+							</c:forEach>
+					</select>
+					<input type="hidden" name="vcCompany2" id="vcCompany2">
+					</td>
+				</tr>
+				<tr>
+					<td>申请事由</td>
+					<td colspan="2">
+						<input type="text" name="vcReason" value="${costApply.vcReason }">
+					</td>
+				</tr>
+				<tr>
+					<td colspan="3" style="text-align: center;">明细</td>
+				</tr>
+				<tr>
+					<c:if test="${type=='add' }">
+						<td colspan="3" id="colspan">
+							<!-- 差旅费模板 -->
+							<div id="travel" style="display: none">
+								<%@ include file="travel_table.html"%>
+							</div> <!-- 交通费 模板-->
+							<div id="traffic" style="display: none">
+								<%@ include file="traffic_table.html"%>
+							</div> <!-- 通讯费模板 -->
+							<div id="phone" style="display: none">
+								<%@ include file="phone_table.html"%>
+							</div>
+							 <!-- 其它费用模板 -->
+							<div id="other">
+								<textarea rows="15" cols="100" name="vcNote"></textarea>
+							</div>
+						</td>
+					</c:if>
+					<c:if test="${type=='update' }">
+						<td colspan="3">
+							<!-- 差旅费模板 -->
+							<div id="travel2">
+								<c:choose>
+									<c:when test="${fn:length(travelfees.travelfees)>0}">
+										<%@ include file="travel_table.jsp"%>
+									</c:when>
+									<c:when test="${fn:length(feeTraffics.feeTraffics)>0}">
+										<%@ include file="traffic_table.jsp"%>
+									</c:when>
+									<c:when test="${fn:length(feeTels.feeTels)>0}">
+										<%@ include file="phone_table.jsp"%>
+									</c:when>
+									<c:otherwise>
+										<textarea rows="15" cols="100" name="vcNote">${costApply.vcNote }</textarea>
+									</c:otherwise>
+								</c:choose>
+							</div>
+						</td>
+					</c:if>
+				</tr>
+				<tr>
+					<td colspan="17" style="text-align: center;"><input
+						type="submit" value="提交" 
+						style="background:#ff6600;width: 100px;align:center" /></td>
+				</tr>
+
+			</table>
+			<input type="hidden" name="id" value="${costApply.id}" /> <input
+				type="hidden" name="iUser" value="${costApply.iUser}" /> <input
+				type="hidden" name="vcName" value="${costApply.vcName}" /> <input
+				type="hidden" name="dtapply" value="${costApply.dtApply}" /> <input
+				type="hidden" name="nEnable" value="${costApply.nEnable}" /> <input
+				type="hidden" name="nState" value="${costApply.nState}" /> <input
+				type="hidden" name="iDept" value="${costApply.iDept}" /> <input
+				type="hidden" name="vcApplyNo" value="${costApply.vcApplyNo}" />
+		</form>
+
+	</div>
+</body>
+</html>

@@ -1,0 +1,459 @@
+<%@ page language="java" import="java.util.*" pageEncoding="utf-8"%>
+<%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%
+	String path = request.getContextPath();
+	String basePath = request.getScheme() + "://"
+			+ request.getServerName() + ":" + request.getServerPort()
+			+ path + "/";
+%>
+
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8" />
+<base href="<%=basePath%>">
+
+<title>合同信息</title>
+
+<meta http-equiv="pragma" content="no-cache">
+<meta http-equiv="cache-control" content="no-cache">
+<meta http-equiv="expires" content="0">
+<link rel="stylesheet" type="text/css" href="<%=basePath%>css/style.css" />
+<style type="text/css">
+	#tab {
+	border:1px solid black;
+	border-collapse: collapse;
+	margin:0 auto; 
+}
+	#tab  td {
+	border:1px solid black;
+	width:20%;
+	height:30px; 
+	padding: 0px;
+	margin: 0;
+	text-align: center;
+}
+	#td1 {
+	background-color: #ff6600;
+}
+</style>
+<script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="<%=path %>/My97DatePicker/WdatePicker.js"></script>
+<script type="text/javascript">
+	$(document).ready(function(){
+		//父类合同下拉框选择事件
+		$('#sel1').change(function(){
+			var pid=$('#sel1 option:selected ').val();
+			//alert("pid:"+pid);
+			$.post('<%=path %>/contractController/getTypesByPid',
+					{pid:pid},
+					function(json){
+						//alert("isSuccess:"+json.isSuccess);
+						$('#sel2').empty();
+						var opt=new Option('--请选择--',0);
+						$('#sel2').append(opt);
+						if(json.isSuccess){
+							var data=json.data;
+							for(var i=0;i<data.length;i++){
+								var option=new Option(data[i].vcType,data[i].id);
+								$('#sel2').append(option);
+							}
+						}
+					},'json');
+			
+		})
+		//2级下拉框选择事件
+		$('#sel2').change(function(){
+			var val=$('#sel2 option:selected').val();
+			//alert('val:'+val);
+			$('#td_pro').empty();
+			var str='';
+			switch(val){
+				case '8'://整车收入合同 
+					str='<select name="nLong">'
+							+'<option value="0">长期合同（1年或一年以上）</option>'
+							+'<option value="1">临时合同</option>'
+							+'</select>';
+					break;
+				case '9'://零部件收入合同
+					str='<select name="nMainsign">'
+						+'<option value="0">与主机厂签订的</option>'
+						+'<option value="1">非与主机厂签订的</option>'
+						+'</select>';
+					break;
+				case '13'://物流器具设备采购合同
+					str='<select name="nPrice">'
+						+'<option value="0">单件单价≤5万</option>'
+						+'<option value="1">单件单价＞5万</option>'
+						+'</select>';
+					break;
+				case '14'://办公设备采购合同
+					str='<select name="nPrice">'
+						+'<option value="0">单件单价≤5万</option>'
+						+'<option value="1">单件单价＞5万</option>'
+						+'</select>';
+					break;
+				case '15'://土地租赁合同
+					str='<select name="nYearmoney">'
+						+'<option value="0">年度金额≤50万</option>'
+						+'<option value="1">年度金额＞50万</option>'
+						+'</select>';
+					break;
+				case '18'://以项目向下采购合同
+					str='<select name="nYearmoney">'
+						+'<option value="0">年度金额≤20万</option>'
+						+'<option value="1">年度金额＞20万</option>'
+						+'</select>';
+					break;
+				case '19'://其他类合同
+					str='<select name="nExpect">'
+						+'<option value="0">预算内</option>'
+						+'<option value="1">预算外</option>'
+						+'</select>';
+					break;
+			}
+			if(str!=''){
+				$('#td_pro').html(str);
+			}
+			
+		});
+	})
+	//提交表单
+	function submitForm(){
+		var vcContractname=$('input[name="vcContractname"]').val().trim();
+		//alert(!vcContractname);
+		if(!vcContractname){
+			$('input[name="vcContractname"]').focus();
+			return;
+		}
+		var vcContractno=$('input[name="vcContractno"]').val().trim();
+		if(!vcContractno){
+			$('input[name="vcContractno"]').focus().trim();
+			return;
+		}
+		var vcPartya=$('input[name="vcPartya"]').val().trim();
+		if(!vcPartya){
+			$('input[name="vcPartya"]').focus();
+			return;
+		}
+		var vcPartyb=$('input[name="vcPartyb"]').val().trim();
+		if(!vcPartyb){
+			$('input[name="vcPartyb"]').focus();
+			return;
+		}
+		var pContracttype=$('#sel1').val().trim();
+		//alert("pContracttype:"+pContracttype);
+		if(pContracttype==0){
+			alert('请选择一级合同类型');
+			return;
+		}
+		var IContracttype=$('#sel2').val().trim();
+		//alert("IContracttype:"+IContracttype);
+		if(IContracttype==0){
+			alert('请选择二级合同类型');
+			return;
+		}
+		var start=$('input[name="start"]').val().trim();
+		if(!start){
+			$('input[name="start"]').focus().trim();
+			return;
+		}
+		var end=$('input[name="end"]').val().trim();
+		if(!end){
+			$('input[name="end"]').focus();
+			return;
+		}
+		var vcContent=$('textarea[name="vcContent"]').val().trim();
+		if(!vcContent){
+			$('textarea[name="vcContent"]').focus();
+			return ;
+		}
+		$('#myform').submit();
+	}
+</script>
+
+</head>
+
+<body>
+	<div class="rightsider">
+
+		<div class="info_tabs clearfix">
+			<a  class="hover">合同添加</a>
+		</div>
+		<dl class="notice clearfix">
+			<dd>合同资料</dd>
+		</dl>
+		<form action="<%=basePath%>contractController/saveContract" method="post" enctype="multipart/form-data"
+			id="myform">
+			<table id="tab">
+				<tr>
+					<td>合同名称</td>
+					<td>
+						${contract.vcContractname}
+					</td>
+					<td>合同编号</td>
+					<td>
+						${contract.vcContractno}
+					</td>
+				</tr>
+				<tr>
+					<td>甲方</td>
+					<td>${contract.vcPartya}</td>
+					<td>乙方</td>
+					<td>${contract.vcPartyb}</td>
+				</tr>
+				<tr>
+					<td>合同类别</td>
+					<td >
+						${partype.vcType}
+					</td>
+					<td>
+						${subtype.vcType}
+					</td>
+					<td id="td_pro">
+						<!--整车收入合同 -->
+						<c:if test="${subtype.vcTypeNo=='scarload'}">
+							
+								<c:if test="${contract.nLong==0}">
+									长期合同（1年或一年以上）
+									
+								</c:if>
+								<c:if test="${contract.nLong==1}">
+									临时合同
+									
+								</c:if>
+							
+						</c:if>
+						<!--零部件收入合同-->
+						<c:if test="${subtype.vcTypeNo=='spartincome'}">
+							
+								<c:if test="${contract.nMainsign==0}">
+									与主机厂签订的
+									
+								</c:if>
+								<c:if test="${contract.nMainsign==1}">
+									非与主机厂签订的
+									
+								</c:if>
+							
+						</c:if>
+						<!--物流器具设备采购合同-->
+						<c:if test="${subtype.vcTypeNo=='sequipment'}">
+							
+								<c:if test="${contract.nPrice==0}">
+									单件单价≤5万
+									
+								</c:if>
+								<c:if test="${contract.nPrice==1}">
+									单件单价＞5万
+									
+								</c:if>
+							
+						</c:if>
+						<!--办公设备采购合同-->
+						<c:if test="${subtype.vcTypeNo=='soffical'}">
+							
+								<c:if test="${contract.nPrice==0}">
+									单件单价≤5万
+									
+								</c:if>
+								<c:if test="${contract.nPrice==1}">
+									单件单价＞5万
+									
+								</c:if>
+							
+						</c:if>
+						<!--土地租赁合同-->
+						<c:if test="${subtype.vcTypeNo=='sland'}">
+							
+								<c:if test="${contract.nYearmoney==0}">
+									年度金额≤50万
+									
+								</c:if>
+								<c:if test="${contract.nYearmoney==1}">
+									年度金额＞50万
+									
+								</c:if>
+							
+						</c:if>
+						<!--以项目向下采购合同-->
+						<c:if test="${subtype.vcTypeNo=='sproperty'}">
+							
+								
+								<c:if test="${contract.nYearmoney==0}">
+									年度金额≤20万
+									
+								</c:if>
+								<c:if test="${contract.nYearmoney==1}">
+									年度金额＞20万
+									
+								</c:if>
+							
+						</c:if>
+						<!--其他类合同-->
+						<c:if test="${subtype.vcTypeNo=='sother'}">
+							
+								<c:if test="${contract.nExpect==0}">
+									预算内
+									
+								</c:if>
+								<c:if test="${contract.nExpect==1}">
+									预算外
+									
+								</c:if>
+							
+						</c:if>
+					</td>
+				</tr>
+				<tr>
+					<td>合同生效日期</td>
+					<td>${contract.dtStart}</td>
+					<td>终止日期</td>
+					<td>${contract.dtEnd}</td>
+				</tr>
+				<tr>
+					<td>签约类别</td>
+					<td>
+						<c:if test="${contract.nNew==0}">
+							新签
+						</c:if>
+						<c:if test="${contract.nNew==1}">
+							续签
+						</c:if>
+					</td>
+					<td>紧急程度</td>
+					<td>
+						<c:if test="${contract.nEmergency==0}">
+							正常
+						</c:if>
+						<c:if test="${contract.nEmergency==1}">
+							紧急
+						</c:if>
+					</td>
+				</tr>
+				<tr>
+					<td>总收入</td>
+					<td>总成本</td>
+					<td>总运量</td>
+					<td>毛利率</td>
+				</tr>
+				<tr>
+					<td><input type="text" name="nTotalmoney" disabled="disabled"/></td>
+					<td><input type="text" name="nTotalprice" disabled="disabled"/></td>
+					<td><input type="text"  name="nTotalnum" disabled="disabled"/></td>
+					<td><input type="text"  name="nRate" disabled="disabled"/></td>
+				</tr>
+				<tr>
+					<td ><span style="font-weight:bolder">附件</span></td>
+					<td colspan="3" style="text-align: left">
+						<c:forEach items="${files }" var="file">
+							${file.vcFilename }&nbsp;&nbsp;
+							<a href="<%=basePath%>contractController/downloadFile?fileName=${file.vcFilename }" target="_blank">
+							<span style="font-weight:bold；font-family:黑体">下载</span></a><br/>
+						</c:forEach>
+					</td>
+				</tr>
+				<tr>
+					<td ></td>
+					<td ></td>
+					<td ></td>
+					<td ></td>
+				</tr>
+				<tr id="td1">
+					<td colspan="4">合同内容及相关要求</td>
+				</tr>
+				<tr style="height:300px;">
+					<td colspan="4">
+						<textarea rows="15" cols="100" name="vcContent" padding="0" disabled="disabled">
+							${contract.vcContent}
+						</textarea>
+					</td>
+				</tr>
+				<tr>
+					<td colspan="2">
+					<input type="button" value="提交" onclick=""
+					 style="background:#ff6600;width: 100px;align:center"/>
+					 </td>
+					 <td colspan="2">
+					<input type="button" value="确认" onclick=""
+					 style="background:#ff6600;width: 100px;align:center"/>
+					 </td>
+				</tr>
+				<tr>
+					<td colspan="4" style="background-color: #ff6600;">各部门评审记录</td>
+				</tr>
+				<tr>
+					<td>相关部门</td>
+					<td>评审人</td>
+					<td colspan="2">评审意见</td>
+				</tr>
+				<tr>
+					<td>申请部门</td>
+					<td></td>
+					<td colspan="2">
+						<input  type="text"/>
+					</td>
+				</tr>
+				<tr>
+					<td rowspan="2">商务管理部</td>
+					<td>周亚平</td>
+					<td colspan="2"></td>
+					
+				</tr>
+				<tr>
+					<td>张宇光</td>
+					<td colspan="2"></td>
+					
+				</tr>
+				<tr>
+					<td rowspan="2">产品规划部</td>
+					<td>施永鸿</td>
+					<td colspan="2"></td>
+					
+				</tr>
+				<tr>
+					<td>张宇光</td>
+					<td colspan="2"></td>
+					
+				</tr>
+				<tr>
+					<td>财务管理部</td>
+					<td>戴丽君</td>
+					<td colspan="2"></td>
+				</tr>
+				<tr>
+					<td rowspan="3">总裁办</td>
+					<td>徐广</td>
+					<td colspan="2"></td>
+					
+				</tr>
+				<tr>
+					<td>严有琪</td>
+					<td colspan="2"></td>
+				</tr>
+				<tr>
+					<td>祝丽</td>
+					<td colspan="2"></td>
+				</tr>
+				<tr>
+					<td>总裁（如有）</td>
+					<td>祝建华</td>
+					<td colspan="2"></td>
+				</tr>
+				<tr>
+					<td colspan="4">
+					<input type="button" value="返回" onclick="javascript:history.go(-1)"
+					 style="background:#ff6600;width: 100px;align:center"/>
+					</td>
+				</tr>
+			</table>
+			<!-- id -->
+			<input type="hidden" name="lineid" value="${contract.lineid}"/>
+			<input type="hidden" name="iUser" value="${contract.iUser}"/>
+			<input type="hidden" name="nEnable" value="${contract.nEnable}"/>
+			<input type="hidden" name="nEnable" value="${contract.dtCreate}"/>
+		</form>
+	</div>
+</body>
+</html>

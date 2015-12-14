@@ -1,0 +1,550 @@
+package clt.com.cn.service.impl;
+
+import java.util.List;
+
+import clt.com.cn.dao.IDeptDao;
+import clt.com.cn.helps.DateUtil;
+import clt.com.cn.model.entity.Dept;
+import clt.com.cn.model.entity.DeptAddress;
+import clt.com.cn.model.entity.DeptMapping;
+import clt.com.cn.model.entity.Employattendance;
+import clt.com.cn.model.entity.Employholiday;
+import clt.com.cn.model.entity.Employout;
+import clt.com.cn.model.entity.Employovertime;
+import clt.com.cn.model.entity.EmployrecordCheck;
+import clt.com.cn.model.entity.Employtrip;
+import clt.com.cn.model.entity.Smuser;
+import clt.com.cn.service.IDeptService;
+
+public class DeptServiceImp implements IDeptService
+{
+	private IDeptDao deptDao;
+	
+	public void setDeptDao( IDeptDao deptDao )
+	{
+		this.deptDao = deptDao;
+	}
+	
+	// 查询所有信息
+	public List< Dept > getAllDept()
+	{
+		return deptDao.getUserInfo( "from Dept d where d.active=1" , new Object[] {} );
+	}
+	
+	// 分页查询所有信息
+	public List< Dept > getAllDeptByPage()
+	{
+		return deptDao.getAllDept();
+	}
+	
+	// 添加
+	public void addDept( Dept dept )
+	{
+		deptDao.addDept( dept );
+	}
+	
+	// 按id删除
+	public void delDeptById( int id )
+	{
+		Dept d = deptDao.getDeptById( id );
+		d.setActive( 0 );
+		deptDao.updateDept( d );
+	}
+	
+	// 得到跟新页面
+	public Dept getDeptById( int id )
+	{
+		return deptDao.getDeptById( id );
+	}
+	
+	// 修改
+	public void updateDept( Dept d )
+	{
+		deptDao.updateDept( d );
+	}
+	
+	// 高级查询
+	public List< Dept > DeptInfoById( String deptname )
+	{
+		String hql = "from Dept where deptname LIKE '%" + deptname + "%' and active=1 ";
+		List< Dept > ulist = deptDao.getUserInfo( hql );
+		if ( ulist.size() > 0 )
+		{
+			return ulist;
+		}
+		else
+		{
+			return null;
+		}
+	}
+	
+	public int getCount()
+	{
+		// 总条数
+		return deptDao.getCount();
+	}
+	
+	public int getpages( int count , int pageSize )
+	{
+		// 总页数
+		return deptDao.getpages( count , pageSize );
+	}
+	
+	public List< Dept > getAllDeptByPage( int page )
+	{
+		// 分页查询
+		return deptDao.getAllDeptByPage( page );
+	}
+	
+	public Smuser getDeptManageridBydeptid( int deptid )
+	{
+		// TODO Auto-generated method stub
+		return deptDao.getDeptManageridBydeptid( deptid );
+	}
+	
+	public List< Dept > getUserInfo( String hql , Object ... p )
+	{
+		// TODO Auto-generated method stub
+		return deptDao.getUserInfo( hql , p );
+	}
+	
+	/**
+	 * @Description: TODO(这里用一句话描述这个方法的作用)
+	 * @param sql
+	 * @param pageSize
+	 * @param page
+	 * @return
+	 * @author chenbin
+	 * @create_date 2014-7-17 下午4:29:55
+	 */
+	public List getDateBySqlQuery( String sql , int pageSize , int page )
+	{
+		// TODO Auto-generated method stub
+		return deptDao.getDateBySqlQuery( sql , pageSize , page );
+	}
+	
+	public void execSQL( final String sql )
+	{
+		deptDao.execSQL( sql );
+	}
+	
+	/**
+	 * @Description: TODO(这里用一句话描述这个方法的作用)
+	 * @param deptmapping
+	 * @author chenbin
+	 * @create_date 2014-7-17 下午8:05:08
+	 */
+	public void addDeptmapping( DeptMapping deptmapping )
+	{
+		// TODO Auto-generated method stub
+		deptDao.addDeptmapping( deptmapping );
+	}
+	
+	/**
+	 * @Description: TODO(这里用一句话描述这个方法的作用)
+	 * @return
+	 * @author chenbin
+	 * @create_date 2014-7-18 下午1:40:47
+	 */
+	public List< Dept > getAllCompay()
+	{
+		// TODO Auto-generated method stub
+		return deptDao.getAllCompay();
+	}
+	
+	/**
+	 * @Description: TODO(这里用一句话描述这个方法的作用)
+	 * @param compid
+	 * @return
+	 * @author chenbin
+	 * @create_date 2014-7-18 下午1:40:47
+	 */
+	public List< Object[] > getAllDeptByComID( int compid )
+	{
+		// TODO Auto-generated method stub
+		return deptDao.getAllDeptByComID( compid );
+	}
+	
+	public List< Object[] > getAllAddressByCompID( int compid )
+	{
+		return deptDao.getAllAddressByCompID( compid );
+	}
+	
+	/**
+	 * @Description: TODO(这里用一句话描述这个方法的作用)
+	 * @param id
+	 * @return
+	 * @author chenbin
+	 * @create_date 2014-7-19 上午9:47:09
+	 */
+	public DeptMapping getDeptMapping( int id )
+	{
+		// TODO Auto-generated method stub
+		return deptDao.getDeptMapping( id );
+	}
+	
+	/**
+	 * @Description: TODO(这里用一句话描述这个方法的作用)
+	 * @param id
+	 * @return
+	 * @author chenbin
+	 * @create_date 2014-7-19 上午10:04:39
+	 */
+	public DeptAddress getDeptAddressByID( int id )
+	{
+		// TODO Auto-generated method stub
+		return deptDao.getDeptAddressByID( id );
+	}
+	
+	/**
+	 * @Description: TODO(这里用一句话描述这个方法的作用)
+	 * @param rcver_name
+	 * @param paramType
+	 *            1 请假 2外出 3 加班 4 考勤异常 5 出差 6 档案修改
+	 * @author chenbin
+	 * @create_date 2014-8-19 下午7:39:07
+	 */
+	public void sendMails( Object obj , int paramType )
+	{
+		// 邮件地址
+		String rcver_mail = "";
+		// 邮件主题
+		String rever_subject = "";
+		// 邮件内容
+		String rcver_contents = "";
+		
+		switch ( paramType )
+			{
+				case 1 :
+					// 请假
+					Employholiday hod = ( Employholiday ) obj;
+					String curstr = DateUtil.formatDate( hod.getCurrdate() , "MMdd" );
+					String begstr = DateUtil.formatDate( hod.getDate1() ,
+					        "yyyy/MM/dd HH:mm:ss" );
+					String endstr = DateUtil.formatDate( hod.getDate2() ,
+					        "yyyy/MM/dd HH:mm:ss" );
+					
+					String uname = hod.getCheckuser().getEmployrecord().getEmployname();
+					if ( hod.getActualuser() != null )
+					{
+						uname = hod.getActualuser().getEmployrecord().getEmployname();
+					}
+					if ( hod.getOpuser().getEmployrecord().getEmail() != null
+					        && hod.getOpuser().getEmployrecord().getEmail() != "" )
+					{
+						rcver_mail = hod.getOpuser().getEmployrecord().getEmail().trim();
+					}
+					
+					rever_subject = "关于OA请假申请";
+					rcver_contents = "Hi: <br/> &nbsp;&nbsp;&nbsp;&nbsp;关于 " + curstr
+					        + " 提出的请假, " + uname + " 已审批同意,请假时间从 " + begstr + " 到  "
+					        + endstr + "。 ";
+					break;
+				case 2 :
+					// 外出
+					Employout out = ( Employout ) obj;
+					
+					String outcurstr = DateUtil.formatDate( out.getCurrdate() , "MMdd" );
+					String outbegstr = DateUtil.formatDate( out.getDate1() ,
+					        "yyyy/MM/dd HH:mm:ss" );
+					String outendstr = DateUtil.formatDate( out.getDate2() ,
+					        "yyyy/MM/dd HH:mm:ss" );
+					
+					String outuname = out.getCheckuser().getEmployrecord()
+					        .getEmployname();
+					if ( out.getActualuser() != null )
+					{
+						outuname = out.getActualuser().getEmployrecord().getEmployname();
+					}
+					
+					if ( out.getOpuser().getEmployrecord().getEmail() != null
+					        && out.getOpuser().getEmployrecord().getEmail() != "" )
+					{
+						rcver_mail = out.getOpuser().getEmployrecord().getEmail().trim();
+					}
+					rever_subject = "关于OA外出申请";
+					rcver_contents = "Hi:<br/> &nbsp;&nbsp;&nbsp;&nbsp; 关于 " + outcurstr
+					        + " 提出的请假, " + outuname + " 已审批同意,外出时间从 " + outbegstr
+					        + " 到  " + outendstr + "。  ";
+					break;
+				case 3 :
+					// 加班
+					Employovertime overt = ( Employovertime ) obj;
+					String overtcurstr = DateUtil.formatDate( overt.getCurrdate() ,
+					        "MMdd" );
+					String overtbegstr = DateUtil.formatDate( overt.getDate1() ,
+					        "yyyy/MM/dd HH:mm:ss" );
+					String overtendstr = DateUtil.formatDate( overt.getDate2() ,
+					        "yyyy/MM/dd HH:mm:ss" );
+					
+					String overtuname = overt.getCheckuser().getEmployrecord()
+					        .getEmployname();
+					if ( overt.getActualuser() != null )
+					{
+						overtuname = overt.getActualuser().getEmployrecord()
+						        .getEmployname();
+					}
+					
+					if ( overt.getOpuser().getEmployrecord().getEmail() != null
+					        && overt.getOpuser().getEmployrecord().getEmail() != "" )
+					{
+						rcver_mail = overt.getOpuser().getEmployrecord().getEmail()
+						        .trim();
+					}
+					
+					rever_subject = "关于OA加班申请";
+					rcver_contents = "Hi:<br/> &nbsp;&nbsp;&nbsp;&nbsp; 关于 "
+					        + overtcurstr + " 提出的加班, " + overtuname + " 已审批同意,加班时间从 "
+					        + overtbegstr + " 到  " + overtendstr + "。  ";
+					break;
+				case 4 :
+					// 考勤异常
+					Employattendance attent = ( Employattendance ) obj;
+					String attentcurstr = DateUtil.formatDate( attent.getCurrdate() ,
+					        "MMdd" );
+					String attentbegstr = DateUtil.formatDate( attent.getDate1() ,
+					        "yyyy/MM/dd HH:mm:ss" );
+					
+					String attentuname = attent.getCheckuser().getEmployrecord()
+					        .getEmployname();
+					if ( attent.getActualuser() != null )
+					{
+						attentuname = attent.getActualuser().getEmployrecord()
+						        .getEmployname();
+					}
+					
+					if ( attent.getOpuser().getEmployrecord().getEmail() != null
+					        && attent.getOpuser().getEmployrecord().getEmail() != "" )
+					{
+						rcver_mail = attent.getOpuser().getEmployrecord().getEmail()
+						        .trim();
+					}
+					
+					rever_subject = "关于OA考勤异常";
+					rcver_contents = "Hi:<br/> &nbsp;&nbsp;&nbsp;&nbsp; 关于 "
+					        + attentcurstr + " 提出的考勤异常, " + attentuname
+					        + " 已审批同意,异常时间   " + attentbegstr + "。";
+					
+					break;
+				case 5 :
+					// 出差
+					Employtrip trip = ( Employtrip ) obj;
+					String tripcurstr = DateUtil.formatDate( trip.getCurrdate() , "MMdd" );
+					String tripbegstr = DateUtil.formatDate( trip.getDate1() ,
+					        "yyyy/MM/dd HH:mm:ss" );
+					String tripendstr = DateUtil.formatDate( trip.getDate2() ,
+					        "yyyy/MM/dd HH:mm:ss" );
+					
+					String tripuname = trip.getCheckuser().getEmployrecord()
+					        .getEmployname();
+					if ( trip.getActualuser() != null )
+					{
+						tripuname = trip.getActualuser().getEmployrecord()
+						        .getEmployname();
+					}
+					
+					if ( trip.getOpuser().getEmployrecord().getEmail() != null
+					        && trip.getOpuser().getEmployrecord().getEmail() != "" )
+					{
+						rcver_mail = trip.getOpuser().getEmployrecord().getEmail().trim();
+					}
+					
+					rever_subject = "关于OA出差申请";
+					rcver_contents = "Hi:<br/> &nbsp;&nbsp;&nbsp;&nbsp; 关于 " + tripcurstr
+					        + " 提出的出差申请, " + tripuname + " 已审批同意,出差时间从 " + tripbegstr
+					        + " 到  " + tripendstr + "。  ";
+					break;
+				case 6 :
+					// 档案信息修改
+					EmployrecordCheck check = ( EmployrecordCheck ) obj;
+					String checkcurstr = DateUtil.formatDate( check.getOpDate() , "MMdd" );
+					
+					String checkuname = check.getCheckus().getEmployrecord()
+					        .getEmployname();
+					
+					if ( check.getOpuser().getEmployrecord().getEmail() != null
+					        && check.getOpuser().getEmployrecord().getEmail() != "" )
+					{
+						rcver_mail = check.getOpuser().getEmployrecord().getEmail()
+						        .trim();
+					}
+					
+					rever_subject = "关于OA档案修改";
+					rcver_contents = "Hi:<br/> &nbsp;&nbsp;&nbsp;&nbsp;  关于 "
+					        + checkcurstr + " 提出的档案修改, " + checkuname + " 已审批同意 。";
+					break;
+			
+			}
+		System.out.println( "rcver_mail" + rcver_mail + " rever_subject " + rever_subject
+		        + " rcver_contents " + rcver_contents );
+		if ( rcver_mail != "" )
+		{
+			deptDao.sendMails( rcver_mail , rcver_mail , rever_subject , rcver_contents );
+		}
+		
+	}
+	
+	/**
+	 * @Description: 发送需审批邮件
+	 * @param rcver_name
+	 * @param paramType
+	 *            1 请假 2外出 3 加班 4 考勤异常 5 出差 6 档案修改
+	 * @author chenbin
+	 * @create_date 2014-8-19 下午7:39:07
+	 */
+	public void approveMails( Object obj , int paramType )
+	{
+		// 邮件地址
+		String rcver_mail = "";
+		// 邮件主题
+		String rever_subject = "";
+		// 邮件内容
+		String rcver_contents = "";
+		
+		switch ( paramType )
+			{
+				case 1 :
+					// 请假
+					Employholiday hod = ( Employholiday ) obj;
+					String curstr = DateUtil.formatDate( hod.getCurrdate() , "MMdd" );
+					String begstr = DateUtil.formatDate( hod.getDate1() ,
+					        "yyyy/MM/dd hh:mm:ss " );
+					String endstr = DateUtil.formatDate( hod.getDate2() ,
+					        "yyyy/MM/dd hh:mm:ss " );
+					
+					String uname = hod.getOpuser().getEmployrecord().getEmployname();
+					
+					if ( hod.getCheckuser().getEmployrecord().getEmail() != null
+					        && hod.getCheckuser().getEmployrecord().getEmail() != "" )
+					{
+						rcver_mail = hod.getCheckuser().getEmployrecord().getEmail()
+						        .trim();
+					}
+					
+					rever_subject = "关于OA请假申请";
+					rcver_contents = "Hi: <br/> &nbsp;&nbsp;&nbsp;&nbsp;关于 " + uname
+					        + " 申请的请假, ,请假时间从 " + begstr + " 到  " + endstr + " 共 "
+					        + hod.getDays() + " 天 。";
+					break;
+				case 2 :
+					// 外出
+					Employout out = ( Employout ) obj;
+					
+					String outcurstr = DateUtil.formatDate( out.getCurrdate() , "MMdd" );
+					String outbegstr = DateUtil.formatDate( out.getDate1() ,
+					        "yyyy/MM/dd hh:mm:ss " );
+					String outendstr = DateUtil.formatDate( out.getDate2() ,
+					        "yyyy/MM/dd hh:mm:ss " );
+					
+					String outuname = out.getOpuser().getEmployrecord().getEmployname();
+					
+					if ( out.getCheckuser().getEmployrecord().getEmail() != null
+					        && out.getCheckuser().getEmployrecord().getEmail() != "" )
+					{
+						rcver_mail = out.getCheckuser().getEmployrecord().getEmail()
+						        .trim();
+					}
+					rever_subject = "关于OA外出申请";
+					rcver_contents = "Hi:<br/> &nbsp;&nbsp;&nbsp;&nbsp; 关于 " + outuname
+					        + " 申请的请假 ,外出时间从 " + outbegstr + " 到  " + outendstr + "。  ";
+					break;
+				case 3 :
+					// 加班
+					Employovertime overt = ( Employovertime ) obj;
+					String overtcurstr = DateUtil.formatDate( overt.getCurrdate() ,
+					        "MMdd" );
+					String overtbegstr = DateUtil.formatDate( overt.getDate1() ,
+					        "yyyy/MM/dd hh:mm:ss " );
+					String overtendstr = DateUtil.formatDate( overt.getDate2() ,
+					        "yyyy/MM/dd hh:mm:ss " );
+					
+					String overtuname = overt.getOpuser().getEmployrecord()
+					        .getEmployname();
+					
+					if ( overt.getCheckuser().getEmployrecord().getEmail() != null
+					        && overt.getCheckuser().getEmployrecord().getEmail() != "" )
+					{
+						rcver_mail = overt.getCheckuser().getEmployrecord().getEmail()
+						        .trim();
+					}
+					
+					rever_subject = "关于OA加班申请";
+					rcver_contents = "Hi:<br/> &nbsp;&nbsp;&nbsp;&nbsp; 关于 " + overtuname
+					        + " 申请的加班,加班时间从 " + overtbegstr + " 到  " + overtendstr
+					        + " 共  " + overt.getDays() + " 天 。";
+					break;
+				case 4 :
+					// 考勤异常
+					Employattendance attent = ( Employattendance ) obj;
+					String attentcurstr = DateUtil.formatDate( attent.getCurrdate() ,
+					        "MMdd" );
+					String attentbegstr = DateUtil.formatDate( attent.getDate1() ,
+					        "yyyy/MM/dd hh:mm:ss " );
+					
+					String attentuname = attent.getOpuser().getEmployrecord()
+					        .getEmployname();
+					
+					if ( attent.getCheckuser().getEmployrecord().getEmail() != null
+					        && attent.getCheckuser().getEmployrecord().getEmail() != "" )
+					{
+						rcver_mail = attent.getCheckuser().getEmployrecord().getEmail()
+						        .trim();
+					}
+					
+					rever_subject = "关于OA考勤异常";
+					rcver_contents = "Hi:<br/> &nbsp;&nbsp;&nbsp;&nbsp; 关于 "
+					        + attentuname + " 申请的考勤异常, 异常时间   " + attentbegstr + "。";
+					
+					break;
+				case 5 :
+					// 出差
+					Employtrip trip = ( Employtrip ) obj;
+					String tripcurstr = DateUtil.formatDate( trip.getCurrdate() , "MMdd" );
+					String tripbegstr = DateUtil.formatDate( trip.getDate1() ,
+					        "yyyy/MM/dd hh:mm:ss " );
+					String tripendstr = DateUtil.formatDate( trip.getDate2() ,
+					        "yyyy/MM/dd hh:mm:ss " );
+					
+					String tripuname = trip.getOpuser().getEmployrecord().getEmployname();
+					
+					if ( trip.getCheckuser().getEmployrecord().getEmail() != null
+					        && trip.getCheckuser().getEmployrecord().getEmail() != "" )
+					{
+						rcver_mail = trip.getCheckuser().getEmployrecord().getEmail()
+						        .trim();
+					}
+					
+					rever_subject = "关于OA出差申请";
+					rcver_contents = "Hi:<br/> &nbsp;&nbsp;&nbsp;&nbsp; 关于 " + tripuname
+					        + " 申请的出差 ,出差时间从 " + tripbegstr + " 到  " + tripendstr + "。  ";
+					break;
+				case 6 :
+					// 档案信息修改
+					EmployrecordCheck check = ( EmployrecordCheck ) obj;
+					String checkcurstr = DateUtil.formatDate( check.getOpDate() , "MMdd" );
+					
+					String checkuname = check.getOpuser().getEmployrecord()
+					        .getEmployname();
+					
+					if ( check.getCheckus().getEmployrecord().getEmail() != null
+					        && check.getCheckus().getEmployrecord().getEmail() != "" )
+					{
+						rcver_mail = check.getCheckus().getEmployrecord().getEmail()
+						        .trim();
+					}
+					
+					rever_subject = "关于OA档案修改";
+					rcver_contents = "Hi:<br/> &nbsp;&nbsp;&nbsp;&nbsp;  关于 "
+					        + checkuname + " 提出的档案修改,如有时间请审批。  ";
+					break;
+			
+			}
+		System.out.println( "rcver_mail" + rcver_mail + " rever_subject " + rever_subject
+		        + " rcver_contents " + rcver_contents );
+		if ( rcver_mail != "" )
+		{
+			deptDao.sendMails( rcver_mail , rcver_mail , rever_subject , rcver_contents );
+		}
+		
+	}
+}

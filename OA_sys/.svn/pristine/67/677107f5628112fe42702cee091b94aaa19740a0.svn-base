@@ -1,0 +1,45 @@
+package clt.com.cn.dao.impl;
+
+import java.util.List;
+
+import clt.com.cn.base.BaseDao;
+import clt.com.cn.dao.IApprovalDao;
+import clt.com.cn.dao.IContractDao;
+import clt.com.cn.model.entity.Contract;
+
+/** 
+ * @Package clt.com.cn.dao.impl 
+ * @Description:用一句话描述该文件做什么 
+ * @author liuwu
+ * @date 2015年10月22日 上午10:05:22 
+ * @version V1.0 
+ */
+public class ContractDaoImp extends BaseDao implements IContractDao
+{
+
+	/** 
+	 * @Description:这里用一句话描述这个方法的作用 
+	 * @param contract 
+	 * @author liuwu
+	 * @create_date 2015年10月22日 上午10:08:54
+	 */ 
+    public void save( Contract contract )
+    {
+	    // TODO Auto-generated method stub
+	    super.addObject( contract );
+    }
+
+	/** 
+	 * @Description:这里用一句话描述这个方法的作用 
+	 * @param page
+	 * @return 
+	 * @author liuwu
+	 * @create_date 2015年10月22日 上午11:04:59
+	 */ 
+    public List getAllContracts( int page )
+    {
+    	String hql = "from Contract c order by c.iLineid desc ";
+		return super.pageQuery( hql , 5 , page );
+    }	
+	
+}

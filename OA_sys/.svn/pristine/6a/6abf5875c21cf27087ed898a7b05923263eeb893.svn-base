@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="
+	http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+	http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.2.xsd
+	http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.2.xsd
+	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.2.xsd
+	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd
+	" >
+
+
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource"
+		destroy-method="close">
+		<property name="driverClass" value="oracle.jdbc.OracleDriver" />
+		<!-- 正式数据库 -->
+		<!-- <property name="jdbcUrl" value="jdbc:oracle:thin:@10.20.30.170:1521/data" />
+		<property name="user" value="oa" />
+		<property name="password" value="oaclt0923" /> -->
+
+		<!-- 测试数据库 -->
+		<property name="jdbcUrl" value="jdbc:oracle:thin:@10.2.4.147:1521/orcl" />
+		<property name="user" value="oa3" />
+		<property name="password" value="oa3" />
+		<!-- 指定连接数据库连接池的最大连接数 -->
+		<property name="maxPoolSize" value="40" />
+		<!-- 指定连接数据库连接池的最小连接数 -->
+		<property name="minPoolSize" value="1" />
+		<!-- 指定连接数据库连接池的初始化连接数 -->
+		<property name="initialPoolSize" value="5" />
+		<!-- 指定连接数据库连接池的连接最大空闲时间 -->
+		<property name="maxIdleTime" value="1800" />
+	</bean>
+
+
+	<bean id="sessionFactory"
+		class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">org.hibernate.dialect.Oracle10gDialect</prop>
+				<prop key="hibernate.show_sql">true</prop>
+				<prop key="hibernate.cache.provider_class">org.hibernate.cache.EhCacheProvider</prop>
+				<prop key="hibernate.cache.use_query_cache">false</prop>
+				<prop key="hibernate.jdbc.batch_size">50</prop>
+				<prop key="hibernate.cache.use_second_level_cache">false</prop>
+			</props>
+		</property>
+		<!-- 1======================= -->
+		<!-- 自动扫描指定位置下的实体文件进行映射 -->
+		<property name="mappingLocations">
+			<value>classpath:/clt/com/cn/model/mapping/*.hbm.xml </value>
+		</property>
+	</bean>
+
+	<!-- <bean id="sessionFactory" class="org.springframework.orm.hibernate3.LocalSessionFactoryBean"> 
+		<property name="configLocation" value="classpath:hibernate.cfg.xml"> </property> 
+		</bean> -->
+
+	<bean id="baseDao" class="clt.com.cn.base.BaseDao" abstract="true">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+
+	<!--DAO层 -->
+	<bean id="userDao" class="clt.com.cn.dao.impl.UserDao" parent="baseDao"></bean>
+	<bean id="moduleDao" class="clt.com.cn.dao.impl.ModuleDao" parent="baseDao"></bean>
+	<bean id="deptDao" class="clt.com.cn.dao.impl.DeptDao" parent="baseDao"></bean>
+	<bean id="positionDao" class="clt.com.cn.dao.impl.PositionDao"
+		parent="baseDao"></bean>
+	<bean id="emrDao" class="clt.com.cn.dao.impl.EmployrecordDao"
+		parent="baseDao"></bean>
+	<bean id="ehdDao" class="clt.com.cn.dao.impl.EmployholidayDao"
+		parent="baseDao"></bean>
+	<bean id="emoDao" class="clt.com.cn.dao.impl.EmployoutDao" parent="baseDao"></bean>
+	<bean id="uploadDao" class="clt.com.cn.dao.impl.UploadDao" parent="baseDao"></bean>
+	<bean id="notifyDao" class="clt.com.cn.dao.impl.NotifyDao" parent="baseDao"></bean>
+	<bean id="educationlevelDao" class="clt.com.cn.dao.impl.EducationlevelDao"
+		parent="baseDao"></bean>
+	<bean id="rolePriviegeDao" class="clt.com.cn.dao.impl.RolePriviegeDao"
+		parent="baseDao"></bean>
+	<bean id="privilegeDao" class="clt.com.cn.dao.impl.PrivilegeDao"
+		parent="baseDao"></bean>
+	<bean id="employAccreditDao" class="clt.com.cn.dao.impl.EmployAccreditDao"
+		parent="baseDao"></bean>
+	<bean id="employovertimeDao" class="clt.com.cn.dao.impl.EmployovertimeDao"
+		parent="baseDao"></bean>
+	<bean id="employattendanceDao" class="clt.com.cn.dao.impl.EmployattendanceDao"
+		parent="baseDao"></bean>
+	<bean id="employtripDao" class="clt.com.cn.dao.impl.EmploytripDao"
+		parent="baseDao"></bean>
+	<bean id="employrecruitmentDao" class="clt.com.cn.dao.impl.EmployrecruitmentDao"
+		parent="baseDao"></bean>
+	<bean id="employAddressListDao" class="clt.com.cn.dao.impl.EmployAddressListDao"
+		parent="baseDao"></bean>
+	<bean id="employcontractDao" class="clt.com.cn.dao.impl.EmploycontractDao"
+		parent="baseDao"></bean>
+	<bean id="managerApprovalDao" class="clt.com.cn.dao.impl.ManagerApprovalDao"
+		parent="baseDao"></bean>
+	<bean id="recordCheckDao" class="clt.com.cn.dao.impl.EmployrecordCheckDao"
+		parent="baseDao"></bean>
+	<bean id="approvalDao" class="clt.com.cn.dao.impl.ApprovalDao"
+		parent="baseDao"></bean>
+	<bean id="mailRecordDao" class="clt.com.cn.dao.impl.MailRecordDao"
+		parent="baseDao"></bean>
+	<bean id="sinfoDao" class="clt.com.cn.dao.impl.SmsmsinfoDao"
+		parent="baseDao"></bean>
+	<bean id="iContractDao" class="clt.com.cn.dao.impl.ContractDaoImp"
+		parent="baseDao"></bean>
+	<bean id="iContracttypeBDao" class="clt.com.cn.dao.impl.ContracttypeBDaoImp"
+		parent="baseDao"></bean>
+	<bean id="iContracttypePositionReDao" class="clt.com.cn.dao.impl.ContracttypePostionReDaoImp"
+		parent="baseDao"></bean>
+	<bean id="iContractFileDao" class="clt.com.cn.dao.impl.ContractFileDaoImp"
+		parent="baseDao" />
+	<bean id="iStaticDao" class="clt.com.cn.dao.impl.StaticDaoImp"
+		parent="baseDao" />
+	<bean id="iContractApprovalDao" class="clt.com.cn.dao.impl.ContractApprovalDaoImp"
+		parent="baseDao" />
+	<bean id="iUserTokenDao" class="clt.com.cn.dao.impl.UserTokenDaoImp"
+		parent="baseDao" />
+	<bean id="iCostApplyDao" class="clt.com.cn.dao.impl.CostApplyDaoImp"
+		parent="baseDao" />
+	<bean id="iCosttypeDao" class="clt.com.cn.dao.impl.CosttypeDaoImp"
+		parent="baseDao" />
+	<bean id="iDeptLevelDao" class="clt.com.cn.dao.impl.DeptLevelDaoImp"
+		parent="baseDao" />
+	<bean id="iCostBudgetDao" class="clt.com.cn.dao.impl.CostBudgetDaoImp"
+		parent="baseDao" />
+	<bean id="iDeptTotalCostDao" class="clt.com.cn.dao.impl.DeptTotalCostDaoImp"
+		parent="baseDao" />
+	<bean id="iFeeReLevelDao" class="clt.com.cn.dao.impl.FeeReLevelDaoImp"
+		parent="baseDao" />
+	<bean id="iDeptFinanciaReDao" class="clt.com.cn.dao.impl.DeptFinanciaReDaoImp"
+		parent="baseDao" />	
+	<bean id="iCostAuditRecordDao" class="clt.com.cn.dao.impl.CostAuditRecordDaoImp"
+		parent="baseDao" />		
+		
+	<!-- service层 -->
+	<bean id="userService" class="clt.com.cn.service.impl.UserServiceImp">
+		<property name="userDao" ref="userDao"></property>
+		<property name="deptDao" ref="deptDao"></property>
+		<property name="managerApprovalDao" ref="managerApprovalDao"></property>
+		<property name="iUserTokenDao" ref="iUserTokenDao"></property>
+	</bean>
+	<bean id="moduleService" class="clt.com.cn.service.impl.ModuleServiceImp">
+		<property name="moduleDao" ref="moduleDao"></property>
+		<property name="userDao" ref="userDao"></property>
+		<property name="rpDao" ref="rolePriviegeDao"></property>
+		<property name="privilegeDao" ref="privilegeDao"></property>
+	</bean>
+	<bean id="deptService" class="clt.com.cn.service.impl.DeptServiceImp">
+		<property name="deptDao" ref="deptDao"></property>
+	</bean>
+	<bean id="positionService" class="clt.com.cn.service.impl.PositionServiceImp">
+		<property name="positionDao" ref="positionDao"></property>
+	</bean>
+	<bean id="emrService" class="clt.com.cn.service.impl.EmployrecordServiceImp">
+		<property name="emrDao" ref="emrDao"></property>
+		<property name="educationlevelDao" ref="educationlevelDao"></property>
+	</bean>
+	<bean id="ehdService" class="clt.com.cn.service.impl.EmployholidayServiceImp">
+		<property name="ehdDao" ref="ehdDao"></property>
+	</bean>
+	<bean id="emoService" class="clt.com.cn.service.impl.EmployoutServiceImp">
+		<property name="emoDao" ref="emoDao"></property>
+	</bean>
+	<bean id="uploadService" class="clt.com.cn.service.impl.UploadServiceImp">
+		<property name="uploadDao" ref="uploadDao"></property>
+	</bean>
+	<bean id="notifyService" class="clt.com.cn.service.impl.NotifyServiceImp">
+		<property name="notifyDao" ref="notifyDao"></property>
+	</bean>
+	<bean id="employAccreditService" class="clt.com.cn.service.impl.EmployAccreditServiceImp">
+		<property name="employAccreditDao" ref="employAccreditDao"></property>
+	</bean>
+	<bean id="employovertimeService" class="clt.com.cn.service.impl.EmployovertimeServiceImp">
+		<property name="empovertimeDao" ref="employovertimeDao"></property>
+	</bean>
+	<bean id="employattendanceService" class="clt.com.cn.service.impl.EmployattendanceServiceImp">
+		<property name="employattendanceDao" ref="employattendanceDao"></property>
+	</bean>
+	<bean id="employtripService" class="clt.com.cn.service.impl.EmploytripServiceImp">
+		<property name="employtripDao" ref="employtripDao"></property>
+	</bean>
+	<bean id="employrecruitmentService" class="clt.com.cn.service.impl.EmployrecruitmentServiceImp">
+		<property name="employrecruitmentDao" ref="employrecruitmentDao"></property>
+	</bean>
+	<bean id="checkInfoService" class="clt.com.cn.service.impl.CheckInfoServiceImp">
+		<property name="empovertimeDao" ref="employovertimeDao"></property>
+	</bean>
+	<bean id="employAddressListService" class="clt.com.cn.service.impl.EmployAddressListServiceImp">
+		<property name="empaddresslistDao" ref="employAddressListDao"></property>
+	</bean>
+	<bean id="employcontractService" class="clt.com.cn.service.impl.EmploycontractServiceImp">
+		<property name="empcontractDao" ref="employcontractDao"></property>
+	</bean>
+	<bean id="recordCheckServiceImp" class="clt.com.cn.service.impl.EmployrecordCheckServiceImp">
+		<property name="recordCheckDao" ref="recordCheckDao"></property>
+	</bean>
+	<bean id="approvalService" class="clt.com.cn.service.impl.ApprovalServiceImp">
+		<property name="approvalDao" ref="approvalDao"></property>
+	</bean>
+	<bean id="mailRecordService" class="clt.com.cn.service.impl.MailRecordService">
+		<property name="mailRecordDao" ref="mailRecordDao"></property>
+	</bean>
+	<bean id="sinfoService" class="clt.com.cn.service.impl.SmsmsinfoService">
+		<property name="sinfoDao" ref="sinfoDao"></property>
+	</bean>
+	<bean id="iContractManageService" class="clt.com.cn.service.impl.ContractManageServiceImp">
+		<property name="iContractDao" ref="iContractDao"></property>
+	</bean>
+	<bean id="iContracttypeBService" class="clt.com.cn.service.impl.ContracttypeBServiceImp">
+		<property name="iContracttypeBDao" ref="iContracttypeBDao"></property>
+	</bean>
+	<bean id="iContractFileService" class="clt.com.cn.service.impl.ContractFileServiceImp">
+		<property name="iContractFileDao" ref="iContractFileDao"></property>
+	</bean>
+	<bean id="iStaticService" class="clt.com.cn.service.impl.StaticServiceImp">
+		<property name="iStaticDao" ref="iStaticDao"></property>
+	</bean>
+	<bean id="iContractApprovalService" class="clt.com.cn.service.impl.ContractApprovalServiceImp">
+		<property name="iContractApprovalDao" ref="iContractApprovalDao"></property>
+	</bean>
+	<bean id="iCostFeeService" class="clt.com.cn.service.impl.CostApplyServiceImp">
+		<property name="iCostApplyDao" ref="iCostApplyDao"></property>
+		<property name="iCostAuditRecordDao" ref="iCostAuditRecordDao"></property>
+	</bean>
+	<bean id="iCosttypeService" class="clt.com.cn.service.impl.CosttypeServiceImp">
+		<property name="iCosttypeDao" ref="iCosttypeDao"></property>
+	</bean>
+	<bean id="iDeptLevelService" class="clt.com.cn.service.impl.DeptLevelServiceImp">
+		<property name="iDeptLevelDao" ref="iDeptLevelDao"></property>
+	</bean>
+	<bean id="iCostBudgetService" class="clt.com.cn.service.impl.CostBudgetServiceImp">
+		<property name="iCostBudgetDao" ref="iCostBudgetDao"></property>
+	</bean>
+	<bean id="iDeptTotalCostService" class="clt.com.cn.service.impl.DeptTotalCostServiceImp">
+		<property name="iDeptTotalCostDao" ref="iDeptTotalCostDao"></property>
+	</bean>
+	<bean id="iDeptFinancialReService" class="clt.com.cn.service.impl.DeptFinancialReServiceImp">
+		<property name="iDeptFinanciaReDao" ref="iDeptFinanciaReDao"></property>
+	</bean>
+	<!-- <import resource="com/test/oaXiTongGuanLi/config/applicationContext7.xml"/> -->
+	<bean id="transactionManager"
+		class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+
+	<tx:advice id="mytx">
+		<tx:attributes>
+			<tx:method name="*" />
+		</tx:attributes>
+	</tx:advice>
+
+	<aop:config>
+		<aop:advisor advice-ref="mytx"
+			pointcut="execution(* clt.com.cn.service..*.*(..))" />
+	</aop:config>
+
+
+	<!-- spring负责创建流程引擎的配置文件 -->
+	<bean id="processEngineConfiguration" class="org.activiti.spring.SpringProcessEngineConfiguration">
+		<!-- 数据源 -->
+		<property name="dataSource" ref="dataSource" />
+		<!-- 配置事务管理器，统一事务 -->
+		<property name="transactionManager" ref="transactionManager" />
+		<!-- 设置建表策略，如果没有表，自动创建表 -->
+		<property name="databaseSchemaUpdate" value="true" />
+
+		<!-- 邮件服务器的主机名 -->
+		<property name="mailServerHost" value="10.20.30.173" />
+		<property name="mailServerPort" value="25" />
+		<!--默认发送方 -->
+		<property name="mailServerDefaultFrom" value="xuml@unlcn.com" />
+		<!--发送方登录用户名 -->
+		<property name="mailServerUsername" value="xuml@unlcn.com"></property>
+		<!--发送方登录密码 -->
+		<property name="mailServerPassword" value="mulan888xu"></property>
+	</bean>
+	<!-- 创建流程引擎对象 -->
+	<bean id="processEngine" class="org.activiti.spring.ProcessEngineFactoryBean">
+		<property name="processEngineConfiguration" ref="processEngineConfiguration" />
+	</bean>
+
+	<!-- 相当于下面的代码 RepositoryServicie repositoryService = processEngine.getRepositoryService(); 
+		RuntimeServicie repositoryService = processEngine.getRuntimeServicie(); TaskServicie 
+		taskServicie = processEngine.getTaskServicie(); HistoryServicie historyServicie 
+		= processEngine.getHistoryServicie(); -->
+	<!-- 由流程引擎对象，提供的方法，创建项目中使用的Activiti工作流的Service -->
+	<bean id="repositoryService" factory-bean="processEngine"
+		factory-method="getRepositoryService" />
+	<bean id="runtimeService" factory-bean="processEngine"
+		factory-method="getRuntimeService" />
+	<bean id="taskService" factory-bean="processEngine"
+		factory-method="getTaskService" />
+	<bean id="historyService" factory-bean="processEngine"
+		factory-method="getHistoryService" />
+	<bean id="formService" factory-bean="processEngine"
+		factory-method="getFormService" />
+
+	<bean id="workflowService" class="clt.com.cn.service.impl.WorkflowServiceImpl">
+		<property name="repositoryService" ref="repositoryService"></property>
+		<property name="runtimeService" ref="runtimeService"></property>
+		<property name="taskService" ref="taskService"></property>
+		<property name="formService" ref="formService"></property>
+		<property name="historyService" ref="historyService"></property>
+		<property name="iUserService" ref="userService"></property>
+		<property name="iContracttypePositionReDao" ref="iContracttypePositionReDao"></property>
+		<property name="iEmployrecordDao" ref="emrDao"></property>
+		<property name="iContractDao" ref="iContractDao"></property>
+		<property name="iContractApprovalDao" ref="iContractApprovalDao"></property>
+		<property name="iCosttypeDao" ref="iCosttypeDao"></property>
+		<property name="iDeptLevelDao" ref="iDeptLevelDao"></property>
+		<property name="iCostBudgetDao" ref="iCostBudgetDao"></property>
+		<property name="iDeptTotalCostDao" ref="iDeptTotalCostDao"></property>
+		<property name="iDeptDao" ref="deptDao"></property>
+		<property name="iFeeReLevelDao" ref="iFeeReLevelDao"></property>
+		<property name="iDeptFinanciaReDao" ref="iDeptFinanciaReDao"></property>
+		<property name="iCostApplyDao" ref="iCostApplyDao"></property>
+		<property name="iCostAuditRecordDao" ref="iCostAuditRecordDao"></property>
+	</bean>
+</beans>

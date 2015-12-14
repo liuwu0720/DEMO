@@ -1,0 +1,58 @@
+package clt.com.cn.util;
+
+/** 
+ * @Package clt.com.cn.util 
+ * @Description:系统常量类
+ * @author chengwzh 
+ * @date 2015年10月27日 上午11:12:00 
+ * @version V1.0 
+ */
+public class SystemConstance
+{	
+	public static final String CONTRACT_FLOWKEY = "contract";
+	
+	/**
+	 * 商务部经理
+	 */
+	public static final String BUSINESS_MANAGE = "zhouyp";
+	public static final String BUSINESS_MANAGE_EMAIL = "liuwu@unlcn.com";
+
+	/**
+	 * 产品规划部总监
+	 */
+	public static final String PRODUCT_MANAGE = "zhangyg";
+	public static final String PRODUCT_MANAGE_EMAIL = "zhangyq@unlcn.com";
+	
+	/**
+	 * 总裁助理
+	 */
+	public static final String PRESIDENT_ASSISTANT = "xuguang";
+	public static final String PRESIDENT_ASSISTANT_EMAIL = "huangjx@unlcn.com";
+	/**
+	 * 运力管理部
+	 */
+	public static final String CAPACITY_MANAGE = "cuidy";
+	public static final String CAPACITY_MANAGE_EMAIL = "chengwzh@unlcn.com";
+	
+	/**
+	 * 财务总监
+	 */
+	public static final String FINANCIAL_MANAGE="yanyq";
+	public static final String FINANCIAL_MANAGE_EMAIL = "liangll@unlcn.com";
+	
+	/**
+	 * 总裁
+	 */
+	public static final String PRESIDENT = "zhujh";
+	public static final String PRESIDENT_EMAIL = "liuwu@unlcn.com";
+	/**
+	 * 商务部合同专员
+	 */
+	public static final String CONTRACT_MANAGE = "xuml";
+	/**
+	 * 测试帐号邮箱
+	 * 
+	 */
+	public static final String TEST_EMAIL = "liuwu@unlcn.com";
+	public static final String TEST_EMAIL2 = "zhangyq@unlcn.com";
+}

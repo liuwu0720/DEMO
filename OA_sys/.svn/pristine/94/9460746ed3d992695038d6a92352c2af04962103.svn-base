@@ -1,0 +1,77 @@
+package clt.com.cn.controller.workflow;
+
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import clt.com.cn.model.entity.CostApply;
+import clt.com.cn.service.ICostFeeService;
+
+/** 
+ * @Package clt.com.cn.controller.workflow 
+ * @Description:用一句话描述该文件做什么 
+ * @author liuwu
+ * @date 2015年11月16日 下午2:33:38 
+ * @version V1.0 
+ */
+@Controller
+@RequestMapping( "costfeeController" )
+public class CostFeeController
+{
+	@Autowired
+	ICostFeeService iCostFeeService;
+	
+	/**
+	 * 
+	 * @Description:查询当前用户的所有费用申请表 按时间排序
+	 * @param request
+	 * @return 
+	 *   String 返回值描述
+	 * @author liuwu
+	 * @create_date 2015年11月16日 下午3:26:00
+	 */
+	@RequestMapping( "/findAll" )
+	public String findAll( HttpServletRequest request )
+	{
+		String sql = "select * from COST_APPLY";
+		List costFeeList = iCostFeeService.findByPage( sql );
+		request.setAttribute( "costFeeList" , costFeeList );
+		return "oa-costfee/costfeeList";
+	}
+	
+	/**
+	 * 
+	 * @Description:新增 编辑
+	 * @param request
+	 * @return 
+	 *   String 返回值描述
+	 * @author liuwu
+	 * @create_date 2015年11月16日 下午3:32:49
+	 */
+	@RequestMapping( "/toSave" )
+	public String toSave( HttpServletRequest request )
+	{
+		return "oa-costfee/costfeeAdd";
+	}
+	
+	/**
+	 * 
+	 * @Description:保存
+	 * @param request
+	 * @return 
+	 *   String 返回值描述
+	 * @author liuwu
+	 * @create_date 2015年11月16日 下午3:57:26
+	 */
+	@RequestMapping( "/save" )
+	public String save( HttpServletRequest request,CostApply costApply )
+	{
+		
+		iCostFeeService.save(costApply);
+		return "redirect:/contractController/findAll";
+	}
+}

@@ -1,0 +1,174 @@
+package clt.com.cn.service.impl;
+
+import java.util.List;
+
+import clt.com.cn.dao.ICostApplyDao;
+import clt.com.cn.dao.ICostAuditRecordDao;
+import clt.com.cn.model.entity.CostApply;
+import clt.com.cn.model.entity.CostAuditrecord;
+import clt.com.cn.service.ICostApplyService;
+
+/** 
+ * @Package clt.com.cn.service.impl 
+ * @Description:用一句话描述该文件做什么 
+ * @author liuwu
+ * @date 2015年11月16日 下午2:36:30 
+ * @version V1.0 
+ */
+public class CostApplyServiceImp implements ICostApplyService
+{
+	private ICostApplyDao iCostApplyDao;
+	
+	private ICostAuditRecordDao iCostAuditRecordDao;
+	
+	
+	
+	/**
+	 * @return the iCostAuditRecordDao
+	 */
+	public ICostAuditRecordDao getiCostAuditRecordDao()
+	{
+		return iCostAuditRecordDao;
+	}
+
+	/**
+	 * @param iCostAuditRecordDao the iCostAuditRecordDao to set
+	 */
+	public void setiCostAuditRecordDao( ICostAuditRecordDao iCostAuditRecordDao )
+	{
+		this.iCostAuditRecordDao = iCostAuditRecordDao;
+	}
+
+	/**
+	 * @return the iCostApplyDao
+	 */
+	public ICostApplyDao getiCostApplyDao()
+	{
+		return iCostApplyDao;
+	}
+	
+	/**
+	 * @param iCostApplyDao the iCostApplyDao to set
+	 */
+	public void setiCostApplyDao( ICostApplyDao iCostApplyDao )
+	{
+		this.iCostApplyDao = iCostApplyDao;
+	}
+	
+	/** 
+	 * @Description:这里用一句话描述这个方法的作用 
+	 * @param sql
+	 * @return 
+	 * @author liuwu
+	 * @create_date 2015年11月16日 下午3:03:44
+	 */
+	public List findByPage( String sql )
+	{
+		return iCostApplyDao.findAllByPage( sql );
+	}
+	
+	/** 
+	 * @Description:这里用一句话描述这个方法的作用 
+	 * @param costApply 
+	 * @author liuwu
+	 * @create_date 2015年11月16日 下午3:58:41
+	 */
+	public void save( CostApply costApply )
+	{
+		// TODO Auto-generated method stub
+		iCostApplyDao.save( costApply );
+	}
+	
+	public List< CostApply > pageQuery( String hql , Integer pageSize , Integer page ,
+	        Object ... p )
+	{
+		
+		return iCostApplyDao.pageQuery( hql , pageSize , page , p );
+	}
+	
+	/**
+	 * 
+	 * @Description:获取总条数
+	 * @param hql
+	 * @return 
+	 * @author chengwzh
+	 * @create_date 2015年11月17日 下午1:58:40
+	 */
+	public int getCountByHql( String hql )
+	{
+		return iCostApplyDao.getCountByHql( hql );
+	}
+	
+	/**
+	 * 
+	 * @Description:获取总页数
+	 * @param count
+	 * @param pageSize
+	 * @return 
+	 * @author chengwzh
+	 * @create_date 2015年11月17日 下午1:58:17
+	 */
+	public int getpages( int count , int pageSize )
+	{
+		return iCostApplyDao.getpages( count , pageSize );
+	}
+	
+	public void update( CostApply entity )
+	{
+		iCostApplyDao.update( entity );
+	}
+	
+	public CostApply get( int id )
+	{
+		return iCostApplyDao.get( id );
+	}
+	
+	public void delete( int id )
+	{
+		CostApply entity = iCostApplyDao.get( id );
+		entity.setnEnable( 1 );
+		iCostApplyDao.merge( entity );
+	}
+
+	/** 
+	 * @Description:这里用一句话描述这个方法的作用 
+	 * @param id
+	 * @return 
+	 * @author liuwu
+	 * @create_date 2015年11月25日 下午3:34:38
+	 */ 
+    public List< CostAuditrecord > findAllByCostApplyId( Integer id )
+    {
+	   String hql = "from CostAuditrecord where iCostapply = "+id+"  order by lineid desc";
+	    return iCostAuditRecordDao.getByHql(hql);
+    }
+
+	/** 
+	 * @Description:这里用一句话描述这个方法的作用 
+	 * @param countSQL
+	 * @return 
+	 * @author liuwu
+	 * @create_date 2015年11月26日 上午11:29:04
+	 */ 
+    public int getCountBySql( String countSQL )
+    {
+	    // TODO Auto-generated method stub
+	    return iCostApplyDao.getCountBySql( countSQL );
+    }
+
+	/** 
+	 * @Description:这里用一句话描述这个方法的作用 
+	 * @param sql
+	 * @param i
+	 * @param page
+	 * @return 
+	 * @author liuwu
+	 * @create_date 2015年11月26日 上午11:35:25
+	 */ 
+    public List getDataBySqlQuery( String sql , int pageSize , int page )
+    {
+	    // TODO Auto-generated method stub
+	    return iCostApplyDao.getDataBySqlQuery(sql,pageSize,page);
+    }
+	
+}

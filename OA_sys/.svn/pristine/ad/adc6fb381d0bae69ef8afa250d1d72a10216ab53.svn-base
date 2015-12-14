@@ -1,0 +1,38 @@
+package clt.com.cn.dao;
+
+import java.util.List;
+
+import clt.com.cn.model.entity.CostApply;
+
+
+
+/** 
+ * @Package clt.com.cn.dao 
+ * @Description:用一句话描述该文件做什么 
+ * @author liuwu
+ * @date 2015年11月16日 下午2:29:08 
+ * @version V1.0 
+ */
+public interface ICostApplyDao
+{
+
+	/** 
+	 * @Description:这里用一句话描述这个方法的作用
+	 * @param sql
+	 * @return 
+	 *   List 返回值描述
+	 * @author liuwu
+	 * @create_date 2015年11月16日 下午3:04:55
+	 */ 
+    List findAllByPage( String sql );
+
+	/** 
+	 * @Description:这里用一句话描述这个方法的作用
+	 * @param costApply 
+	 *   void 返回值描述
+	 * @author liuwu
+	 * @create_date 2015年11月16日 下午3:59:31
+	 */ 
+    void save( CostApply costApply );	
+	
+}

@@ -1,0 +1,80 @@
+package clt.com.cn.dao.impl;
+
+import java.util.List;
+
+import clt.com.cn.base.BaseDao;
+import clt.com.cn.dao.IDeptTotalCostDao;
+import clt.com.cn.model.entity.CostApply;
+import clt.com.cn.model.entity.DeptTotalcost;
+
+/** 
+ * @Package clt.com.cn.dao.impl 
+ * @Description:用一句话描述该文件做什么 
+ * @author liuwu
+ * @date 2015年11月20日 上午9:42:02 
+ * @version V1.0 
+ */
+public class DeptTotalCostDaoImp extends BaseDao implements IDeptTotalCostDao
+{
+	
+	public void save( DeptTotalcost entity )
+	{
+		super.addObject( entity );
+	}
+	
+	public void update( DeptTotalcost entity )
+	{
+		super.updateObject( entity );
+	}
+	
+	public List< DeptTotalcost > pageQuery( String hql , Integer pageSize , Integer page ,
+	        Object ... p )
+	{
+		return ( List< DeptTotalcost > ) super.pageQuery( hql , pageSize , page , p );
+	}
+	
+	public int getCountByHql( String hql )
+	{
+		return super.getCountByHql( hql );
+	}
+	
+	public int getpages( int count , int pageSize )
+	{
+		return super.getpages( count , pageSize );
+	}
+	
+	public DeptTotalcost get( int id )
+	{
+		return ( DeptTotalcost ) super.getObjectById( DeptTotalcost.class , id );
+	}
+	
+	public void merge( DeptTotalcost entity )
+	{
+		super.mergeObject( entity );
+	}
+	
+	/** 
+	 * @Description:这里用一句话描述这个方法的作用 
+	 * @param getiCosttype
+	 * @param month
+	 * @return 
+	 * @author liuwu
+	 * @create_date 2015年11月20日 上午10:35:11
+	 */
+	@SuppressWarnings( "unchecked" )
+	public DeptTotalcost getByCostType( CostApply costApply , int month )
+	{
+		String hql = "from DeptTotalcost where  nMonth = " + month + " and iDept = " + costApply.getiDept();
+		List< DeptTotalcost > deptTotalcosts = super.getAllObjectOrder( hql );
+		if ( deptTotalcosts != null && deptTotalcosts.size() > 0 )
+		{
+			return deptTotalcosts.get( 0 );
+		}
+		else
+		{
+			return null;
+		}
+		
+	}
+	
+}

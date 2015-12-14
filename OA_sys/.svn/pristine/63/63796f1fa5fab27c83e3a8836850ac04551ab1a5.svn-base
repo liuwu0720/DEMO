@@ -1,0 +1,6 @@
+url=jdbc:oracle:thin:@192.168.0.217:1521:zlwlnc
+username=zlwl_test
+password=zlwl_test
+#url=jdbc:oracle:thin:@192.168.8.249:1521:orcl249
+#username=erp249
+#password=pw791114

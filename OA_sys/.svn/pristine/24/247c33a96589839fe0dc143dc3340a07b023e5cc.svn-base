@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>phone_table.html</title>
+
+<meta name="keywords" content="keyword1,keyword2,keyword3">
+<meta name="description" content="this is my page">
+<meta name="content-type" content="text/html; charset=UTF-8">
+
+<!--<link rel="stylesheet" type="text/css" href="./styles.css">-->
+
+</head>
+
+<body>
+	<table class="table">
+		<tbody id="phone_tbody1">
+			<tr style="font-size: 5;height: 20px;">
+				<td>开始日期</td>
+				<td>结束日期</td>
+				<td>累计出差天数</td>
+				<td>出差通讯费标准</td>
+				<td>实际标准</td>
+				<td>报销金额</td>
+				<td>备注</td>
+				<td style="width: 35px;">操作</td>
+			<tr id="phone_tr2">
+				<td><input type="text" name="dtStart" style="width: 100px"
+					onFocus="WdatePicker({startDate:'%y-%M-01',dateFmt:'yyyy-MM-dd',alwaysUseStartDate:true})" />
+					<img src="./My97DatePicker/skin/datePicker.gif" width="24"
+					height="33" align="absmiddle" style="cursor:pointer"
+					onClick="WdatePicker({el:'d11',startDate:'%y-%M-01',dateFmt:'yyyy-MM-dd',alwaysUseStartDate:true})" />
+				</td>
+				<td><input type="text" name="dtEnd" style="width: 100px"
+					onFocus="WdatePicker({startDate:'%y-%M-01',dateFmt:'yyyy-MM-dd',alwaysUseStartDate:true})" />
+					<img src="./My97DatePicker/skin/datePicker.gif" width="24"
+					height="33" align="absmiddle" style="cursor:pointer"
+					onClick="WdatePicker({el:'d11',startDate:'%y-%M-01',dateFmt:'yyyy-MM-dd',alwaysUseStartDate:true})" /></td>
+				<td><input type="text" name="nDays"></td>
+				<td><input type="text" name=""></td>
+				<td><input type="text" name=""></td>
+				<td><input type="text" name=""></td>
+				<td><input type="text" name=""></td>
+				<td><img src="<%=path%>/img/add.png"
+					onclick="addPhoneBtn(this)"
+					style="width: 15px;heigth:15px;vertical-align:middle;cursor: pointer;">
+					<img src="<%=path%>/img/bin.png" onclick="delPhoneBtn(this)"
+					style="width: 15px;heigth:15px;vertical-align:middle;cursor: pointer;"></td>
+			</tr>
+		</tbody>
+	</table>
+</body>
+</html>

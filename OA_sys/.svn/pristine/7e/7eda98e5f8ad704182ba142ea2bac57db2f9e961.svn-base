@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>使用OA系统设置</title>
+	
+    <meta http-equiv="keywords" content="keyword1,keyword2,keyword3">
+    <meta http-equiv="description" content="this is my page">
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    
+    <!--<link rel="stylesheet" type="text/css" href="./styles.css">-->
+
+  </head>
+  
+  <body>
+    <table style="width: 90%;">
+     	<tr>
+     		<td align="center">
+     			 <P class=w16 align=center>系统用户IE设置指南</P>
+            	 <P align=left>&nbsp;</P>
+            	 <P class=style16 align=left>&nbsp;</P>
+     			
+     		</td>
+     	</tr>
+     	<tr>
+     		<td align="center">
+     			<p> 1、打开IE浏览器，在菜单栏(如果没有请按Alt键)选择“工具”-〉“兼容性视图设置”，出现如下窗口后， 点击添加即可.  </p>
+     		</td>
+     	</tr>
+     	<tr>
+     		<td align="center">
+     			<img alt="" src="1.png">
+     		</td>
+     	</tr>
+     </table>
+  </body>
+</html>

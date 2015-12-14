@@ -1,0 +1,44 @@
+package clt.com.cn.dao.impl;
+
+import java.util.List;
+
+import clt.com.cn.base.BaseDao;
+import clt.com.cn.dao.ICostApplyDao;
+import clt.com.cn.model.entity.CostApply;
+
+/** 
+ * @Package clt.com.cn.dao.impl 
+ * @Description:用一句话描述该文件做什么 
+ * @author liuwu
+ * @date 2015年11月16日 下午2:29:40 
+ * @version V1.0 
+ */
+public class CostApplyDaoImp extends BaseDao implements ICostApplyDao
+{
+
+	/** 
+	 * @Description:这里用一句话描述这个方法的作用 
+	 * @param sql
+	 * @return 
+	 * @author liuwu
+	 * @create_date 2015年11月16日 下午3:05:05
+	 */ 
+    public List findAllByPage( String sql )
+    {
+	    // TODO Auto-generated method stub
+	    return super.getDateBySqlQuery( sql , 5 , 1 );
+    }
+
+	/** 
+	 * @Description:这里用一句话描述这个方法的作用 
+	 * @param costApply 
+	 * @author liuwu
+	 * @create_date 2015年11月16日 下午3:59:38
+	 */ 
+    public void save( CostApply costApply )
+    {
+	    // TODO Auto-generated method stub
+	    super.addObject( costApply );
+    }	
+	
+}

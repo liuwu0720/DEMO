@@ -1,0 +1,13 @@
+package clt.com.cn.util;
+
+/** 
+ * @Package clt.com.cn.util 
+ * @Description:系统常量类
+ * @author chengwzh 
+ * @date 2015年10月27日 上午11:12:00 
+ * @version V1.0 
+ */
+public class SystemConstance
+{	
+	
+}

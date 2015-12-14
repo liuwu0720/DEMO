@@ -1,0 +1,60 @@
+<%@ page language="java" import="java.util.*" pageEncoding="utf-8"%>
+<%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%
+	String path = request.getContextPath();
+	String basePath = request.getScheme() + "://"
+			+ request.getServerName() + ":" + request.getServerPort()
+			+ path + "/";
+%>
+
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8" />
+<base href="<%=basePath%>">
+
+<title>合同信息</title>
+
+<meta http-equiv="pragma" content="no-cache">
+<meta http-equiv="cache-control" content="no-cache">
+<meta http-equiv="expires" content="0">
+<link rel="stylesheet" type="text/css" href="css/style.css" />
+
+<script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
+<script type="text/javascript">
+	
+</script>
+
+</head>
+
+<body>
+	<div class="rightsider">
+
+		<div class="info_tabs clearfix">
+			<a  class="hover">合同添加</a>
+		</div>
+		<dl class="notice clearfix">
+			<dd>合同资料</dd>
+		</dl>
+		<form action="contractController/addContract" method="post"
+			id="myform">
+
+			<ul class="qy_info">
+				<li><span>* 合同名称：</span><input name="positionname" type="text"
+					id="po"></li>
+			</ul>
+			<ul class="qy_info">
+				<li><span>* 合同编号：</span><input name="vcContractno" type="text"
+					id="po"></li>
+			</ul>
+			<br>
+			<button type="submit" style="margin-left: 50px;width: 100px"
+				class="tj add_btn">添 加</button>
+			<button type="button" style="margin-left: 50px;width: 100px"
+				class="tj add_btn"
+				onclick="location.href='javascript:history.go(-1);'">返回</button>
+
+		</form>
+</body>
+</html>

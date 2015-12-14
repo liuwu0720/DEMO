@@ -1,0 +1,162 @@
+package clt.com.cn.service;
+
+import java.io.File;
+import java.io.InputStream;
+import java.util.List;
+import java.util.Map;
+
+import org.activiti.engine.repository.Deployment;
+import org.activiti.engine.repository.ProcessDefinition;
+import org.activiti.engine.task.Comment;
+import org.activiti.engine.task.Task;
+
+import clt.com.cn.controller.workflow.WorkflowBean;
+import clt.com.cn.model.entity.Contract;
+import clt.com.cn.model.entity.CostApply;
+
+
+
+
+public interface IWorkflowService {
+
+	void saveNewDeploye(File file, String filename);
+
+	List<Deployment> findDeploymentList();
+
+	List<ProcessDefinition> findProcessDefinitionList();
+
+	InputStream findImageInputStream(String deploymentId, String imageName);
+
+	void deleteProcessDefinitionByDeploymentId(String deploymentId);
+
+	//void saveStartProcess(WorkflowBean workflowBean);
+
+	List<Task> findTaskListByName(String name, String taskName);
+
+	String findTaskFormKeyByTaskId(String taskId);
+
+	//LeaveBill findLeaveBillByTaskId(String taskId);
+
+	List<String> findOutComeListByTaskId(String taskId);
+
+	//void saveSubmitTask(WorkflowBean workflowBean);
+
+	List<Comment> findCommentByTaskId(String taskId);
+
+	List<Comment> findCommentByLeaveBillId(Long id);
+
+	ProcessDefinition findProcessDefinitionByTaskId(String taskId);
+
+	Map<String, Object> findCoordingByTask(String taskId);
+
+	/** 
+	 * @Description:这里用一句话描述这个方法的作用 
+	 *   void 返回值描述
+	 * @author liuwu
+	 * @create_date 2015年10月21日 下午3:47:55
+	 */ 
+    void startFlowTest();
+
+	/** 
+	 * @Description:启动流程
+	 * @param contract
+	 * @param userno 
+	 *   void 返回值描述
+	 * @author liuwu
+	 * @create_date 2015年10月27日 下午4:12:17
+	 */ 
+    void startProgress( Contract contract , String userno );
+
+	/** 
+	 * @Description:这里用一句话描述这个方法的作用
+	 * @param taskId
+	 * @return 
+	 *   Contract 返回值描述
+	 * @author liuwu
+	 * @create_date 2015年10月29日 下午5:15:54
+	 */ 
+    Contract findContractByTaskId( String taskId );
+
+	/** 
+	 * @Description:这里用一句话描述这个方法的作用
+	 * @param workflowBean 
+	 *   void 返回值描述
+	 * @author liuwu
+	 * @create_date 2015年10月30日 下午1:47:44
+	 */ 
+    void saveSubmitTask( WorkflowBean workflowBean );
+
+	/** 
+	 * @Description:这里用一句话描述这个方法的作用
+	 * @param id
+	 * @return 
+	 *   List<Comment> 返回值描述
+	 * @author liuwu
+	 * @create_date 2015年11月2日 上午9:50:39
+	 */ 
+    List< Comment > findCommentByContractId( String id );
+
+	/** 
+	 * @Description:这里用一句话描述这个方法的作用
+	 * @param taskId 
+	 *   void 返回值描述
+	 * @author liuwu
+	 * @create_date 2015年11月4日 上午9:52:30
+	 */ 
+    void deleteTaskByTaskId( String taskId );
+
+	/** 
+	 * @Description:这里用一句话描述这个方法的作用
+	 * @param name
+	 * @return 
+	 *   List<Task> 返回值描述
+	 * @author liuwu
+	 * @create_date 2015年11月5日 下午1:51:59
+	 */ 
+    List< Contract > findHistoryListByName( String name );
+
+	/** 
+	 * @Description:这里用一句话描述这个方法的作用
+	 * @param name
+	 * @param i
+	 * @param page
+	 * @return 
+	 *   List<Contract> 返回值描述
+	 * @author liuwu
+	 * @create_date 2015年11月5日 下午4:29:40
+	 */ 
+    List< Contract > findHistoryListByNamePagelist( String name , int i , int page );
+
+	/** 
+	 * @Description:这里用一句话描述这个方法的作用
+	 * @param id
+	 * @return 
+	 *   ProcessDefinition 返回值描述
+	 * @author liuwu
+	 * @create_date 2015年11月9日 上午11:49:41
+	 */ 
+    ProcessDefinition findProcessDefinitionByContractId( String id );
+
+	/** 
+	 * @Description:这里用一句话描述这个方法的作用
+	 * @param id
+	 * @return 
+	 *   Map<String,Object> 返回值描述
+	 * @author liuwu
+	 * @create_date 2015年11月9日 上午11:50:33
+	 */ 
+    Map< String , Object > findCoordingByContractId( String id );
+
+	/** 
+	 * @Description:这里用一句话描述这个方法的作用
+	 * @param costApply
+	 * @param userno 
+	 *   void 返回值描述
+	 * @author liuwu
+	 * @create_date 2015年11月17日 下午4:19:55
+	 */ 
+    void startCostFeeProgress( CostApply costApply , String userno );
+
+	
+
+}

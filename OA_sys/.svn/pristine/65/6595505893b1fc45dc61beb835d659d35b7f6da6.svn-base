@@ -1,0 +1,29 @@
+package clt.com.cn.controller.workflow;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import clt.com.cn.service.IWorkflowService;
+
+/** 
+ * @Package clt.com.cn.controller.workflow 
+ * @Description:  工作流控制器
+ * @author liuwu
+ * @date 2015年10月21日 下午3:37:15 
+ * @version V1.0 
+ */
+@Controller
+@RequestMapping( "/workFlowController" )
+public class WorkFlowController
+{
+	@Autowired
+	IWorkflowService workflowService;
+	
+	@RequestMapping( "/createContract" )
+	public void createContract()
+	{
+		//workflowService.startFlowTest();
+	}
+	
+}

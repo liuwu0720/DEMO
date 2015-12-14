@@ -1,0 +1,13 @@
+package clt.com.cn.util;
+
+/** 
+ * @Package clt.com.cn.util 
+ * @Description:用一句话描述该文件做什么 
+ * @author liuwu
+ * @date 2015年10月27日 下午3:06:37 
+ * @version V1.0 
+ */
+public class ComonsConstant
+{	
+	public static final String CONTRACT_FLOWKEY = "contract";
+}

@@ -1,0 +1,199 @@
+package clt.com.cn.model.entity;
+
+import java.util.Date;
+
+/**
+ * CostApply entity. @author MyEclipse Persistence Tools
+ */
+
+public class CostApply implements java.io.Serializable
+{
+	
+	// Fields
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4385885697665381654L;
+	private Integer id;
+	private Integer iUser;
+	private String vcName;
+	private Date dtApply;
+	private Integer iCosttype;
+	private String vcCosttypename;
+	private Float nCost;
+	private String vcNote;
+	private Integer nEnable;
+	private Integer nState;
+	private Integer iDept;
+	private String vcDeptName;
+	
+	// Constructors
+	
+	/** default constructor */
+	public CostApply()
+	{}
+	
+	public Integer getId()
+	{
+		return id;
+	}
+	
+	public Integer getiDept()
+	{
+		return iDept;
+	}
+	
+	public void setiDept( Integer iDept )
+	{
+		this.iDept = iDept;
+	}
+	
+	public void setId( Integer id )
+	{
+		this.id = id;
+	}
+	
+	public Integer getiUser()
+	{
+		return iUser;
+	}
+	
+	public void setiUser( Integer iUser )
+	{
+		this.iUser = iUser;
+	}
+	
+	public String getVcName()
+	{
+		return vcName;
+	}
+	
+	public void setVcName( String vcName )
+	{
+		this.vcName = vcName;
+	}
+	
+	public Date getDtApply()
+	{
+		return dtApply;
+	}
+	
+	public void setDtApply( Date dtApply )
+	{
+		this.dtApply = dtApply;
+	}
+	
+	/**
+	 * @return the iCosttype
+	 */
+	public Integer getiCosttype()
+	{
+		return iCosttype;
+	}
+	
+	/**
+	 * @param iCosttype the iCosttype to set
+	 */
+	public void setiCosttype( Integer iCosttype )
+	{
+		this.iCosttype = iCosttype;
+	}
+	
+	/**
+	 * @return the vcCosttypename
+	 */
+	public String getVcCosttypename()
+	{
+		return vcCosttypename;
+	}
+	
+	/**
+	 * @param vcCosttypename the vcCosttypename to set
+	 */
+	public void setVcCosttypename( String vcCosttypename )
+	{
+		this.vcCosttypename = vcCosttypename;
+	}
+	
+	/**
+	 * @return the nCost
+	 */
+	public Float getnCost()
+	{
+		return nCost;
+	}
+	
+	/**
+	 * @param nCost the nCost to set
+	 */
+	public void setnCost( Float nCost )
+	{
+		this.nCost = nCost;
+	}
+	
+	/**
+	 * @return the vcNote
+	 */
+	public String getVcNote()
+	{
+		return vcNote;
+	}
+	
+	/**
+	 * @param vcNote the vcNote to set
+	 */
+	public void setVcNote( String vcNote )
+	{
+		this.vcNote = vcNote;
+	}
+	
+	/**
+	 * @return the nEnable
+	 */
+	public Integer getnEnable()
+	{
+		return nEnable;
+	}
+	
+	/**
+	 * @param nEnable the nEnable to set
+	 */
+	public void setnEnable( Integer nEnable )
+	{
+		this.nEnable = nEnable;
+	}
+	
+	/**
+	 * @return the nState
+	 */
+	public Integer getnState()
+	{
+		return nState;
+	}
+	
+	/**
+	 * @param nState the nState to set
+	 */
+	public void setnState( Integer nState )
+	{
+		this.nState = nState;
+	}
+	
+	/**
+	 * @return the vcDeptName
+	 */
+	public String getVcDeptName()
+	{
+		return vcDeptName;
+	}
+	
+	/**
+	 * @param vcDeptName the vcDeptName to set
+	 */
+	public void setVcDeptName( String vcDeptName )
+	{
+		this.vcDeptName = vcDeptName;
+	}
+	
+}

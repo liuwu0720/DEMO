@@ -1,0 +1,32 @@
+package clt.com.cn.dao.impl;
+
+import java.util.List;
+
+import clt.com.cn.base.BaseDao;
+import clt.com.cn.dao.IDeptFinanciaReDao;
+import clt.com.cn.model.entity.DeptFinanciaRe;
+
+/** 
+ * @Package clt.com.cn.dao.impl 
+ * @Description:用一句话描述该文件做什么 
+ * @author liuwu
+ * @date 2015年11月24日 上午11:34:05 
+ * @version V1.0 
+ */
+public class DeptFinanciaReDaoImp extends BaseDao  implements IDeptFinanciaReDao
+{
+
+	/** 
+	 * @Description:这里用一句话描述这个方法的作用 
+	 * @param hql3
+	 * @return 
+	 * @author liuwu
+	 * @create_date 2015年11月24日 上午11:37:06
+	 */ 
+    public List< DeptFinanciaRe > findByHql( String hql3 )
+    {
+	    // TODO Auto-generated method stub
+	    return super.getAllObjectOrder( hql3 );
+    }	
+	
+}

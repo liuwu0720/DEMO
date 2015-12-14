@@ -1,0 +1,58 @@
+<%@ page language="java" import="java.util.*" pageEncoding="utf-8"%>
+<%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
+<!DOCTYPE HTML>
+<html>
+<head>
+    <base href="<%=basePath%>">
+    
+    <title>My JSP 'traffic_table.jsp' starting page</title>
+    
+	<meta http-equiv="pragma" content="no-cache">
+	<meta http-equiv="cache-control" content="no-cache">
+	<meta http-equiv="expires" content="0">    
+	<meta http-equiv="keywords" content="keyword1,keyword2,keyword3">
+	<meta http-equiv="description" content="This is my page">
+	<!--
+	<link rel="stylesheet" type="text/css" href="styles.css">
+	-->
+
+  </head>
+  
+  <body>
+     <table  class="table">
+		<tbody id="traffic_tbody1">
+			<tr style="font-size: 5;">
+				<td>出发日期</td>
+				<td>出发地点</td>
+				<td>到达时间</td>
+				<td>到达地点</td>
+				<td>交通工具</td>
+				<td>事由</td>
+				<td>报销金额</td>
+				<td>出差补贴</td>
+				<td>备注</td>
+				
+			</tr>
+			<c:forEach items="${feeTraffics.feeTraffics }" var="t"
+				varStatus="vstatus">
+			<tr id="traffic_tr2">
+				<td><input type="text"  style="width: 100px"  value="${t.dtStart }"
+					onFocus="WdatePicker({startDate:'%y-%M-01',dateFmt:'yyyy-MM-dd',alwaysUseStartDate:true})" />
+					
+				</td>
+				<td><input type="text" value="${t.dtStart }" size="8"></td>
+				<td><input type="text" value="${t.dtStart }" style="width: 100px" onFocus="WdatePicker({startDate:'%y-%M-01',dateFmt:'yyyy-MM-dd',alwaysUseStartDate:true})" ></td>
+				<td><input type="text"   value="${t.dtStart }" size="8"></td>
+				<td>${t.vcEmploytriptool }</td>
+				<td><input type="text"  value="${t.vcReason }" size="8"></td>
+				<td><input type="text"  value="${t.nReimburse }" size="8"></td>
+				<td><input type="text" size="5" value="${t.nTravel }"></td>
+				<td><input type="text"   value="${t.vcNote }"></td>
+			</tr>
+			</c:forEach>
+		</tbody>
+	</table>
+  </body>
+</html>

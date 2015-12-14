@@ -1,0 +1,125 @@
+package clt.com.cn.model.entity;
+
+import java.util.Date;
+
+/**
+ * FeeTelId entity. @author MyEclipse Persistence Tools
+ */
+
+public class FeeTel implements java.io.Serializable
+{
+	
+	// Fields
+	
+	private Integer id;
+	private Date dtStart;
+	private Date dtEnd;
+	private Integer nDays;
+	private Integer nStandard;
+	private Integer nActStandard;
+	private Integer nMoney;
+	private Integer nEnble;
+	private String vcApplyname;
+	private Date dtCreate;
+	
+	public Integer getId()
+	{
+		return id;
+	}
+	
+	public void setId( Integer id )
+	{
+		this.id = id;
+	}
+	
+	public Date getDtStart()
+	{
+		return dtStart;
+	}
+	
+	public void setDtStart( Date dtStart )
+	{
+		this.dtStart = dtStart;
+	}
+	
+	public Date getDtEnd()
+	{
+		return dtEnd;
+	}
+	
+	public void setDtEnd( Date dtEnd )
+	{
+		this.dtEnd = dtEnd;
+	}
+	
+	public Integer getnDays()
+	{
+		return nDays;
+	}
+	
+	public void setnDays( Integer nDays )
+	{
+		this.nDays = nDays;
+	}
+	
+	public Integer getnStandard()
+	{
+		return nStandard;
+	}
+	
+	public void setnStandard( Integer nStandard )
+	{
+		this.nStandard = nStandard;
+	}
+	
+	public Integer getnActStandard()
+	{
+		return nActStandard;
+	}
+	
+	public void setnActStandard( Integer nActStandard )
+	{
+		this.nActStandard = nActStandard;
+	}
+	
+	public Integer getnMoney()
+	{
+		return nMoney;
+	}
+	
+	public void setnMoney( Integer nMoney )
+	{
+		this.nMoney = nMoney;
+	}
+	
+	public Integer getnEnble()
+	{
+		return nEnble;
+	}
+	
+	public void setnEnble( Integer nEnble )
+	{
+		this.nEnble = nEnble;
+	}
+	
+	public String getVcApplyname()
+	{
+		return vcApplyname;
+	}
+	
+	public void setVcApplyname( String vcApplyname )
+	{
+		this.vcApplyname = vcApplyname;
+	}
+	
+	public Date getDtCreate()
+	{
+		return dtCreate;
+	}
+	
+	public void setDtCreate( Date dtCreate )
+	{
+		this.dtCreate = dtCreate;
+	}
+	
+}

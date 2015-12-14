@@ -1,0 +1,173 @@
+<%@ page language="java" import="java.util.*" pageEncoding="utf-8"%>
+<%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%
+String path = request.getContextPath();
+String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/";
+%>
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <base href="<%=basePath%>">
+    
+    <title>My JSP 'costfeeAdd.jsp' starting page</title>
+    
+	<meta http-equiv="pragma" content="no-cache">
+	<meta http-equiv="cache-control" content="no-cache">
+	<meta http-equiv="expires" content="0">    
+	<meta http-equiv="keywords" content="keyword1,keyword2,keyword3">
+	<meta http-equiv="description" content="This is my page">
+	<!--
+	<link rel="stylesheet" type="text/css" href="styles.css">
+	-->
+	<link rel="stylesheet" type="text/css" href="<%=basePath%>css/style.css" />
+	<style type="text/css">
+		#tab {
+	border:1px solid black;
+	border-collapse: collapse;
+	margin:0 auto; 
+	width:40%;
+}
+	#tab  td {
+	border:1px solid black;
+	width:20%;
+	height:30px; 
+	padding: 5px;
+	margin: 0;
+	text-align: center;
+}
+	</style>
+	<script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
+	<script type="text/javascript">
+		$(document).ready(function(){
+			//获取费用类型列表
+			$('#sel1').change(function(){
+				var typeId=$('#sel1 option:selected').val();
+				//alert("typeId="+typeId);
+				$.post('<%=basePath%>feeController/getTypes',
+						{pId:typeId},
+						function(types){
+							$('#sel2').empty();
+							for(var i=0;i<types.length;i++){
+								var option='<option value="'+types[i].id+'">'+types[i].vcName+'</option>'
+								$('#sel2').append(option);
+							}
+						},
+						'json');
+			})
+		});
+		//提交表单
+		function submitForm(){
+			var pcostType=$('#sel1').val();
+			if(pcostType==0){
+				alert('请选择一级费用类别');
+				return;
+			}
+			var iCosttype=$('#sel2').val();
+			if(iCosttype==0){
+				alert('请选择二级费用类别');
+				return;
+			}
+			var nCost=$('#nCost').val();
+			var regex=/^[0-9]+.?[0-9]*$/;
+			//alert('regex:'+regex.test(nCost));
+			if(!regex.test(nCost)){
+				alert('请填写一个数字');
+				$('#nCost').focus();
+				return;
+			}
+			var vcNote=$('#vcNote').val();
+			if(!vcNote){
+				alert('请填写申请备注');
+				$('#vcNote').focus();
+				return;
+			}
+			$('#myform').submit();
+		}
+	</script>
+  </head>
+  
+  <body>
+    <div class="rightsider">
+
+		<div class="info_tabs clearfix">
+			<a  class="hover">费用申请添加</a>
+		</div>
+		<dl class="notice clearfix">
+			<dd>费用申请资料</dd>
+		</dl>
+		<form action="<%=basePath%>feeController/save" method="post" 
+			id="myform">
+			<table id="tab">
+				<tr>
+					<td colspan="4">
+						<div style="float:left;margin: 5px 100px 0px 5px"><img src="<%=basePath%>css/unlcn.png"></div>
+						<div><span style="font-family: 黑体;font-size: 20px;font-weight: bolder;float:left">中联物流（中国）有限公司<br/>费用申请表</span></div>
+					</td>
+				</tr>
+				<tr>
+					<td>费用类别</td>
+					<td>
+						<select name="pcostType" id="sel1">
+							<c:if test="${pTypeId==null}">
+								<option value="0">--请选择--</option>
+								<option value="1" >日常费用</option>
+								<option value="2">特有费用</option>
+							</c:if>
+							<c:if test="${pTypeId==1}">
+								<option value="0">--请选择--</option>
+								<option value="1" selected="selected">日常费用</option>
+								<option value="2">特有费用</option>
+							</c:if>
+							<c:if test="${pTypeId==2}">
+								<option value="0">--请选择--</option>
+								<option value="1">日常费用</option>
+								<option value="2" selected="selected">特有费用</option>
+							</c:if>
+						</select>
+					</td>
+					<td>
+						<select name="iCosttype" id="sel2">
+							<option value="0">--请选择--</option>
+							<c:forEach items="${typeList}" var="type">
+								<c:if test="${type.id==costApply.iCosttype}" var="isTrue">
+									<option value="${type.id}" selected="selected">${type.vcName}</option>
+								</c:if>
+								<c:if test="${!isTrue}">
+									<option value="${type.id}">${type.vcName}</option>
+								</c:if>
+							</c:forEach>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td>费用金额</td>
+					<td ><input type="text" id="nCost" name="nCost" value="${costApply.nCost}"/></td>
+					<td></td>
+				</tr>
+				<tr>
+					<td colspan="3">申请备注</td>
+				</tr>
+				<tr>
+					<td colspan="3">
+						<textarea rows="10" cols="60" id="vcNote" name="vcNote">${costApply.vcNote}</textarea>
+					</td>
+				</tr>
+				<tr>
+					<td colspan="4"><input type="button" value="提交" onclick="submitForm()"
+					 style="background:#ff6600;width: 100px;align:center"/></td>
+				</tr>
+			</table>
+			<input type="hidden" name="id" value="${costApply.id}"/>
+			<input type="hidden" name="iUser" value="${costApply.iUser}"/>
+			<input type="hidden" name="vcName" value="${costApply.vcName}"/>
+			<input type="hidden" name="dtapply" value="${costApply.dtApply}"/>
+			<input type="hidden" name="nEnable" value="${costApply.nEnable}"/>
+			<input type="hidden" name="nState" value="${costApply.nState}"/>
+			<input type="hidden" name="iDept" value="${costApply.iDept}"/>
+		</form>	
+		
+	</div>	
+  </body>
+</html>

@@ -1,0 +1,61 @@
+package clt.com.cn.service.impl;
+
+import java.util.List;
+
+import clt.com.cn.dao.ICostApplyDao;
+import clt.com.cn.model.entity.CostApply;
+import clt.com.cn.service.ICostFeeService;
+
+/** 
+ * @Package clt.com.cn.service.impl 
+ * @Description:用一句话描述该文件做什么 
+ * @author liuwu
+ * @date 2015年11月16日 下午2:36:30 
+ * @version V1.0 
+ */
+public class CostFeeServiceImp  implements ICostFeeService
+{	
+	private ICostApplyDao iCostApplyDao;
+
+	/**
+	 * @return the iCostApplyDao
+	 */
+	public ICostApplyDao getiCostApplyDao()
+	{
+		return iCostApplyDao;
+	}
+
+	/**
+	 * @param iCostApplyDao the iCostApplyDao to set
+	 */
+	public void setiCostApplyDao( ICostApplyDao iCostApplyDao )
+	{
+		this.iCostApplyDao = iCostApplyDao;
+	}
+
+	/** 
+	 * @Description:这里用一句话描述这个方法的作用 
+	 * @param sql
+	 * @return 
+	 * @author liuwu
+	 * @create_date 2015年11月16日 下午3:03:44
+	 */ 
+    public List findByPage( String sql )
+    {
+	    // TODO Auto-generated method stub
+	    return iCostApplyDao.findAllByPage(sql);
+    }
+
+	/** 
+	 * @Description:这里用一句话描述这个方法的作用 
+	 * @param costApply 
+	 * @author liuwu
+	 * @create_date 2015年11月16日 下午3:58:41
+	 */ 
+    public void save( CostApply costApply )
+    {
+	    // TODO Auto-generated method stub
+	    iCostApplyDao.save(costApply);
+    }
+	
+}

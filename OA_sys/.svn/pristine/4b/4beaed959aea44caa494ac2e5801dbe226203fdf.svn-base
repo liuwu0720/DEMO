@@ -1,0 +1,207 @@
+<%@ page language="java" import="java.util.*" pageEncoding="utf-8"%>
+<%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%
+	String path = request.getContextPath();
+	String basePath = request.getScheme() + "://" + request.getServerName() + ":"
+	        + request.getServerPort() + path + "/";
+%>
+
+<!DOCTYPE HTML>
+<html>
+<head>
+<base href="<%=basePath%>">
+
+<title>My JSP 'taskForm.jsp' starting page</title>
+<meta http-equiv="pragma" content="no-cache">
+<meta http-equiv="cache-control" content="no-cache">
+<meta http-equiv="expires" content="0">
+<%-- <link rel="stylesheet" type="text/css" href="<%=basePath%>css/style.css" /> --%>
+
+<script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
+</head>
+
+<body>
+	<div>
+
+		<form action="<%=basePath%>workFlowController/submitTask"
+			method="post" enctype="multipart/form-data" id="myform">
+
+			<table id="tab">
+				<tr>
+					<td>合同名称</td>
+					<td>${contract.vcContractname}</td>
+					<td>合同编号</td>
+					<td>${contract.vcContractno}</td>
+				</tr>
+				<tr>
+					<td>甲方</td>
+					<td>${contract.vcPartya}</td>
+					<td>乙方</td>
+					<td>${contract.vcPartyb}</td>
+				</tr>
+				<tr>
+					<td>合同类别</td>
+					<td>${contracttypeB.vcType }</td>
+				</tr>
+				<tr>
+					<td>合同生效日期</td>
+					<td><fmt:formatDate value="${contract.dtStart}"
+							pattern="yyyy/MM/dd" /></td>
+					<td>终止日期</td>
+					<td><fmt:formatDate value="${contract.dtEnd}"
+							pattern="yyyy/MM/dd" /></td>
+				</tr>
+				<tr>
+					<td>签约类别</td>
+					<c:if test="${contract.nNew==0 }">
+						<td>新签</td>
+					</c:if>
+					<c:if test="${contract.nNew==1 }">
+						<td>续签</td>
+					</c:if>
+				</tr>
+				<tr>
+					<td>总收入</td>
+					<td>总成本</td>
+					<td>总运量</td>
+					<td>毛利率</td>
+				</tr>
+				<tr>
+					<td>${contract.nTotalmoney }</td>
+					<td>${contract.nTotalprice }</td>
+					<td>${contract.nTotalnum }</td>
+					<td>${contract.nRate }</td>
+				</tr>
+
+				<tr id="td1">
+					<td colspan="4">合同内容及相关要求</td>
+				</tr>
+				<tr style="height:300px;">
+					<td colspan="4"><textarea rows="15" cols="100"
+							disabled="disabled" name="vcContent" padding="0">
+							${contract.vcContent}
+						</textarea></td>
+				</tr>
+				<tr>
+					<td colspan="4">审批意见</td>
+				</tr>
+				<tr>
+					<td colspan="4"><textarea rows="3" cols="100" name="comment"
+							padding="0">
+							
+						</textarea></td>
+				</tr>
+				<tr>
+					<td colspan="4">
+						<!-- 使用连线的名称作为按钮 --> <c:if
+							test="${outcomeList!=null && outcomeList.size()>0 }">
+							<c:forEach items="${outcomeList}" var="co">
+								<input type="submit" name="outcome" value="${co }"
+									class="button_ok" />
+							</c:forEach>
+						</c:if>
+					</td>
+				</tr>
+			</table>
+			<input type="hidden" name="taskId" value=${taskId }> <input
+				type="hidden" name="id" value=${contract.lineid }>
+		</form>
+
+	</div>
+
+	<div>
+		<br>
+		<c:if test="${commentList!=null && commentList.size()>0 }">
+			<table width="100%" border="0" align="center" cellpadding="0"
+				cellspacing="0">
+				<tr>
+					<td height="30"><table width="100%" border="0" cellspacing="0"
+							cellpadding="0">
+							<tr>
+								<td height="24" bgcolor="#353c44"><table width="100%"
+										border="0" cellspacing="0" cellpadding="0">
+										<tr>
+											<td><table width="100%" border="0" cellspacing="0"
+													cellpadding="0">
+													<tr>
+														<td width="6%" height="19" valign="bottom"><div
+																align="center"></div></td>
+														<td width="94%" valign="bottom"><span class="STYLE1">显示批注信息</span></td>
+													</tr>
+												</table></td>
+											<td><div align="right">
+													<span class="STYLE1"> </span>
+												</div></td>
+										</tr>
+									</table></td>
+							</tr>
+						</table></td>
+				</tr>
+				<tr>
+					<td><table width="100%" border="0" cellpadding="0"
+							cellspacing="1" bgcolor="#a8c7ce" onmouseover="changeto()"
+							onmouseout="changeback()">
+							<tr>
+								<td width="15%" height="20" bgcolor="d3eaef"><div
+										align="center">
+										<span>时间</span>
+									</div></td>
+								<td width="10%" height="20" bgcolor="d3eaef"><div
+										align="center">
+										<span>批注人</span>
+									</div></td>
+								<td width="75%" height="20" bgcolor="d3eaef"><div
+										align="center">
+										<span>批注信息</span>
+									</div></td>
+							</tr>
+							<c:forEach items="${commentList}" var="co">
+								<tr>
+									<td height="20" bgcolor="#FFFFFF">
+										<div align="center">
+											<fmt:formatDate value="${co.time}" pattern="yyyy/MM/dd" />
+										</div>
+									</td>
+									<td height="20" bgcolor="#FFFFFF">
+										<div align="center">${co.userId }</div>
+									</td>
+									<td height="20" bgcolor="#FFFFFF">
+										<div align="center">${co.fullMessage }</div>
+									</td>
+								</tr>
+							</c:forEach>
+
+
+						</table></td>
+				</tr>
+			</table>
+		</c:if>
+		<c:if test="${commentList==null }">
+			<table width="100%" border="0" align="center" cellpadding="0"
+				cellspacing="0">
+				<tr>
+					<td height="30"><table width="100%" border="0" cellspacing="0"
+							cellpadding="0">
+							<tr>
+								<td height="24" bgcolor="#F7F7F7"><table width="100%"
+										border="0" cellspacing="0" cellpadding="0">
+										<tr>
+											<td><table width="100%" border="0" cellspacing="0"
+													cellpadding="0">
+													<tr>
+														<td width="6%" height="19" valign="bottom"><div
+																align="center"></div></td>
+														<td width="94%" valign="bottom"><span><b>暂时没有批注信息</b></span></td>
+													</tr>
+												</table></td>
+										</tr>
+									</table></td>
+							</tr>
+						</table></td>
+				</tr>
+			</table>
+		</c:if>
+	</div>
+</body>
+</html>

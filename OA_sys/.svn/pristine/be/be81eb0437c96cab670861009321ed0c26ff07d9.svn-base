@@ -1,0 +1,263 @@
+package clt.com.cn.controller.workflow;
+
+import java.io.File;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import org.activiti.engine.repository.Deployment;
+import org.activiti.engine.repository.ProcessDefinition;
+import org.activiti.engine.task.Comment;
+import org.activiti.engine.task.Task;
+import org.apache.commons.fileupload.disk.DiskFileItem;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.commons.CommonsMultipartFile;
+
+import clt.com.cn.model.entity.Contract;
+import clt.com.cn.model.entity.ContractFile;
+import clt.com.cn.model.entity.ContracttypeB;
+import clt.com.cn.service.IContractFileService;
+import clt.com.cn.service.IContractManageService;
+import clt.com.cn.service.IContracttypeBService;
+import clt.com.cn.service.IWorkflowService;
+
+/** 
+ * @Package clt.com.cn.controller.workflow 
+ * @Description:  工作流控制器
+ * @author liuwu
+ * @date 2015年10月21日 下午3:37:15 
+ * @version V1.0 
+ */
+@Controller
+@RequestMapping( "/workFlowController" )
+public class WorkFlowController
+{
+	@Autowired
+	IWorkflowService workflowService;
+	
+	@Autowired
+	IContractManageService iContractManageService;
+	
+	@Autowired
+	IContracttypeBService iContracttypeBService;
+	
+	@Autowired
+	private IContracttypeBService typeService;
+	@Autowired
+	private IContractFileService fileService;
+	
+	@RequestMapping( "/deployHome" )
+	public String createContract( HttpServletRequest request )
+	{
+		// 1:查询部署对象信息，对应表（act_re_deployment）
+		List< Deployment > depList = workflowService.findDeploymentList();
+		// 2:查询流程定义的信息，对应表（act_re_procdef）
+		List< ProcessDefinition > pdList = workflowService.findProcessDefinitionList();
+		// 放置到上下文对象中
+		
+		request.setAttribute( "depList" , depList );
+		request.setAttribute( "pdList" , pdList );
+		return "oa_workflow/deployHome";
+	}
+	
+	/**
+	 * 
+	 * @Description:启动流程
+	 * @param request
+	 * @param response
+	 * @param id
+	 * @return 
+	 *   String 返回值描述
+	 * @author liuwu
+	 * @create_date 2015年10月27日 下午3:17:53
+	 */
+	@RequestMapping( "/startProgress" )
+	public String startProgress( HttpServletRequest request ,
+	        HttpServletResponse response , String id )
+	{
+		int contractId = Integer.parseInt( id );
+		Contract contract = iContractManageService.get( contractId );
+		HttpSession session = request.getSession( true );
+		String userno = ( String ) session.getAttribute( "uname" );
+		workflowService.startProgress( contract , userno );
+		return "redirect:/workFlowController/listTask";
+		
+	}
+	
+	/**
+	 * 发布流程
+	 * @return
+	 */
+	@RequestMapping( "/newdeploy" )
+	public String newdeploy( HttpServletRequest request , MultipartFile file ,
+	        String filename )
+	{
+		// 获取页面传递的值
+		// 1：获取页面上传递的zip格式的文件，格式是File类型
+		CommonsMultipartFile cf = ( CommonsMultipartFile ) file;
+		DiskFileItem fi = ( DiskFileItem ) cf.getFileItem();
+		File file1 = fi.getStoreLocation();
+		// 文件名称
+		// String filename = workflowBean.getFilename();
+		// 完成部署
+		workflowService.saveNewDeploye( file1 , filename );
+		return "redirect:/workFlowController/deployHome";
+	}
+	
+	/**
+	 * 任务管理首页显示
+	 * @return
+	 */
+	@RequestMapping( "/listTask" )
+	public String listTask( HttpServletRequest request )
+	{
+		// 1：从Session中获取当前用户名
+		String name = ( String ) request.getSession().getAttribute( "uname" );
+		// 2：使用当前用户名查询正在执行的任务表，获取当前任务的集合List<Task>
+		List< Task > list = workflowService.findTaskListByName( name );
+		request.setAttribute( "tasklist" , list );
+		return "oa_workflow/tasklist";
+	}
+	
+	/**
+	 * 
+	 * @Description:根据任务ID获取任务合同的详情
+	 * @param request
+	 * @param taskId
+	 * @return 
+	 *   String 返回值描述
+	 * @author liuwu
+	 * @create_date 2015年10月29日 下午5:03:17
+	 */
+	@RequestMapping( "/viewTaskForm" )
+	public String viewTaskForm( HttpServletRequest request , String taskId )
+	{
+		// 合同详情
+		Contract contract = workflowService.findContractByTaskId( taskId );
+		ContracttypeB contracttypeB = iContracttypeBService.get( contract
+		        .getiContracttype() );
+		request.setAttribute( "taskId" , taskId );
+		request.setAttribute( "contract" , contract );
+		request.setAttribute( "contracttypeB" , contracttypeB );
+		
+		int typeId = contract.getiContracttype();
+		ContracttypeB subtype = typeService.get( typeId );// 获取子合同类型
+		int pid = subtype.getiPid();
+		ContracttypeB partype = typeService.get( pid );// 获取父合同类型
+		// 获取上传文件列表
+		int contractId = contract.getLineid();
+		List< ContractFile > files = fileService.findAllByContractId( contractId );
+		request.setAttribute( "partype" , partype );
+		request.setAttribute( "subtype" , subtype );
+		request.setAttribute( "files" , files );
+		
+		/**二：已知任务ID，查询ProcessDefinitionEntiy对象，从而获取当前任务完成之后的连线名称，并放置到List<String>集合中*/
+		List< String > outcomeList = workflowService.findOutComeListByTaskId( taskId );
+		request.setAttribute( "outcomeList" , outcomeList );
+		/**三：查询所有历史审核人的审核信息，帮助当前人完成审核，返回List<Comment>*/
+		List< Comment > commentList = workflowService.findCommentByTaskId( taskId );
+		request.setAttribute( "commentList" , commentList );
+		return "oa_workflow/taskForm";
+		
+	}
+	
+	/**
+	 * 
+	 * @Description:查看审批记录
+	 * @param request
+	 * @param id
+	 * @return 
+	 *   String 返回值描述
+	 * @author liuwu
+	 * @create_date 2015年11月2日 上午9:33:28
+	 */
+	@RequestMapping( "/viewHisComment" )
+	public String viewHisComment( HttpServletRequest request , String id )
+	{
+		int comtractId = Integer.parseInt( id );
+		Contract contract = iContractManageService.get( comtractId );
+		// 2：使用合同ID，查询历史的批注信息
+		List< Comment > commentList = workflowService.findCommentByContractId( id );
+		request.setAttribute( "commentList" , commentList );
+		return "oa_workflow/viewHisComment";
+	}
+	
+	/**
+	 * 
+	 * @Description:这里用一句话描述这个方法的作用
+	 * @param request
+	 * @param workflowBean
+	 * @return 
+	 *   String 返回值描述
+	 * @author liuwu
+	 * @create_date 2015年10月30日 下午1:46:26
+	 */
+	@RequestMapping( "/submitTask" )
+	public String submitTask( HttpServletRequest request , WorkflowBean workflowBean )
+	{
+		workflowService.saveSubmitTask( workflowBean );
+		return "redirect:/workFlowController/listTask";
+	}
+	
+	/**
+	 * 
+	 * @Description:这里用一句话描述这个方法的作用
+	 * @return 
+	 *   String 返回值描述
+	 * @author liuwu
+	 * @create_date 2015年11月2日 下午2:12:45
+	 */
+	@RequestMapping( "/viewCurrentImage" )
+	public String viewCurrentImage(String taskId,HttpServletRequest request)
+	{
+		
+		/**一：查看流程图*/
+		// 1：获取任务ID，获取任务对象，使用任务对象获取流程定义ID，查询流程定义对象
+		ProcessDefinition pd = workflowService.findProcessDefinitionByTaskId( taskId );
+		request.setAttribute( "deploymentId" , pd.getDeploymentId() );
+		request.setAttribute( "imageName" , pd.getDiagramResourceName() );
+		/**二：查看当前活动，获取当期活动对应的坐标x,y,width,height，将4个值存放到Map<String,Object>中*/
+		Map< String , Object > map = workflowService.findCoordingByTask( taskId );
+		request.setAttribute( "acs" , map );
+		return "oa_workflow/image";
+	}
+
+	
+	/**
+	 * 
+	 * @Description:这里用一句话描述这个方法的作用
+	 * @return
+	 * @throws Exception 
+	 *   String 返回值描述
+	 * @author liuwu
+	 * @create_date 2015年11月2日 下午2:25:48
+	 */
+	@RequestMapping( "/viewImage" )
+	public String viewImage(String deploymentId,String imageName,HttpServletResponse response) throws Exception{
+		//1：获取页面传递的部署对象ID和资源图片名称
+		//部署对象ID
+		//String deploymentId = workflowBean.getDeploymentId();
+		//资源图片名称
+		//String imageName = workflowBean.getImageName();
+		//2：获取资源文件表（act_ge_bytearray）中资源图片输入流InputStream
+		InputStream in = workflowService.findImageInputStream(deploymentId,imageName);
+		//3：从response对象获取输出流
+		OutputStream out = response.getOutputStream();
+		//4：将输入流中的数据读取出来，写到输出流中
+		for(int b=-1;(b=in.read())!=-1;){
+			out.write(b);
+		}
+		out.close();
+		in.close();
+		//将图写到页面上，用输出流写
+		return null;
+	}
+}

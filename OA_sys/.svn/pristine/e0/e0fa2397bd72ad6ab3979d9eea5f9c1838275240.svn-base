@@ -1,0 +1,25 @@
+package clt.com.cn.dao.impl;
+
+import clt.com.cn.base.BaseDao;
+import clt.com.cn.dao.IDeptLevelDao;
+import clt.com.cn.model.entity.DeptLevel;
+
+public class DeptLevelDaoImp extends BaseDao implements IDeptLevelDao
+{
+	
+	public void save( DeptLevel entity )
+	{
+		super.addObject( entity );
+	}
+	
+	public void update( DeptLevel entity )
+	{
+		super.updateObject( entity );
+	}
+	
+	public DeptLevel get( int id )
+	{
+		return ( DeptLevel ) super.getObjectById( DeptLevel.class , id );
+	}
+	
+}

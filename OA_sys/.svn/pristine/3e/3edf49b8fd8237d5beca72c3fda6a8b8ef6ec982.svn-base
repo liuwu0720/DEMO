@@ -1,0 +1,60 @@
+package clt.com.cn.controller.workflow;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import clt.com.cn.model.entity.Contract;
+import clt.com.cn.service.IContractManageService;
+import clt.com.cn.service.IWorkflowService;
+
+/** 
+ * @Package clt.com.cn.controller.workflow 
+ * @Description:  工作流控制器
+ * @author liuwu
+ * @date 2015年10月21日 下午3:37:15 
+ * @version V1.0 
+ */
+@Controller
+@RequestMapping( "/workFlowController" )
+public class WorkFlowController
+{
+	@Autowired
+	IWorkflowService workflowService;
+	
+	@Autowired
+	IContractManageService iContractManageService;
+	
+	@RequestMapping( "/createContract" )
+	public void createContract()
+	{
+		//workflowService.startFlowTest();
+	}
+	
+	/**
+	 * 
+	 * @Description:启动流程
+	 * @param request
+	 * @param response
+	 * @param id
+	 * @return 
+	 *   String 返回值描述
+	 * @author liuwu
+	 * @create_date 2015年10月27日 下午3:17:53
+	 */
+	@RequestMapping( "/startProgress" )
+	public String startProgress(HttpServletRequest request,HttpServletResponse response,String strContractId){
+		int contractId = Integer.parseInt( strContractId );
+		Contract contract = iContractManageService.getById(contractId);
+		HttpSession session = request.getSession( true );
+		String userno = ( String ) session.getAttribute( "uname" );
+		//workflowService.startProgress(contract,userno);
+		return null;
+		
+	}
+	
+}

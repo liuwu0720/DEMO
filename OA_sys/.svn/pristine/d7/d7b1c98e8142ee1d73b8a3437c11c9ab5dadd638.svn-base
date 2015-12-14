@@ -1,0 +1,403 @@
+<%@ page language="java" import="java.util.*" pageEncoding="utf-8"%>
+<%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%
+	String path = request.getContextPath();
+	String basePath = request.getScheme() + "://"
+			+ request.getServerName() + ":" + request.getServerPort()
+			+ path + "/";
+%>
+
+<!DOCTYPE HTML>
+<html>
+<head>
+<base href="<%=basePath%>">
+
+<title>My JSP 'costfeeAdd.jsp' starting page</title>
+
+<meta http-equiv="pragma" content="no-cache">
+<meta http-equiv="cache-control" content="no-cache">
+<meta http-equiv="expires" content="0">
+<meta http-equiv="keywords" content="keyword1,keyword2,keyword3">
+<meta http-equiv="description" content="This is my page">
+<!--
+	<link rel="stylesheet" type="text/css" href="styles.css">
+	-->
+<link rel="stylesheet" type="text/css" href="<%=basePath%>css/style.css" />
+<style type="text/css">
+#tab {
+	border: 1px solid black;
+	border-collapse: collapse;
+	margin: 0 auto;
+	width: 80%;
+}
+
+#tab  td {
+	border: 1px solid black;
+	height: 30px;
+	padding: 5px;
+	margin: 0;
+	text-align: left;
+}
+</style>
+<script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
+<script type="text/javascript"
+	src="<%=path%>/My97DatePicker/WdatePicker.js"></script>
+<script type="text/javascript">
+var temp;
+		$(document).ready(function(){
+			
+			temp = "<tr>"+$("#travel_tr2").clone().html()+"</tr>";
+			//获取费用类型列表
+			$('#sel1').change(function(){
+				var typeId=$('#sel1 option:selected').val();
+				//alert("typeId="+typeId);
+				$.post('<%=basePath%>feeController/getTypes',
+															{
+																pId : typeId
+															},
+															function(types) {
+																$('#sel2').empty();
+																for (var i = 0; i < types.length; i++) {
+																	var option = '<option value="'+types[i].id+'">'
+																			+ types[i].vcName
+																			+ '</option>'
+																	$('#sel2').append(option);
+																}
+																if($('#sel2 option:selected').text()=='差旅费'){
+																	$("#travel").show();
+																}
+																if($('#sel2 option:selected').text()=='交通费'){
+																	$("#traffic").show();
+																}else{
+																	$("#other").show();
+																}
+															}, 'json');
+					
+										})
+										
+		//费用类型切换
+	$("#sel2").change(function(){
+		
+		if($('#sel2 option:selected').text()=='差旅费'){
+			$("#travel").siblings().hide();
+			$("#travel").show();
+		}
+		if($('#sel2 option:selected').text()=='交通费'){
+			$("#traffic").siblings().hide();
+			$("#traffic").show();
+		}else{
+			$("#other").siblings().hide();
+			$("#other").show();
+		}
+	})								
+										
+									
+					});
+	//提交表单
+	function submitForm() {
+		/* var pcostType = $('#sel1').val();
+		if (pcostType == 0) {
+			alert('请选择一级费用类别');
+			return;
+		}
+		var iCosttype = $('#sel2').val();
+		if (iCosttype == 0) {
+			alert('请选择二级费用类别');
+			return;
+		}
+		var nCost = $('#nCost').val();
+		var regex = /^[0-9]+.?[0-9]*$/;
+		//alert('regex:'+regex.test(nCost));
+		if (!regex.test(nCost)) {
+			alert('请填写一个数字');
+			$('#nCost').focus();
+			return;
+		}
+		 */
+		$('#myform').submit();
+	}
+	//差旅费按钮
+	var index = 0;
+	function addBtn(obj){
+		index ++;	
+		//$(obj).parent().parent().clone(true).insertAfter($(obj).parent().parent());
+		
+		var temp1 = temp.replace(/\[0]/g,'['+index+']');
+		
+		$("#travel_tbody1").append(temp1);
+	}
+	//按钮删除
+	function delBtn(obj){
+		if(index>0){
+			index --;
+		}
+		
+		var len=$(obj).parent().parent().parent().children().length;
+		if(len>2){
+			var div=$(obj).parent().parent().parent().children().last();
+			//alert(div.html());
+			div.remove();
+		}
+	}
+	
+	
+</script>
+</head>
+
+<body>
+	<div class="rightsider">
+
+		<div class="info_tabs clearfix">
+			<a class="hover">费用申请添加</a>
+		</div>
+		<dl class="notice clearfix">
+			<dd>费用申请资料</dd>
+		</dl>
+		<form action="<%=basePath%>feeController/save" method="post"
+			id="myform">
+			<table id="tab">
+					<tr>
+						<td colspan="4" style="text-align: center;">
+							<div style="float:left;margin: 5px 100px 0px 5px">
+								<img src="<%=basePath%>css/unlcn.png">
+							</div>
+							<div>
+								<span
+									style="font-family: 黑体;font-size: 20px;font-weight: bolder;float:left">中联物流（中国）有限公司<br />费用申请表
+								</span>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td>费用类别</td>
+						<c:if test="${type=='add' }">
+						<td><select name="pcostType" id="sel1">
+								<c:if test="${pTypeId==null}">
+									<option value="0">--请选择--</option>
+									<option value="1">日常费用</option>
+									<option value="2">特有费用</option>
+								</c:if>
+								<c:if test="${pTypeId==1}">
+									<option value="0">--请选择--</option>
+									<option value="1" selected="selected">日常费用</option>
+									<option value="2">特有费用</option>
+								</c:if>
+								<c:if test="${pTypeId==2}">
+									<option value="0">--请选择--</option>
+									<option value="1">日常费用</option>
+									<option value="2" selected="selected">特有费用</option>
+								</c:if>
+						</select></td>
+						<td><select name="iCosttype" id="sel2" >
+								<option value="0">--请选择--</option>
+								<c:forEach items="${typeList}" var="type">
+									<c:if test="${type.id==costApply.iCosttype}" var="isTrue">
+										<option value="${type.id}" selected="selected">${type.vcName}</option>
+									</c:if>
+									<c:if test="${!isTrue}">
+										<option value="${type.id}">${type.vcName}</option>
+									</c:if>
+								</c:forEach>
+						</select></td>
+						</c:if>
+						<c:if test="${type=='update' }">
+							<td colspan="2">
+								<select name="iCosttype" id="sel2" >
+								<c:forEach items="${typeList}" var="type">
+									<c:if test="${type.id==costApply.iCosttype}" var="isTrue">
+										<option value="${type.id}" selected="selected">${type.vcName}</option>
+									</c:if>
+									
+								</c:forEach>
+						</select>
+							</td>
+						</c:if>
+					</tr>
+					<tr>
+						<td>费用金额</td>
+						<td><input type="text" id="nCost" name="nCost"
+							value="${costApply.nCost}" /></td>
+						<td></td>
+					</tr>
+					<tr>
+						<td>个人银行帐号</td>
+						<td colspan="2"><input type="text" name="vcBank"
+							value="${costApply.vcBank }"></td>
+					</tr>
+					<tr>
+						<td>结算方式</td>
+						<td colspan="2"><select name="iPayType">
+								<option value="1" selected="selected">银行转账</option>
+								<option value="2">现金</option>
+						</select></td>
+					</tr>
+					<tr>
+						<td>收款人</td>
+						<td colspan="2"><c:if test="${costApply.vcAcceptMan==null }">
+								<input type="text" name="vcAcceptMan" value="${vcAcceptMan }">
+							</c:if> <c:if test="${costApply.vcAcceptMan != null }">
+								<input type="text" name="vcAcceptMan"
+									value="${costApply.vcAcceptMan }">
+							</c:if></td>
+					</tr>
+					<tr>
+						<td>费用承担公司</td>
+						<td colspan="2"><select name="iPayType">
+								<option value="0">--请选择--</option>
+								<c:forEach items="${takeFeeCompanies}" var="type">
+									<c:if test="${type.id==costApply.iCompanyId2}" var="isTrue">
+										<option value="${type.id}" selected="selected">${type.vcCompany}</option>
+									</c:if>
+									<c:if test="${!isTrue}">
+										<option value="${type.id}">${type.vcCompany}</option>
+									</c:if>
+								</c:forEach>
+						</select></td>
+					</tr>
+					<tr>
+						<td colspan="3" style="text-align: center;">明细</td>
+					</tr>
+					<tr>
+						<td colspan="3">
+							<table id="travel" class="table" style="display: none">
+							<tbody id="travel_tbody1" >
+								<tr style="font-size: 5;height: 20px;">
+									<td>开始日期</td>
+									<td>到达日期</td>
+									<td>交通工具</td>
+									<td>交通费单据张数</td>
+									<td>交通费金额</td>
+									<td>出差地点</td>
+									<td>出差天数</td>
+									<td>出差补贴</td>
+									<td>住宿费金额</td>
+									<td>住宿费单据张数</td>
+									<td>杂费单据张数</td>
+									<td>杂费</td>
+									<td>备注</td>
+									<td style="width: 35px;">操作</td>
+								</tr>
+								<tr id="travel_tr2">
+									<td><input type="text" name="travelfees[0].dtStart"
+										style="width: 100px"
+										onFocus="WdatePicker({startDate:'%y-%M-01',dateFmt:'yyyy-MM-dd',alwaysUseStartDate:true})" /> <img
+										src="./My97DatePicker/skin/datePicker.gif" width="24"
+										height="33" align="absmiddle" style="cursor:pointer"
+										onClick="WdatePicker({el:'d11',startDate:'%y-%M-01',dateFmt:'yyyy-MM-dd',alwaysUseStartDate:true})" /></td>
+
+									<td><input type="text" name="travelfees[0].dtEnd"
+										style="width: 100px"
+										onFocus="WdatePicker({alwaysUseStartDate:true})" /> <img
+										src="./My97DatePicker/skin/datePicker.gif" width="24"
+										height="33" align="absmiddle" style="cursor:pointer"
+										onClick="WdatePicker({alwaysUseStartDate:true})" /></td>
+									<td><select name="travelfees[0].vcTool">
+											<option value="0">-请选择-</option>
+											<option value="火车">火车</option>
+											<option value="轮船">轮船</option>
+											<option value="飞机">飞机</option>
+											<option value="大巴">大巴</option>
+											<option value="公交">公交</option>
+											<option value="的士">的士</option>
+									</select></td>
+									<td><input type="text" size="5"
+										name="travelfees[0].nToollist"></td>
+									<td><input type="text" size="5" name="travelfees[0].nTool"></td>
+									<td><input type="text" size="5"
+										name="travelfees[0].vcPlace"></td>
+									<td><input type="text" size="5" name="travelfees[0].nDays"></td>
+									<td><input type="text" size="5"
+										name="travelfees[0].nSubsidies"></td>
+									<td><input type="text" size="5"
+										name="travelfees[0].nHotel"></td>
+									<td><input type="text" size="5"
+										name="travelfees[0].nHotellist"></td>
+									<td><input type="text" size="5"
+										name="travelfees[0].nOtherlist"></td>
+									<td><input type="text" size="5"
+										name="travelfees[0].nOther"></td>
+									<td><input type="text" size="5"
+										name="travelfees[0].vcNote"></td>
+									<td><img src="<%=path%>/img/add.png"
+										onclick="addBtn(this)"
+										style="width: 15px;heigth:15px;vertical-align:middle;cursor: pointer;">
+										<img src="<%=path%>/img/bin.png" onclick="delBtn(this)"
+										style="width: 15px;heigth:15px;vertical-align:middle;cursor: pointer;"></td>
+								</tr>
+								</tbody>
+							</table>
+							<!-- 交通费 模板-->
+							<table id="traffic" class="table" style="display: none">
+								<tbody id="traffic_tbody1" >
+								<tr style="font-size: 5;height: 20px;">
+									<td>出发日期</td>
+									<td>出发地点</td>
+									<td>到达时间</td>
+									<td>到达地点</td>
+									<td>交通工具</td>
+									<td>事由</td>
+									<td>报销金额</td>
+									<td>出差补贴</td>							
+									<td>备注</td>
+									<td style="width: 35px;">操作</td>
+								</tr>
+								<tr id="traffic_tr2">
+									<td><input type="text" name="dtStart"
+										style="width: 100px"
+										onFocus="WdatePicker({startDate:'%y-%M-01',dateFmt:'yyyy-MM-dd',alwaysUseStartDate:true})" /> <img
+										src="./My97DatePicker/skin/datePicker.gif" width="24"
+										height="33" align="absmiddle" style="cursor:pointer"
+										onClick="WdatePicker({el:'d11',startDate:'%y-%M-01',dateFmt:'yyyy-MM-dd',alwaysUseStartDate:true})" />
+									</td>
+									<td><input type="text" name="vcStartPlace"></td>
+									<td><input type="text" name="dtEnd"></td>
+									<td><input type="text" name="vcEndPlace"></td>
+									<td><select name="vcTool">
+											<option value="0">-请选择-</option>
+											<option value="火车">火车</option>
+											<option value="轮船">轮船</option>
+											<option value="飞机">飞机</option>
+											<option value="大巴">大巴</option>
+											<option value="公交">公交</option>
+											<option value="的士">的士</option>
+									</select></td>
+									<td><input type="text" name="vcWhy"></td>
+									<td><input type="text" name="nMoney"></td>
+									<td><input type="text" size="5"
+										name="nSubsidies"></td>
+									<td><input type="text" name="vcNote"></td>
+									<td><img src="<%=path%>/img/add.png"
+										onclick="addTrafficBtn(this)"
+										style="width: 15px;heigth:15px;vertical-align:middle;cursor: pointer;">
+										<img src="<%=path%>/img/bin.png" onclick="delTrafficBtn(this)"
+										style="width: 15px;heigth:15px;vertical-align:middle;cursor: pointer;"></td>	
+								</tr>
+								</tbody>
+							</table>
+							<!-- 通讯费模板 -->
+							<table id="phone" class="table" style="display: none">
+								<tbody id="phone_tbody1" >
+								</tbody>
+							</tbody>	
+						</td>
+					</tr>
+					<tr>
+						<td colspan="4"><input type="button" value="提交"
+							onclick="submitForm()"
+							style="background:#ff6600;width: 100px;align:center" /></td>
+					</tr>
+				
+			</table>
+			<input type="hidden" name="id" value="${costApply.id}" /> <input
+				type="hidden" name="iUser" value="${costApply.iUser}" /> <input
+				type="hidden" name="vcName" value="${costApply.vcName}" /> <input
+				type="hidden" name="dtapply" value="${costApply.dtApply}" /> <input
+				type="hidden" name="nEnable" value="${costApply.nEnable}" /> <input
+				type="hidden" name="nState" value="${costApply.nState}" /> <input
+				type="hidden" name="iDept" value="${costApply.iDept}" />
+		</form>
+
+	</div>
+</body>
+</html>

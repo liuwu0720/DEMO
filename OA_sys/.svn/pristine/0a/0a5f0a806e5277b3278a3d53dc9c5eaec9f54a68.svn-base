@@ -1,0 +1,17 @@
+package clt.com.cn.dao;
+
+import java.util.List;
+
+import clt.com.cn.model.entity.FeeTel;
+
+public interface IFeeTelDao
+{
+	public void save( FeeTel entity );
+	
+	public void update( FeeTel entity );
+	
+	public void merge( FeeTel entity );
+	
+	// 查询
+	public List getAllObjectOrder( String hql );
+}

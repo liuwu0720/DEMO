@@ -1,0 +1,207 @@
+package clt.com.cn.controller.workflow;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import clt.com.cn.model.entity.Dept;
+import clt.com.cn.model.entity.DeptFinanciaRe;
+import clt.com.cn.model.entity.Employrecord;
+import clt.com.cn.model.entity.Position;
+import clt.com.cn.model.entity.Smuser;
+import clt.com.cn.service.IDeptFinancialReService;
+import clt.com.cn.service.IDeptService;
+import clt.com.cn.service.IEmployrecordService;
+import clt.com.cn.service.IPositionService;
+import clt.com.cn.service.IUserService;
+
+@Controller
+@RequestMapping( "/feeFinancialController" )
+public class FeeFinancialController
+{
+	@Autowired
+	private IDeptFinancialReService financialService;
+	@Autowired
+	private IDeptService deptService;
+	@Autowired
+	private IEmployrecordService empService;
+	@Autowired
+	private IUserService userService;
+	@Autowired
+	private IPositionService positionService;
+	
+	/**
+	 * 
+	 * @Description:查询所有
+	 * @param request
+	 * @param vcDeptname
+	 * @param vcUserName
+	 * @param nLevel
+	 * @return 
+	 *   String 返回值描述
+	 * @author chengwzh
+	 * @create_date 2015年11月27日 下午3:48:06
+	 */
+	@RequestMapping( "/findAll" )
+	public String findAll( HttpServletRequest request ,
+	        @RequestParam( value = "vcDeptname" , required = false ) String vcDeptname ,
+	        @RequestParam( value = "vcUserName" , required = false ) String vcUserName ,
+	        @RequestParam( value = "nLevel" , required = false ) Integer nLevel )
+	{
+		String returnPath = "feeFinancialController/findAll?op=1";
+		String hql = "from DeptFinanciaRe where nEnable=0";
+		if ( StringUtils.isNotBlank( vcDeptname ) )
+		{
+			hql += " and vcDeptname like '%" + vcDeptname + "%'";
+			returnPath += "&vcDeptname=" + vcDeptname;
+		}
+		if ( StringUtils.isNotBlank( vcUserName ) )
+		{
+			hql += " and vcUserName like '%" + vcUserName + "%'";
+			returnPath += "&vcUserName=" + vcUserName;
+		}
+		if ( nLevel != null && nLevel != 0 )
+		{
+			hql += " and nLevel=" + nLevel;
+			returnPath += "&nLevel=" + nLevel;
+		}
+		hql += " order by lineid desc";
+		String p = request.getParameter( "page" );
+		int page , pages , count;
+		int pageSize = 10;
+		// String countHql = "from CostApply where nEnable=0 and iUser=" +
+		// userId;
+		count = financialService.getCountByHql( hql );
+		pages = financialService.getpages( count , pageSize );
+		
+		if ( p == null || p == "" )
+		{
+			page = 1;
+		}
+		else
+		{
+			page = Integer.parseInt( p );
+			if ( page < 1 )
+			{
+				page = 1;
+			}
+			else if ( page > pages )
+			{
+				page = pages;
+			}
+		}
+		List< DeptFinanciaRe > financials = financialService.pageQuery( hql , pageSize ,
+		        page , null );
+		request.setAttribute( "financials" , financials );
+		request.setAttribute( "page" , page );
+		request.setAttribute( "pages" , pages );
+		// request.setAttribute( "returnPath" ,
+		// "feeFinancialController/findAll?op=1&" );
+		request.setAttribute( "returnPath" , returnPath );
+		request.setAttribute( "vcDeptname" , vcDeptname );
+		request.setAttribute( "vcUserName" , vcUserName );
+		request.setAttribute( "nLevel" , nLevel );
+		return "oa_fee/feeFinancialList";
+	}
+	
+	@RequestMapping( "/toSave" )
+	public String toSave( @RequestParam( value = "id" , required = false ) Integer id ,
+	        HttpServletRequest request )
+	{
+		String hql = "from Dept where active=1";
+		List< Dept > companys = deptService.getAllObjectOrder( hql );// 获取公司
+		if ( id != null )
+		{
+			DeptFinanciaRe financial = financialService.get( id );
+			request.setAttribute( "financial" , financial );
+		}
+		request.setAttribute( "companys" , companys );
+		return "oa_fee/feeFinancialSave";
+	}
+	
+	/**
+	 * 
+	 * @Description:保存
+	 * @param entity
+	 * @return 
+	 *   Map<String,Object> 返回值描述
+	 * @author chengwzh
+	 * @create_date 2015年11月27日 下午3:48:23
+	 */
+	@ResponseBody
+	@RequestMapping( "/save" )
+	public Map< String , Object > save( DeptFinanciaRe entity )
+	{
+		Map< String , Object > result = new HashMap< String , Object >();
+		result.put( "isSuccess" , true );
+		result.put( "message" , "保存成功！" );
+		int deptId = entity.getiDept();
+		Dept dept = deptService.getDeptById( deptId );
+		entity.setVcDeptname( dept.getDeptname() );
+		String vcUsername = entity.getVcUserName();
+		String hql = "from Employrecord where status=1 and employname='" + vcUsername
+		        + "'";
+		List< Employrecord > emps = empService.getEmrInfo( hql );
+		if ( CollectionUtils.isEmpty( emps ) )
+		{
+			result.put( "isSuccess" , false );
+			result.put( "message" , "保存失败，" + vcUsername + " 该用户不存在！" );
+			return result;
+		}
+		Employrecord emp = emps.get( 0 );
+		int positionId = emp.getPositionid();
+		entity.setiPosition( positionId );
+		Position position = positionService.getPositionById( positionId );
+		if ( position != null )
+		{
+			entity.setVcPosition( position.getPositionname() );// 职位
+		}
+		entity.setVcEmail( emp.getEmail() );// 邮箱
+		String Hql = "from Smuser where active=1 and employrecord.lineid="
+		        + emp.getLineid();
+		List< Smuser > users = userService.getUsersByCondition( Hql );
+		if ( CollectionUtils.isNotEmpty( users ) )
+		{
+			Smuser user = users.get( 0 );
+			entity.setiUser( user.getLineid() );
+			entity.setVcUserno( user.getUserno() );
+		}
+		if ( entity.getLineid() == null )
+		{
+			financialService.save( entity );
+		}
+		else
+		{
+			financialService.update( entity );
+		}
+		return result;
+	}
+	
+	/**
+	 * 
+	 * @Description:删除
+	 * @param id
+	 * @return 
+	 *   String 返回值描述
+	 * @author chengwzh
+	 * @create_date 2015年11月27日 下午3:48:33
+	 */
+	@RequestMapping( "/del" )
+	public String del( @RequestParam( value = "id" ) Integer id )
+	{
+		DeptFinanciaRe entity = financialService.get( id );
+		entity.setnEnable( 1 );
+		financialService.merge( entity );
+		return "redirect:findAll";
+	}
+}

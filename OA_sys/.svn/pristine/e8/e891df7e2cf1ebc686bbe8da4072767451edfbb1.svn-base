@@ -1,0 +1,12 @@
+package clt.com.cn.service;
+
+import clt.com.cn.model.entity.DeptLevel;
+
+public interface IDeptLevelService
+{
+	public void save( DeptLevel entity );
+	
+	public void update( DeptLevel entity );
+	
+	public DeptLevel get( int id );
+}

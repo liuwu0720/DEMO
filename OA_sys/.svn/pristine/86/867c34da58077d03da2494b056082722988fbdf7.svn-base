@@ -1,0 +1,65 @@
+package clt.com.cn.model.entity;
+
+
+
+/**
+ * ContracttypeB entity. @author MyEclipse Persistence Tools
+ */
+
+public class ContracttypeB implements java.io.Serializable
+{
+	
+	// Fields
+	
+	/**
+	 * 
+	 */
+    private static final long serialVersionUID = 2853999773870672727L;
+	private Integer iLineid;
+	private Integer iPid;
+	private String vcType;
+	/**
+	 * @return the iLineid
+	 */
+	public Integer getiLineid()
+	{
+		return iLineid;
+	}
+	/**
+	 * @param iLineid the iLineid to set
+	 */
+	public void setiLineid( Integer iLineid )
+	{
+		this.iLineid = iLineid;
+	}
+	/**
+	 * @return the iPid
+	 */
+	public Integer getiPid()
+	{
+		return iPid;
+	}
+	/**
+	 * @param iPid the iPid to set
+	 */
+	public void setiPid( Integer iPid )
+	{
+		this.iPid = iPid;
+	}
+	/**
+	 * @return the vcType
+	 */
+	public String getVcType()
+	{
+		return vcType;
+	}
+	/**
+	 * @param vcType the vcType to set
+	 */
+	public void setVcType( String vcType )
+	{
+		this.vcType = vcType;
+	}
+	
+	
+}

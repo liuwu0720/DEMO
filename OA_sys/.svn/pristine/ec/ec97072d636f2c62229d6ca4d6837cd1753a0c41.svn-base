@@ -1,0 +1,89 @@
+package clt.com.cn.service;
+
+import java.util.List;
+
+import clt.com.cn.model.entity.CostApply;
+import clt.com.cn.model.entity.CostAuditrecord;
+
+/** 
+ * @Package clt.com.cn.service 
+ * @Description:用一句话描述该文件做什么 
+ * @author liuwu
+ * @date 2015年11月16日 下午2:35:59 
+ * @version V1.0 
+ */
+public interface ICostApplyService
+{
+	public void update( CostApply entity );
+	
+	public CostApply get( int id );
+	
+	public void delete( int id );
+	
+	/** 
+	 * @Description:这里用一句话描述这个方法的作用
+	 * @param sql
+	 * @return 
+	 *   List 返回值描述
+	 * @author liuwu
+	 * @create_date 2015年11月16日 下午3:03:30
+	 */
+	List findByPage( String sql );
+	
+	/** 
+	 * @Description:这里用一句话描述这个方法的作用
+	 * @param costApply 
+	 *   void 返回值描述
+	 * @author liuwu
+	 * @create_date 2015年11月16日 下午3:58:34
+	 */
+	void save( CostApply costApply );
+	
+	/**
+	 * 
+	 * @Description:这里用一句话描述这个方法的作用
+	 * @param hql
+	 * @param pageSize
+	 * @param page
+	 * @param p
+	 * @return 
+	 *   List 返回值描述
+	 * @author chengwzh
+	 * @create_date 2015年11月17日 上午11:37:44
+	 */
+	public List< CostApply > pageQuery( final String hql , final Integer pageSize ,
+	        final Integer page , final Object ... p );
+	
+	/**
+	 * 
+	 * @Description:获取记录条数
+	 * @param hql
+	 * @return 
+	 *   int 返回值描述
+	 * @author chengwzh
+	 * @create_date 2015年11月17日 上午11:58:03
+	 */
+	public int getCountByHql( final String hql );
+	
+	/**
+	 * 
+	 * @Description:获取总页数
+	 * @param count
+	 * @param pageSize
+	 * @return 
+	 *   int 返回值描述
+	 * @author chengwzh
+	 * @create_date 2015年11月17日 下午1:51:59
+	 */
+	public int getpages( int count , int pageSize );
+
+	/** 
+	 * @Description:这里用一句话描述这个方法的作用
+	 * @param id
+	 * @return 
+	 *   List<CostAuditrecord> 返回值描述
+	 * @author liuwu
+	 * @create_date 2015年11月25日 下午3:34:28
+	 */ 
+    public List< CostAuditrecord > findAllByCostApplyId( Integer id );
+}

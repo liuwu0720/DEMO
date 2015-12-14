@@ -1,0 +1,270 @@
+package clt.com.cn.controller.position;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.util.CollectionUtils;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import clt.com.cn.model.entity.Employrecord;
+import clt.com.cn.model.entity.MailRecord;
+import clt.com.cn.model.entity.Smsmsinfo;
+import clt.com.cn.model.entity.Smuser;
+import clt.com.cn.service.IEmployrecordService;
+import clt.com.cn.service.IMailRecordService;
+import clt.com.cn.service.ISmsmsinfoService;
+import clt.com.cn.service.IUserService;
+import clt.com.cn.util.MailRemoteCtl;
+
+@Controller
+@RequestMapping( "/mailController" )
+public class MailController
+{
+	@Autowired
+	private IEmployrecordService recordService;
+	@Autowired
+	private IMailRecordService mailRecordService;
+	@Autowired
+	private ISmsmsinfoService sinfoService;
+	@Autowired
+	private IUserService userService;
+	private final String oa_mail_pwd = "oa_mail_pwd";
+	
+	/**
+	 * @Description 进入修改邮箱密码页面
+	 * @param request
+	 * @return
+	 * @author chengwzh
+	 * @date 2015/7/7 16:10
+	 */
+	@RequestMapping( "/intoUpdateMail" )
+	public String intoUpdateMail( HttpServletRequest request )
+	{
+		HttpSession session = request.getSession();
+		int recordId = Integer.parseInt( session.getAttribute( "recordid" ).toString() );
+		Employrecord record = recordService.getEmrById( recordId );
+		request.setAttribute( "record" , record );
+		return "oa_employrecord/mail";
+	}
+	
+	/**
+	 * @Description 修改密码
+	 * @param request
+	 */
+	@RequestMapping( "/updateMailPwd" )
+	@ResponseBody
+	public Map< String , Object > updateMailPwd( HttpServletRequest request )
+	{
+		Map< String , Object > result = new HashMap< String , Object >();
+		String msg = "";
+		String code = request.getParameter( "code" );
+		String password = request.getParameter( "password" );
+		HttpSession session = request.getSession();
+		try
+		{
+			String userIdmsg = session.getAttribute( "lineid" ).toString();
+			int userId = Integer.parseInt( userIdmsg );
+			Smuser user = userService.getUserById( userId );
+			String recordIdMsg = session.getAttribute( "recordid" ).toString();
+			// System.out.println( "recordId:" + recordIdMsg );
+			int recordId = Integer.parseInt( recordIdMsg );
+			Employrecord record = recordService.getEmrById( recordId );
+			String userno = record.getFileno();// 获取账号
+			// 从短息表里获取验证码
+			String hql = " from Smsmsinfo where vcuserno=? and vcmobile=? and istatus=? order by ilineid desc";
+			Object[] p = { oa_mail_pwd , record.getMobile() , 1 };// 使用常量获取
+			List< Smsmsinfo > list = sinfoService.findByProperties( hql , p );
+			if ( CollectionUtils.isEmpty( list ) )
+			{
+				msg = "请先获取验证码";
+				result.put( "msg" , msg );
+				return result;
+			}
+			Smsmsinfo sinfo = list.get( 0 );
+			String validateCode = sinfo.getVcmemo();
+			// 截取短信里的数字
+			validateCode = validateCode.substring( validateCode.indexOf( "[" ) + 1 ,
+			        validateCode.indexOf( "]" ) );
+			if ( StringUtils.isBlank( validateCode ) )
+			{
+				msg = "验证码获取失败，请重新获取";
+				result.put( "msg" , msg );
+				return result;
+			}
+			if ( sinfo.getDtexpired().getTime() < System.currentTimeMillis() )
+			{
+				msg = "验证码已失效，请重新获取";
+				result.put( "msg" , msg );
+				return result;
+			}
+			if ( ! code.trim().equals( validateCode ) )
+			{
+				msg = "验证码错误!";
+				result.put( "msg" , msg );
+				return result;
+			}
+			// 修改邮箱密码
+			MailRemoteCtl mailUtil = new MailRemoteCtl();
+			String email = record.getEmail();
+			if ( ! email.endsWith( "unlcn.com" ) )
+			{
+				msg = "您的邮箱不是‘unlcn.com’结尾的,请到 “人力行政管理” 下的 “员工档案管理” 中修改个人邮箱";
+				result.put( "msg" , msg );
+				return result;
+			}
+			String emailUserno = email.substring( 0 , email.indexOf( "@" ) );// 截取用户名
+			mailUtil.changePassword( emailUserno , password );
+			// 创建密码修改的记录 先获取，如果获取不到则创建
+			String hqlStr = "from MailRecord where iEmpRecordId=? and vcAcount=?";
+			Object[] values = { recordId , userno };
+			List< MailRecord > mailRecords = mailRecordService.getByProperties( hqlStr ,
+			        values );
+			if ( CollectionUtils.isEmpty( mailRecords ) )
+			{
+				MailRecord mailRecord = new MailRecord();
+				mailRecord.setiEmpRecordId( recordId );
+				mailRecord.setVcAcount( userno );
+				// String vcIp = request.getRemoteAddr();// 获取用户ip
+				String vcIp = getIp( request );
+				mailRecord.setVcIp( vcIp );
+				mailRecordService.save( mailRecord );
+			}
+			else
+			{
+				MailRecord mailRecord = mailRecords.get( 0 );
+				mailRecord.setDtUpdate( new Date() );
+				String vcIp = request.getRemoteAddr();// 获取用户ip
+				mailRecord.setVcIp( vcIp );
+				mailRecordService.update( mailRecord );
+			}
+			msg = "修改密码成功！";
+			result.put( "msg" , msg );
+			return result;
+		}
+		catch ( Exception e )
+		{
+			e.printStackTrace();
+			msg = "修改密码失败:" + e.getMessage();
+			result.put( "msg" , msg );
+			return result;
+		}
+	}
+	
+	// 获取ip
+	public String getIp( HttpServletRequest request )
+	{
+		String remoteAddr = request.getRemoteAddr();
+		String forwarded = request.getHeader( "X-Forwarded-For" );
+		String realIp = request.getHeader( "X-Real-IP" );
+		String ip = null;
+		if ( realIp == null )
+		{
+			if ( forwarded == null )
+			{
+				ip = remoteAddr;
+			}
+			else
+			{
+				ip = remoteAddr + "/" + forwarded;
+			}
+		}
+		else
+		{
+			if ( realIp.equals( forwarded ) )
+			{
+				ip = realIp;
+			}
+			else
+			{
+				ip = realIp + "/" + forwarded.replaceAll( ", " + realIp , "" );
+			}
+		}
+		return ip;
+	}
+	
+	/**
+	 * 发送验证码
+	 * 
+	 * @return
+	 */
+	@RequestMapping( "/sendCode" )
+	@ResponseBody
+	public Map< String , Object > sendCode( HttpServletRequest request )
+	{
+		HttpSession session = request.getSession();
+		int userId = Integer.parseInt( session.getAttribute( "lineid" ).toString() );
+		int recordId = Integer.parseInt( session.getAttribute( "recordid" ).toString() );
+		Map< String , Object > result = new HashMap< String , Object >();
+		try
+		{
+			Smsmsinfo sinfo = new Smsmsinfo();// 新建短信发送表
+			// Smuser user = userService.getUserById( userId );
+			Employrecord record = recordService.getEmrById( recordId );
+			// 先判断手机号码是否规范或者是否存在
+			String tel = record.getMobile();
+			if ( StringUtils.isBlank( tel ) )
+			{
+				result.put( "isSuccess" , false );
+				result.put( "msg" , "发送失败，您的手机号码为空" );
+				return result;
+			}
+			String regexp = "[0-9]{11}";
+			if ( ! tel.matches( regexp ) )
+			{
+				result.put( "isSuccess" , false );
+				result.put( "msg" , "发送失败，您的手机号码不规范" );
+				return result;
+			}
+			// sinfo.setVcuserno(record.getUserno());
+			sinfo.setVcuserno( oa_mail_pwd );// 设置用户名为常量oa_mail_pwd
+			String code = createValidateCode();// 短信验证码
+			String msg = "您的邮箱密码重置验证码为[" + code + "]";
+			// System.out.println( "msg:" + msg );
+			sinfo.setVcmemo( msg );
+			Calendar c = Calendar.getInstance();
+			c.add( Calendar.MINUTE , 10 );// 设置过期时间为当前时间加10min
+			Date date = c.getTime();
+			sinfo.setDtexpired( date );
+			sinfo.setVcmobile( record.getMobile() );
+			sinfo.setIstatus( 0 );// 设置状态为未发送
+			sinfoService.save( sinfo );// 保存
+			result.put( "isSuccess" , true );
+			result.put( "msg" , "发送成功！" );
+			return result;
+		}
+		catch ( Exception e )
+		{
+			e.printStackTrace();
+			result.put( "isSuccess" , false );
+			result.put( "msg" , "发送失败!" );
+			return result;
+		}
+	}
+	
+	/**
+	 * 随机生成4位验证码
+	 * 
+	 * @return
+	 */
+	public String createValidateCode()
+	{
+		Random rand = new Random();
+		String code = "";
+		for ( int i = 0 ; i < 4 ; i++ )
+		{
+			code += rand.nextInt( 10 );
+		}
+		return code;
+	}
+}

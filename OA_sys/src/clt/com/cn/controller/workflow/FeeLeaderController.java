@@ -1,0 +1,277 @@
+package clt.com.cn.controller.workflow;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import clt.com.cn.model.entity.Dept;
+import clt.com.cn.model.entity.DeptLevel;
+import clt.com.cn.model.entity.Employrecord;
+import clt.com.cn.model.entity.Position;
+import clt.com.cn.model.entity.Smuser;
+import clt.com.cn.service.IDeptLevelService;
+import clt.com.cn.service.IDeptService;
+import clt.com.cn.service.IEmployrecordService;
+import clt.com.cn.service.IPositionService;
+import clt.com.cn.service.IUserService;
+
+@Controller
+@RequestMapping( "/feeLeaderController" )
+public class FeeLeaderController
+{
+	@Autowired
+	private IDeptLevelService levelService;
+	@Autowired
+	private IDeptService deptService;
+	@Autowired
+	private IEmployrecordService empService;
+	@Autowired
+	private IPositionService positionService;
+	@Autowired
+	private IUserService userService;
+	
+	/**
+	 * 
+	 * @Description:查询所有
+	 * @return 
+	 *   String 返回值描述
+	 * @author chengwzh
+	 * @create_date 2015年11月26日 上午10:30:34
+	 */
+	@RequestMapping( "/findAll" )
+	public String findAll( HttpServletRequest request ,
+	        @RequestParam( value = "vcCompany" , required = false ) String vcCompany ,
+	        @RequestParam( value = "vcDeptname" , required = false ) String vcDeptname ,
+	        @RequestParam( value = "vcUserName" , required = false ) String vcUserName )
+	{
+		String returnPath = "feeLeaderController/findAll?op=1";
+		String hql = "from DeptLevel where nEnable=0";
+		if ( StringUtils.isNotBlank( vcCompany ) )
+		{
+			hql += " and vcCompany like '%" + vcCompany + "%'";
+			returnPath += "&vcCompany=" + vcCompany;
+		}
+		if ( StringUtils.isNotBlank( vcDeptname ) )
+		{
+			hql += " and vcDeptname like '%" + vcDeptname + "%'";
+			returnPath += "&vcDeptname=" + vcDeptname;
+		}
+		if ( StringUtils.isNotBlank( vcUserName ) )
+		{
+			hql += " and vcUserName like '%" + vcUserName + "%'";
+			returnPath += "&vcUserName=" + vcUserName;
+		}
+		hql += " order by lineid desc";
+		String p = request.getParameter( "page" );
+		int page , pages , count;
+		int pageSize = 10;
+		// String countHql = "from CostApply where nEnable=0 and iUser=" +
+		// userId;
+		count = levelService.getCountByHql( hql );
+		pages = levelService.getpages( count , pageSize );
+		
+		if ( p == null || p == "" )
+		{
+			page = 1;
+		}
+		else
+		{
+			page = Integer.parseInt( p );
+			if ( page < 1 )
+			{
+				page = 1;
+			}
+			else if ( page > pages )
+			{
+				page = pages;
+			}
+		}
+		List< DeptLevel > deptLevels = levelService.pageQuery( hql , pageSize , page ,
+		        null );
+		request.setAttribute( "deptLevels" , deptLevels );
+		request.setAttribute( "page" , page );
+		request.setAttribute( "pages" , pages );
+		// request.setAttribute( "returnPath" ,
+		// "feeLeaderController/findAll?op=1&" );
+		request.setAttribute( "returnPath" , returnPath );
+		request.setAttribute( "vcCompany" , vcCompany );
+		request.setAttribute( "vcDeptname" , vcDeptname );
+		request.setAttribute( "vcUserName" , vcUserName );
+		return "oa_fee/feeLeaderList";
+	}
+	
+	/**
+	 * 
+	 * @Description:进入编辑页面
+	 * @return 
+	 *   String 返回值描述
+	 * @author chengwzh
+	 * @create_date 2015年11月26日 上午10:31:51
+	 */
+	@RequestMapping( "/toSave" )
+	public String toSave( @RequestParam( value = "id" , required = false ) Integer id ,
+	        HttpServletRequest request )
+	{
+		String hql = "from Dept where pid=0 and active=1";
+		List< Dept > companys = deptService.getAllObjectOrder( hql );// 获取公司
+		if ( id != null )
+		{
+			DeptLevel deptLevel = levelService.get( id );
+			Integer compId = deptLevel.getiCompany();
+			if ( compId == null )
+			{
+				int deptId = deptLevel.getiDept();
+				Dept dept = deptService.getDeptById( deptId );
+				compId = dept.getPid();
+			}
+			Dept comp = deptService.getDeptById( compId );
+			String sql = "select LINEID,DEPTNAME,PID,ACTIVE,USERNO,CURRDATE,MANAGERUSERID,"
+			        + "ILEVEL from dept where active=1 and pid!=0 start with lineid="
+			        + compId + " connect by prior lineid=pid";
+			List< Dept > depts = ( List< Dept > ) deptService.getDateBySqlQuery( sql , 0 ,
+			        0 );
+			int userId = deptLevel.getiUser();
+			Smuser user = userService.getUserById( userId );
+			int empId = user.getEmployrecord().getLineid();
+			Employrecord emp = empService.getEmrById( empId );
+			request.setAttribute( "emp" , emp );
+			request.setAttribute( "comp" , comp );
+			request.setAttribute( "depts" , depts );
+			request.setAttribute( "deptLevel" , deptLevel );
+		}
+		request.setAttribute( "companys" , companys );
+		return "oa_fee/feeLeaderSave";
+	}
+	
+	/**
+	 * 
+	 * @Description:这里用一句话描述这个方法的作用
+	 * @param entity
+	 * @return 
+	 *   Map<String,Object> 返回值描述
+	 * @author chengwzh
+	 * @create_date 2015年12月2日 上午10:26:22
+	 */
+	@ResponseBody
+	@RequestMapping( "/save" )
+	public Map< String , Object > save( DeptLevel entity )
+	{
+		Map< String , Object > result = new HashMap< String , Object >();
+		result.put( "isSuccess" , true );
+		result.put( "message" , "保存成功！" );
+		String vcUserName = entity.getVcUserName();
+		String Hql = "from Employrecord where status=1 and employname='" + vcUserName
+		        + "'";
+		List< Employrecord > emps = empService.getEmrInfo( Hql );
+		if ( CollectionUtils.isEmpty( emps ) )
+		{
+			result.put( "isSuccess" , false );
+			result.put( "message" , "保存失败，'" + vcUserName + "'该用户不存在！" );
+			return result;
+		}
+		Employrecord emp = emps.get( 0 );
+		int iPosition = emp.getPositionid();// 获取职位id
+		Position position = positionService.getPositionById( iPosition );
+		if ( position != null )
+		{
+			entity.setVcPosition( position.getPositionname() );// 职位
+		}
+		entity.setiPosition( iPosition );
+		entity.setVcEmail( emp.getEmail() );// 邮箱
+		entity.setiUser( emp.getLineid() );
+		// 用户id
+		int compId = entity.getiCompany();
+		Dept comp = deptService.getDeptById( compId );// 公司
+		entity.setVcCompany( comp.getDeptname() );
+		int deptId = entity.getiDept();
+		Dept dept = deptService.getDeptById( deptId );
+		entity.setVcDeptname( dept.getDeptname() );// 部门
+		String hql = "from Smuser where active=1 and employrecord.lineid="
+		        + emp.getLineid();
+		List< Smuser > users = userService.getUsersByCondition( hql );
+		if ( CollectionUtils.isNotEmpty( users ) )
+		{
+			Smuser user = users.get( 0 );
+			entity.setiUser( user.getLineid() );
+			entity.setVcUserno( user.getUserno() );
+		}
+		Integer levelId = entity.getLineid();
+		if ( levelId == null )
+		{
+			// 新增
+			levelService.save( entity );
+		}
+		else
+		{
+			// 修改
+			levelService.update( entity );
+		}
+		return result;
+	}
+	
+	/**
+	 * 
+	 * @Description:删除
+	 * @return 
+	 *   String 返回值描述
+	 * @author chengwzh
+	 * @create_date 2015年11月26日 上午10:33:35
+	 */
+	@RequestMapping( "/del" )
+	public String del( @RequestParam( value = "id" , required = false ) Integer id )
+	{
+		DeptLevel entity = levelService.get( id );
+		entity.setnEnable( 1 );
+		levelService.merge( entity );
+		return "redirect:findAll";
+	}
+	
+	/**
+	 * 
+	 * @Description:通过公司id获取部门
+	 * @param pid
+	 * @return 
+	 *   List<Dept> 返回值描述
+	 * @author chengwzh
+	 * @create_date 2015年11月26日 上午11:45:42
+	 */
+	@ResponseBody
+	@RequestMapping( "/getDeptByPid" )
+	public List< Dept > getDeptByPid( @RequestParam( value = "pid" ) int pid )
+	{
+		String sql = "select LINEID,DEPTNAME,PID,ACTIVE,USERNO,CURRDATE,MANAGERUSERID,"
+		        + "ILEVEL from dept where active=1 and pid!=0 start with lineid=" + pid
+		        + " connect by prior lineid=pid";
+		List< Dept > depts = ( List< Dept > ) deptService.getDateBySqlQuery( sql , 0 , 0 );
+		return depts;
+	}
+	
+	@RequestMapping( "/getEmpsByDeptId" )
+	@ResponseBody
+	public List< Map< String , Object >> getEmpsByDeptId(
+	        @RequestParam( value = "iDept" ) int iDept )
+	{
+		String hql = "from Employrecord where status=1 and dept.lineid=" + iDept;
+		List< Employrecord > emps = empService.getEmrInfo( hql );
+		List< Map< String , Object >> list = new ArrayList< Map< String , Object >>();
+		for ( Employrecord e : emps )
+		{
+			Map< String , Object > map = new HashMap< String , Object >();
+			map.put( "id" , e.getLineid() );
+			map.put( "name" , e.getEmployname() );
+			list.add( map );
+		}
+		return list;
+	}
+}

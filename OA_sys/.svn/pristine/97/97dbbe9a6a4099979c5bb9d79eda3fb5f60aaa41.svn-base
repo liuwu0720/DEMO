@@ -1,0 +1,625 @@
+--公司组织架构表
+Create Sequence s_DeptID;
+Create Table dept
+(
+  lineid      number default 0  not null,--id
+  deptname    varchar2(200)      not null,--部门名称
+  manageruserid  number          ,      --部门负责人
+  pid          number default 0  not null,--父类id
+  active      number default 1 not null,--有效
+  userno      varchar2(30)      not null,--操作员
+  currdate    date            default sysdate not null,--最后时间
+  constraint dept_pk primary key (lineid),
+  CONSTRAINT fk_dept_dept FOREIGN KEY (pid) REFERENCES dept (lineid)
+);
+
+
+Create Table Module
+(
+  LineID         number          default 0 not null,  --模块流水号
+  ModuleNo      varchar2(30)    not null,  --模块编号
+  ModuleName    varchar2(100)   not null,  --模块名称
+  Sort           number          default 0 not null,  --排序号
+  constraint ind_module unique (ModuleNo),
+  constraint Module_PK primary key(lineid)
+);
+Insert Into Module(lineid,ModuleNo,ModuleName,Sort) values(1000,'sm','系统管理',1000);
+
+
+--权限静态表
+Create Table Privilege --用户权限表静态表
+(
+  lineid		number default 0 not null, --序号
+  pid		  number	default 0 not null, --父类ID
+  PrivilegeNo    varchar2(30)    not null, --节点编号
+  PrivilegeName    varchar2(50)    not null , --权限名称
+  title			varchar2(50)     null, --alt 显示的文字
+  urlpath      varchar2(50)     null, --路径
+  type 			number     null, --类型  是否是子节点
+  description          varchar2(1000)    null, --菜单功能说明
+  constraint Privilege_PK primary key (lineid)
+);
+
+Create Sequence S_RoleID;
+Create Table role--角色信息
+(
+  lineid         number     default 0 NOT NULL, --流水号
+  RoleName      varchar2(100)    not null,--角色说明
+  Active         number      default 1 not null,--是否有效
+  userno        varchar2(30)  null,
+  currdate          date        default sysdate not null,
+  constraint role_pk primary key (lineid)
+);
+--角色权限表
+Create Sequence S_RolePrivilegeID;
+Create Table RolePrivilege
+(
+      lineid      number     default 0 NOT NULL, --流水号
+      RoleID       number     default 0 NOT NULL, --角色流水号
+      privilegeid  number     default 0 not null, --权限编号
+      UserNo      varchar2(30)    null, --设置用户
+      currDate        date        default sysdate not null,--最后更新时间
+      constraint ind_RolePrivilege unique (lineid,RoleID),--唯一性约束
+      constraint RolePrivilege_PK primary key (LineID),
+      CONSTRAINT fk_roleprivilege_role FOREIGN KEY (roleid) REFERENCES role (lineid),
+      CONSTRAINT fk_roleprivilege_privilege FOREIGN KEY (privilegeid) REFERENCES privilege (lineid)
+);
+
+--系统操作员表
+Create Sequence S_smUserID;
+Create Table smUser
+(
+  lineid       	number     default 0 NOT NULL, --流水号
+  recordid	number     default 0 NOT NULL, --档案号
+  userno	varchar2(30)    not null  ,  --员工编号
+  password    	varchar2(100)    null  ,  --用户密码(md5加密)
+  admin          number      default 0 not null , --0：普通人员，1：部门管理员，2：公司管理员
+  active         number      default 1 not null, -- 是否有效
+  lastUpdateDate  date      default sysdate not null, --密码最后修改时间
+  roleID          number 		default 0 not null, --角色ID
+  cuserno2        varchar2(30)  null,--操作人
+  currdate          date        default sysdate not null,--操作时间
+  constraint ind_user unique (UserNo),
+  constraint USER_PK primary key( LineID ),
+  CONSTRAINT fk_user_role FOREIGN KEY (roleid) REFERENCES role (lineid)
+  
+);
+--日志
+Create Sequence S_UserLogID;
+Create Table UserLog
+(
+  lineid         	number   NOT NULL, --流水号
+  privilegeid   	number default 0 not null,  --权限编号
+  userid		number default 0 not null,  --用户编号
+  currDatedate          default sysdate not null,--操作时间
+  Memo          	varchar2(4000)       null,--备注
+  IP            	varchar2(100)       null,--IP地址
+  constraint USERLOG_PK primary key( lineid ),
+  CONSTRAINT fk_userlog_privilege FOREIGN KEY (privilegeid) REFERENCES privilege (lineid),
+  CONSTRAINT fk_userlog_user FOREIGN KEY (userid) REFERENCES smUser (lineid)
+);
+
+--用户权限
+Create Sequence S_UserPrivilegeID;
+create table userprivilege
+(
+  LineID       number     default 0 not null, --序号
+  UserID       number     default 0 not null, --用户编号
+  PrivilegeID  number     default 0 not null, --权限编号
+  UserNo      varchar2(30)    null, --设置用户
+  currDate        date        default sysdate not null,--最后更新时间
+  constraint ind_userprivilege unique (UserID,PrivilegeID),
+  CONSTRAINT fk_userprivilege_user FOREIGN KEY (userid) REFERENCES smUser (lineid),
+  CONSTRAINT fk_userprivilege_privilege FOREIGN KEY (privilegeid) REFERENCES privilege (lineid),
+  constraint UserPrivilege_PK primary key (LineID)
+);
+--职务/岗位表
+Create Sequence S_PositionID;
+Create Table position
+(
+		lineid		number     default 0 not null, --序号
+		positionname	varchar2(100)			not null,--职位名称
+		constraint position_PK primary key (LineID)
+);
+--学历表
+Create Sequence S_educationlevelID;
+Create Table educationlevel
+(
+		lineid		number     default 0 not null, --序号
+		levelname	varchar2(100)			not null,--学历名称
+		constraint educationlevel_PK primary key (LineID)
+);
+--员工档案
+Create Sequence S_employrecordID;
+Create Table employrecord
+(
+	LineID       number     default 0 not null, --序号
+	fileno		varchar2(20)	not null,--员工编号
+	employname	 varchar2(20)	not null,--员工姓名
+	deptid		number     default 0 not null, --所属部门
+	positionid	number     default 0 not null, --职位
+	comedatedate	default sysdate		not null,--入职时间
+
+	mobile		varchar2(11)	null,--手机号
+	email		varchar(100)  null,--email
+	tel1		varchar2(30)	null,--固定电话
+	tel2		varchar2(30)	null,-- 分机号
+	telline		varchar2(30)	null,--直线号码
+	contactno	varchar2(30)	null,--通讯联系号码(QQ,skype等)
+	
+	cardno		varchar2(18)	not null,--证件编号
+	birthday	date	not null,--出生日期
+	Accountadd	varchar2(100)	 null,--户口所在地
+	bankcardno      varchar2(100)	 null,--银行卡号
+	marriage	number	default 0 not null,--婚姻状况
+	
+	
+	address		varchar2(100)	not null,--家庭住址
+	hometel		 varchar2(30)	null,--家庭电话
+	emergencyContact  varchar2(30)	null,--紧急联系人
+	emergencytel	varchar2(30)	null,--紧急联系电话
+	
+	educationlevel	number	default 0	not null,--	教育程度
+	school		varchar(100)	null,--毕业学校
+	graduationdate	date	null,--毕业时间
+	technology	varchar(100)	null,--所学专业
+	certificate     varchar(100)    null,--所持证书
+	resume		varchar(2000)	null,--个人简历
+	UserNo          varchar2(30)    null, --设置用户
+	currDate        date  default sysdate not null,--最后更新时间
+	status		number		null, --档案状态   0初始  在个人桌面HR和IT确认后为1 已入职  
+	hrstatus	number		null,   --档案HR确认状态   因为要HR和IT并发确认 所以只能分2个字段确认
+	itstatus	number		null,	--档案IT确认
+	hrprepare	varchar(100)	null,	--员工入职 HR需做的准备 (座位 电脑安排)
+	itprepare	varchar(100)	null,	--员工入职 IT需做的准备 (OMS OA)
+
+	deptaddressID   number null,		--员工办公地址外键id  
+	contractTypeID	number	null,		--档案合同类别   通讯录只显示正式员工的信息
+	constraint employrecordid_PK primary key (LineID),
+	CONSTRAINT fk_employrecord_dept FOREIGN KEY (deptid) REFERENCES dept (lineid),
+	CONSTRAINT fk_employrecord_position FOREIGN KEY (positionid) REFERENCES position (lineid)
+	
+);
+
+
+--通讯录表
+Create Sequence S_employAddressListID;
+Create Table employAddressList
+(
+	lineid           number     default 0 not null, --序号
+	name		varchar2(100) null,    --名称
+	positionName	varchar2(100) null,    --职位名称
+	companyName	varchar2(100) null,    --公司名称
+	address		varchar2(200) null,    --地址
+	mobile		varchar2(20) null,    --手机号码
+	tel		varchar2(20) null,    --固定电话
+	email		varchar2(100) null,    --邮箱
+	opuser		int	null,		--创建者
+	optime		date	null,		--创建时间
+	status		int	null,		--状态 是否可用
+	constraint employAddressList_PK primary key (lineid)
+)
+
+
+--外出表
+Create Sequence S_EmployoutID;
+Create Table employout
+(
+	LineID           number     default 0 not null, --序号
+	userid		 number     default 0 not null, --用户序号
+	recordid	 number     default 0 not null, --档序号
+	currdatedate	default sysdate not null,--填写时间
+	outdate1date	not null,--外出时间开始
+	outdate2date	not null,--外出时间结束
+	reason		 varchar2(1000) not null,--外出原因
+	ischeck		number	default 0 not null,--审核状态(0,未审核,1:未通过,2:已通过)
+	checkmemo	varchar2(1000) not null,--审核说明
+	checkuserid	 number	default 0 not null,--审核用户id
+	checkdate	 date	null,--审核时间
+	CONSTRAINT fk_employout_user FOREIGN KEY (userid) REFERENCES smUser (lineid),
+	CONSTRAINT fk_employout_checkuser FOREIGN KEY (checkuserid) REFERENCES smUser (lineid),
+	CONSTRAINT fk_employout_file FOREIGN KEY (recordid) REFERENCES employrecord (lineid),
+  constraint employout_PK primary key (LineID)
+);
+
+create sequence S_employholidayTypeID
+--请假类别表
+Create Table employholidayType
+(
+	lineid		number not null,   --id
+	typename	varchar2(100) null, --类别名称
+	constraint employholidayType_PK primary key (lineid)
+)
+
+--请假表
+Create Sequence S_Employholidayid;
+Create Table Employholiday
+(
+  LineID       number     default 0 not null, --序号
+  userid       number     default 0 not null, --用户序号
+  recordid       number     default 0 not null, --档案序号
+  currdate     date        default sysdate not null,--填写时间
+  date1     date        not null,--请假时间开始
+  date2     date        not null,--请假时间结束
+  reason       varchar2(1000) not null,--请假原因
+  ischeck       number      default 0 not null,--审核状态(0,未审核,1:未通过,2:已通过)
+  checkmemo     varchar2(1000) not null,--审核说明
+  checkuserid   number      default 0 not null,--审核用户id
+  checkdate     date        null,--审核时间
+  deptid	number     null  ,--所属部门
+  checkremarks   varchar2(200)  null, --审批备注
+  ACTUALUSERID	  number     null,    --实际审批用户
+  HOLIDAYTYPEID	  number  null,        --请假类型
+  hrstatus	  number   null,	--个人桌面 请假信息HR确认状态 
+  CONSTRAINT fk_Employholiday_user FOREIGN KEY (userid) REFERENCES smUser (lineid),
+  CONSTRAINT fk_Employholiday_checkuser FOREIGN KEY (checkuserid) REFERENCES smUser (lineid),
+  CONSTRAINT fk_Employholiday_file FOREIGN KEY (recordid) REFERENCES employrecord (lineid),
+  constraint Employholiday_PK primary key (LineID)
+);
+
+
+--加班类型表
+create sequence S_employovertimeTypeID
+create table EmployovertimeType
+(
+       lineid number not null,  --id
+       typename varchar2(100) null,  --类型名称
+       constraint EmployovertimeType_PK primary key (lineid)
+)
+
+-- 增加 EmployovertimeType  员工加班表
+create sequence S_EmployovertimeID
+create table Employovertime
+( 
+       lineid number not null,  --id
+       employovertimeTypeID number null,  --加班类型id
+        userid       number     default 0 not null, --用户序号
+        recordid       number     default 0 not null, --档案序号
+        deptid         number   null, --部门id
+        currdate     date        default sysdate not null,--填写时间
+        date1     date        not null,--开始时间
+        date2     date        not null,--结束时间
+        reason       varchar2(1000)  null,--加班原因
+        contents    varchar2(200) null,  --加班内容
+        ischeck       number      default 0 not null,--审核状态
+       checkremarks   varchar2(200)  null,     --审核备注
+        checkuserid   number      default 0 not null,--审核用户id
+        checkdate     date        null,--审核时间
+        ACTUALUSERID	  number     null,  --实际审批用户
+        constraint Employovertime_PK primary key (lineid)
+ )
+ 
+ create sequence S_EmployattendanceID
+ -- 考勤异常补打
+ create table Employattendance
+ ( 
+       lineid number not null,  --id
+        userid       number     default 0 not null, --用户序号
+        recordid       number     default 0 not null, --档案序号
+        deptid         number   null, --部门id
+        currdate     date        default sysdate not null,--填写时间
+        typename     varchar2(100) null,    --异常类型   上/下班
+        opdate      date        not null,--开始时间
+        reason       varchar2(1000)  null,--原因
+        ischeck       number      default 0 not null,--审核状态
+       checkremarks   varchar2(200)  null,     --审核备注
+        checkuserid   number      default 0 not null,--审核用户id
+        checkdate     date        null,--审核时间
+        ACTUALUSERID	  number     null,  --实际审批用户
+        constraint Employattendance_PK primary key (lineid)
+ )
+
+--出差工具表
+ create sequence S_EmploytripToolID
+create table  EmploytripTool
+(
+       lineid number not null,
+       toolname varchar2(100) null,  --工具名称
+       constraint EmploytripTool_PK primary key (lineid)
+)
+
+--员工出差表
+create sequence S_EmploytripID
+create table  Employtrip
+ (
+         lineid number not null,  --id
+        userid       number     default 0 not null, --用户序号
+        recordid       number     default 0 not null, --档案序号
+        deptid         number   null, --部门id
+        currdate     date        default sysdate not null,--填写时间
+        EmploytripToolID   number null,    -- 乘坐工具
+        address          varchar2(100) null, --出差地址
+        date1      date        not null,--开始时间  
+        date2      date        not null,--开始时间
+         reason       varchar2(100)  null,--原因
+         remarks      varchar2(200)  null, --备注
+          ischeck       number      default 0 not null,--审核状态
+         checkuserid   number      default 0 not null,--审核用户id
+         checkdate     date        null,--审核时间
+         ACTUALUSERID	  number     null,  --实际审批用户
+         checkremarks   varchar2(200)  null,     --审核备注
+         constraint Employtrip_PK primary key (lineid)
+ )
+
+--员工招聘类型
+create sequence S_employrecruitmentTypeID
+create table  employrecruitmentType
+(
+       lineid number not null,
+       typename varchar2(100) null,  --类型名称
+       constraint employrecruitmentType_PK primary key (lineid)
+)
+--员工招聘表
+create sequence S_EmployrecruitmentID
+create table  employrecruitment
+(
+         lineid number not null,  --id
+        userid       number     default 0 not null, --用户序号
+        recordid       number     default 0 not null, --档案序号
+        deptid         number   null, --部门id
+        employrecruitmentTypeID  number null,   --照片需求类型外键
+        currdate     date        default sysdate not null,--填写时间
+        sex          number  null,       --性别
+        peopleNumber   number  null,    --人数
+        checktime      date    null,     --到职时间
+        positionID   number   null,   --岗位表ID
+        marital        number  default 0        null,   --婚否
+        agerange       number          null,    --年龄范围
+        workyear       number          null,    --工作年限范围
+        educationlevelID       number           null,   --学历外键
+        professional           varchar2(100)    null,   --专业
+        expertise              varchar2(100)    null,   --专业技能
+        workcontents           varchar2(100)    null,   --工作内容
+        englevel               varchar2(100)       null,  --外语要求
+          ischeck       number      default 0 not null,--审核状态
+         checkuserid   number      default 0 not null,--审核用户id
+         checkdate     date        null,--审核时间
+         ACTUALUSERID	  number     null,  --实际审批用户
+         checkremarks   varchar2(200)  null,     --审核备注
+         constraint employrecruitment_PK primary key (lineid)
+)
+
+
+--考勤授权表
+Create Sequence S_EmployAccreditID
+Create Table EmployAccredit
+(
+	LineID		number  not null ,  --id
+	certigieruid	number	null，	    --授权人id	
+	authorizeruid	number  null,	    --被授权人id
+	accreditcause	varchar2(100)  null, --授权原因
+	accreditBeginTime	date	null, --授权开始时间
+	accreditEndTime		date	null,  --授权结束时间
+	currdate		date	null,	    --授权时间
+	constraint EmployAccredit_PK primary key (LineID)
+)
+
+
+--考勤表
+--根据考勤机定制
+
+
+--文件上传表
+Create Sequence S_recordid;
+create Table smFile
+(
+  LineID       number     default 0 not null, --序号
+  userid       number     default 0 not null, --用户序号
+  fileid       number     default 0 not null, --档序号
+  
+  filename     varchar2(100) not null,--文件名
+  filepath     varchar2(100) not null,--文件路径
+  currdate      date    default sysdate  not null,--上传时间
+  CONSTRAINT fk_File_user FOREIGN KEY (userid) REFERENCES smUser (lineid),
+  CONSTRAINT fk_File_file FOREIGN KEY (fileid) REFERENCES employrecord (lineid),
+  constraint File_PK primary key (LineID)  
+);
+--文件共享表
+Create Sequence S_FileShareID;
+
+Create Table FileShare
+(
+  LineID        number     default 0 not null, --序号
+  fileid        number     default 0 not null, --文件序号
+  sharetype      number     default 0 not null, --共享类型(0:全部共享，1：共享给部门，2：共享给某用户)
+  userid        number     default 0 not null, --接收userid
+  deptid        number     default 0 not null, --接收deptid
+  sharedate      date       default sysdate  not null,--共享时间
+  memo          varchar2(100) null,--共享说明
+  status        number     default 1 not null, --共享状态（0:关闭，1：户用)
+  CONSTRAINT fk_FileShare_user FOREIGN KEY (userid) REFERENCES smUser (lineid),
+  CONSTRAINT fk_FileShare_file FOREIGN KEY (fileid) REFERENCES smFile (lineid),
+  constraint FileShare_PK primary key (LineID)  
+);
+
+--通知/新闻表
+Create Table notify
+(
+	LineID          number     default 0 not null, --序号
+	type		number     default 0 not null, --类型（0:通知，1：公司新闻，2：行业动态/新闻,3,4,可扩充）
+	notifyno	varchar2(500) null,--通知编号
+	notifydate	date			default sysdate not null,--通知时间
+	title		varchar2(500) null,--通知标题
+	content		varchar2(4000) not null,--通知内容
+	deptid		number     default 0 not null, --部门序号
+	userid		number     default 0 not null, --用户序号
+	currdate	date	default sysdate not null,--当前时间
+	CONSTRAINT fk_notify_user FOREIGN KEY (userid) REFERENCES smUser (lineid),
+	CONSTRAINT fk_dept_file FOREIGN KEY (deptid) REFERENCES dept (lineid),
+  constraint notify_PK primary key (LineID)	
+);
+Create Sequence S_NotifyFileID;
+Create Table NotifyFile
+(
+	LineID          number     default 0 not null, --序号
+	notifyid	number     default 0 not null, --通知序号
+	
+	filename	 varchar2(100) not null,--文件名
+	filepath	 varchar2(100) not null,--文件路径
+	userid		number     default 0 not null, --用户序号
+	currdate	date	default sysdate not null,--当前时间
+	CONSTRAINT fk_NotifyFile_user FOREIGN KEY (userid) REFERENCES smUser (lineid),
+	CONSTRAINT fk_NotifyFile_id FOREIGN KEY (notifyid) REFERENCES notify (lineid),
+  constraint NotifyFile_PK primary key (LineID)	
+);
+--通知新闻共享表
+Create Sequence S_NotifyShareID;
+Create Table NotifyShare
+(
+	LineID          number     default 0 not null, --序号
+	notifyid	number     default 0 not null, --通知序号
+	sharetype	number     default 0 not null, --共享类型(0:全部共享，1：共享给部门，2：共享给某用户)
+	userid		number     default 0 not null, --接收userid
+	deptid		number     default 0 not null, --接收deptid
+	sharedate	date	   default sysdate	not null,--共享时间
+	memo		varchar2(100) null,--共享说明
+	status		number     default 1 not null, --共享状态（0:关闭，1：户用)
+	CONSTRAINT fk_notifyshare_user FOREIGN KEY (userid) REFERENCES smUser (lineid),
+	CONSTRAINT fk_notify_file FOREIGN KEY (notifyid) REFERENCES notify (lineid),
+  constraint notifyshare_PK primary key (LineID)	
+)
+
+--合同类型表
+Create Sequence S_EmploycontractTypeID
+Create Table EmploycontractType
+(
+	lineid		number		null, 	--序号
+	typename	varchar2(200)	null,	--类型名称
+	constraint EmploycontractType_PK primary key (lineid)
+)
+
+--合同表 
+Create Sequence S_EmploycontractID
+Create Table  Employcontract
+(
+	lineid 		number	not null,   --序号
+	conNumber	varchar2(100)  null,  --合同编号
+	employcontractTypeID	number null,  --合同类型外键ID
+	probation	number	null,		--试用期
+	beginDate	date	null,		--合同开始时间
+	conYears	number 	null,		--合同期限
+	endDate		date	null,		--合同结束时间
+	conRemarks	varchar2(200)	null,	--备注
+	opUserid		number 	null,		--合同操作人  用户ID
+	opDate		date	null,		--操作时间
+	confilepath		varchar2(200) null,	--合同路径
+	constraint Employcontract_PK primary key (lineid)
+)
+
+--部门关联表   在文件上传共享的时候用到 
+Create Sequence S_dept_mappingID;
+Create Table dept_mapping
+(
+  lineid         number          not null,  
+  deptid         number     null,  --部门编号
+  deptmappid    number      null,  --部门映射id 
+  opuserID      number      null, 
+  optime        Date        null,
+  constraint dept_mapping_PK primary key(lineid)
+)
+
+--部门地址表    因为要看员工实际的办公公司 办公地址 
+create sequence S_deptaddressID
+create table deptaddress
+(
+  lineid     number  not null,
+  deptid     number  null,   --部门id
+  isCompay   number  null,   --是否是公司id   0 不是 1 是
+  comPayID    number  null,
+  compayName   varchar2(100) null,
+  deptAddress   varchar2(100) null,   --部门地址
+  opTime        Date          null,   --操作时间
+ constraint deptaddress_PK primary key(lineid)
+)
+--档案申请修改表    改变部门 岗位 办公地点 需要审批 
+Create Sequence S_employrecordCheckID;
+create table employrecordCheck
+(
+      lineid         number         ,  
+      recordid       number         null,  --档案外键
+      bfCompid       number         null,   --修改前公司id
+      bfDeptid         number     null,    -- 修改前部门id
+      bfPosid           number      null,  --修改前岗位id
+      bfofCompid        number      null,     --修改前办公公司id
+      bfDeptAdresid      number      null,    --修改前办公所在地id
+      nowCompid          number      null,    --修改后公司id
+      nowDeptid          number      null,    --修改后部门id
+      nowPosid            number      null,   --修改后岗位id
+      nowofCompid         number      null,    --修改后办公公司id
+      nowDeptAdresid       number      null,   --修改后办公所在地id
+      ischeck              number      null,   --审批状态
+      status               number      default 0,  --是否可用  删除
+      hrstatus             number      default 0,     --人力行政确定  
+      userid               number      null,   --申请人id
+      opDate               Date        null,   --申请时间
+      checkusid             number      null,   --审批人
+      checkDate               Date        null,   --审批时间
+      checkremaks             varchar2(200)  null,  --审批备注
+      constraint employrecordCheck_PK primary key(lineid)  
+
+)
+
+--部门映射  用于文件上传时  (总部人力 映射多个分公司人力)
+Create Sequence S_dept_mappingID;
+Create Table dept_mapping
+(
+  lineid         number          not null,  
+  deptid         number     null,  --部门编号
+  deptmappid    number      null,  --部门映射id 
+  opuserID      number      null, 
+  optime        Date        null,
+  constraint dept_mapping_PK primary key(lineid)
+)
+
+--部门 公司地址  
+create sequence S_deptaddressID
+create table deptaddress
+(
+  lineid     number  not null,
+  deptid     number  null,   --部门id
+  isCompay   number  null,   --是否是公司id   0 不是 1 是
+  comPayID    number  null,
+  compayName   varchar2(100) null,
+  deptAddress   varchar2(100) null,   --部门地址
+  opTime        Date          null,   --操作时间
+ constraint deptaddress_PK primary key(lineid)
+)
+
+--人员档案管理 (配置该用户可查看哪些部门人员的档案)
+
+Create Sequence S_employmanagerID;
+Create Table employmanager
+(
+  lineid         number          not null,  
+  deptid         number     null,  --部门编号
+  userid          number      null,  --用户id 
+  opuserID      number      null, 
+  optime        Date        null,
+  constraint employmanager_PK primary key(lineid)
+)
+
+--用户待办 管理 (配置用户可查看哪些分公司的 待办事项 即请假加班审批完成后的HR确认)
+Create Sequence S_userScheduleID;
+Create Table userSchedule
+(
+  lineid         number          not null,  
+  deptid         number     null,  --部门编号
+  userid          number      null,  --用户id 
+  opuserID      number      null, 
+  optime        Date        null,
+  constraint userSchedule_PK primary key(lineid)
+)
+
+--部门负责人 对应的审批  (普通用户直接对应部门负责人审批)
+Create Sequence S_ManagerApprovalID;
+Create Table ManagerApproval
+(
+  lineid         number          not null,  
+  deptid         number     null,  --部门编号
+  smuserID          number      null,  --用户id 
+  opuserID      number      null, 
+  optime        Date        null,
+  constraint userSchedule_PK primary key(lineid)
+)
+
+

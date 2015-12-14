@@ -1,0 +1,407 @@
+<%@ page language="java" import="java.util.*" pageEncoding="utf-8"%>
+<%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%
+String path = request.getContextPath();
+String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/";
+%>
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <base href="<%=basePath%>">
+    
+    <title>My JSP 'costfeeAdd.jsp' starting page</title>
+    
+	<meta http-equiv="pragma" content="no-cache">
+	<meta http-equiv="cache-control" content="no-cache">
+	<meta http-equiv="expires" content="0">    
+	<meta http-equiv="keywords" content="keyword1,keyword2,keyword3">
+	<meta http-equiv="description" content="This is my page">
+	<!--
+	<link rel="stylesheet" type="text/css" href="styles.css">
+	-->
+	<link rel="stylesheet" type="text/css" href="<%=basePath%>css/style.css" />
+	<style type="text/css">
+		#tab {
+	border:1px solid black;
+	border-collapse: collapse;
+	margin:0 auto; 
+	width:40%;
+}
+	#tab  td {
+	border:1px solid black;
+	width:20%;
+	height:30px; 
+	padding: 5px;
+	margin: 0;
+	text-align: center;
+}
+	</style>
+	<script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
+	<script type="text/javascript">
+		$(document).ready(function(){
+			//获取部门
+			$('#sel1').change(function(){
+				var pid=$('#sel1 option:selected').val();
+				//alert('pid='+pid);
+				$.post('<%=basePath%>feeBudgetController/getDeptByPid',
+						{pid:pid},
+						function(depts){
+							$('#sel2').empty();
+							for(var i=0;i<depts.length;i++){
+								var option='<option value="'+depts[i][0]+'">'+depts[i][1]+'</option>';
+								$('#sel2').append(option);
+							}
+						},
+						'json');
+			});
+			//获取费用类型列表
+			$('#sel3').change(function(){
+				var typeId=$('#sel3 option:selected').val();
+				//alert("typeId="+typeId);
+				$.post('<%=basePath%>feeController/getTypes',
+						{pId:typeId},
+						function(types){
+							$('#sel4').empty();
+							for(var i=0;i<types.length;i++){
+								var option='<option value="'+types[i].id+'">'+types[i].vcName+'</option>'
+								$('#sel4').append(option);
+							}
+						},
+						'json');
+			})
+			
+		});
+	</script>
+  </head>
+  
+  <body>
+    <div class="rightsider">
+
+		<div class="info_tabs clearfix">
+			<a  class="hover">单项费用预算添加</a>
+		</div>
+		<dl class="notice clearfix">
+			<dd>单项费用预算管理</dd>
+		</dl>
+		<form action="<%=basePath%>feeBudgetController/save" method="post" 
+			id="myform">
+			<table id="tab">
+				<tr>
+					<td>公司:</td>
+					<td>
+						<select name="iCompany" id="sel1">
+							<c:if test="${budget.iCompany==null}">
+								<option value="0">--请选择--</option>
+							</c:if>
+							<c:forEach items="${companys}" var="company">
+								<c:if test="${budget.iCompany==company.lineid}" var="isTrue">
+									<option value="${company.lineid}" selected="selected">${company.deptname}</option>
+								</c:if>
+								<c:if test="${!isTrue}">
+									<option value="${company.lineid}">${company.deptname}</option>
+								</c:if>
+							</c:forEach>
+						</select>
+					</td>
+				<tr>
+				</tr>
+					<td>部门:</td>
+					<td>
+						<select name="iDept" id="sel2">
+							<c:if test="${budget.iDept==null}">
+								<option value="0">--请选择--</option>
+							</c:if>
+							<c:forEach items="${depts}" var="dept">
+								<c:if test="${budget.iDept==dept[0]}" var="yes">
+									<option value="${dept[0]}" selected="selected">${dept[1]}</option>
+								</c:if>
+								<c:if test="${!yes}">
+									<option value="${dept[0]}" selected="selected">${dept[1]}</option>
+								</c:if>
+							</c:forEach>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td rowspan="2">类别</td>
+					<td >
+						<select name="pcostType" id="sel3">
+							<c:if test="${pTypeId==null}">
+								<option value="0">--请选择--</option>
+								<option value="1" >日常费用</option>
+								<option value="2">特有费用</option>
+							</c:if>
+							<c:if test="${pTypeId==1}">
+								<option value="0">--请选择--</option>
+								<option value="1" selected="selected">日常费用</option>
+								<option value="2">特有费用</option>
+							</c:if>
+							<c:if test="${pTypeId==2}">
+								<option value="0">--请选择--</option>
+								<option value="1">日常费用</option>
+								<option value="2" selected="selected">特有费用</option>
+							</c:if>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<select name="iCosttype" id="sel4">
+							<option value="0">--请选择--</option>
+							<c:forEach items="${subTypes}" var="type">
+								<c:if test="${type.id==budget.iCosttype}" var="t">
+									<option value="${type.id}" selected="selected">${type.vcName}</option>
+								</c:if>
+								<c:if test="${!t}">
+									<option value="${type.id}">${type.vcName}</option>
+								</c:if>
+							</c:forEach>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td>月份:</td>
+					<td>
+						<c:if test="${budget.nMonth==null}">
+							<select name="nMonth">
+							<option value="0">--请选择--</option>
+							<option value="1">1月份</option>
+							<option value="2">2月份</option>
+							<option value="3">3月份</option>
+							<option value="4">4月份</option>
+							<option value="5">5月份</option>
+							<option value="6">6月份</option>
+							<option value="7">7月份</option>
+							<option value="8">8月份</option>
+							<option value="9">9月份</option>
+							<option value="10">10月份</option>
+							<option value="11">11月份</option>
+							<option value="12">12月份</option>
+							</select>
+						</c:if>
+						<c:if test="${budget.nMonth==1}">
+							<select name="nMonth">
+							<option value="1" selected="selected">1月份</option>
+							<option value="2">2月份</option>
+							<option value="3">3月份</option>
+							<option value="4">4月份</option>
+							<option value="5">5月份</option>
+							<option value="6">6月份</option>
+							<option value="7">7月份</option>
+							<option value="8">8月份</option>
+							<option value="9">9月份</option>
+							<option value="10">10月份</option>
+							<option value="11">11月份</option>
+							<option value="12">12月份</option>
+							</select>
+						</c:if>
+						<c:if test="${budget.nMonth==2}">
+							<select name="nMonth">
+							<option value="1">1月份</option>
+							<option value="2" selected="selected">2月份</option>
+							<option value="3">3月份</option>
+							<option value="4">4月份</option>
+							<option value="5">5月份</option>
+							<option value="6">6月份</option>
+							<option value="7">7月份</option>
+							<option value="8">8月份</option>
+							<option value="9">9月份</option>
+							<option value="10">10月份</option>
+							<option value="11">11月份</option>
+							<option value="12">12月份</option>
+							</select>
+						</c:if>
+						<c:if test="${budget.nMonth==3}">
+							<select name="nMonth">
+							<option value="1">1月份</option>
+							<option value="2">2月份</option>
+							<option value="3" selected="selected">3月份</option>
+							<option value="4">4月份</option>
+							<option value="5">5月份</option>
+							<option value="6">6月份</option>
+							<option value="7">7月份</option>
+							<option value="8">8月份</option>
+							<option value="9">9月份</option>
+							<option value="10">10月份</option>
+							<option value="11">11月份</option>
+							<option value="12">12月份</option>
+							</select>
+						</c:if>
+						<c:if test="${budget.nMonth==4}">
+							<select name="nMonth">
+							<option value="1">1月份</option>
+							<option value="2">2月份</option>
+							<option value="3">3月份</option>
+							<option value="4" selected="selected">4月份</option>
+							<option value="5">5月份</option>
+							<option value="6">6月份</option>
+							<option value="7">7月份</option>
+							<option value="8">8月份</option>
+							<option value="9">9月份</option>
+							<option value="10">10月份</option>
+							<option value="11">11月份</option>
+							<option value="12">12月份</option>
+							</select>
+						</c:if>
+						<c:if test="${budget.nMonth==5}">
+							<select name="nMonth">
+							<option value="1">1月份</option>
+							<option value="2">2月份</option>
+							<option value="3">3月份</option>
+							<option value="4">4月份</option>
+							<option value="5" selected="selected">5月份</option>
+							<option value="6">6月份</option>
+							<option value="7">7月份</option>
+							<option value="8">8月份</option>
+							<option value="9">9月份</option>
+							<option value="10">10月份</option>
+							<option value="11">11月份</option>
+							<option value="12">12月份</option>
+							</select>
+						</c:if>
+						<c:if test="${budget.nMonth==6}">
+							<select name="nMonth">
+							<option value="1">1月份</option>
+							<option value="2">2月份</option>
+							<option value="3">3月份</option>
+							<option value="4">4月份</option>
+							<option value="5">5月份</option>
+							<option value="6" selected="selected">6月份</option>
+							<option value="7">7月份</option>
+							<option value="8">8月份</option>
+							<option value="9">9月份</option>
+							<option value="10">10月份</option>
+							<option value="11">11月份</option>
+							<option value="12">12月份</option>
+							</select>
+						</c:if>
+						<c:if test="${budget.nMonth==7}">
+							<select name="nMonth">
+							<option value="1">1月份</option>
+							<option value="2">2月份</option>
+							<option value="3">3月份</option>
+							<option value="4">4月份</option>
+							<option value="5">5月份</option>
+							<option value="6">6月份</option>
+							<option value="7" selected="selected">7月份</option>
+							<option value="8">8月份</option>
+							<option value="9">9月份</option>
+							<option value="10">10月份</option>
+							<option value="11">11月份</option>
+							<option value="12">12月份</option>
+							</select>
+						</c:if>
+						<c:if test="${budget.nMonth==8}">
+							<select name="nMonth">
+							<option value="1">1月份</option>
+							<option value="2">2月份</option>
+							<option value="3">3月份</option>
+							<option value="4">4月份</option>
+							<option value="5">5月份</option>
+							<option value="6">6月份</option>
+							<option value="7">7月份</option>
+							<option value="8" selected="selected">8月份</option>
+							<option value="9">9月份</option>
+							<option value="10">10月份</option>
+							<option value="11">11月份</option>
+							<option value="12">12月份</option>
+							</select>
+						</c:if>
+						<c:if test="${budget.nMonth==9}">
+							<select name="nMonth">
+							<option value="1">1月份</option>
+							<option value="2">2月份</option>
+							<option value="3">3月份</option>
+							<option value="4">4月份</option>
+							<option value="5">5月份</option>
+							<option value="6">6月份</option>
+							<option value="7">7月份</option>
+							<option value="8">8月份</option>
+							<option value="9" selected="selected">9月份</option>
+							<option value="10">10月份</option>
+							<option value="11">11月份</option>
+							<option value="12">12月份</option>
+							</select>
+						</c:if>
+						<c:if test="${budget.nMonth==10}">
+							<select name="nMonth">
+							<option value="1">1月份</option>
+							<option value="2">2月份</option>
+							<option value="3">3月份</option>
+							<option value="4">4月份</option>
+							<option value="5">5月份</option>
+							<option value="6">6月份</option>
+							<option value="7">7月份</option>
+							<option value="8">8月份</option>
+							<option value="9">9月份</option>
+							<option value="10" selected="selected">10月份</option>
+							<option value="11">11月份</option>
+							<option value="12">12月份</option>
+							</select>
+						</c:if>
+						<c:if test="${budget.nMonth==11}">
+							<select name="nMonth">
+							<option value="1">1月份</option>
+							<option value="2">2月份</option>
+							<option value="3">3月份</option>
+							<option value="4">4月份</option>
+							<option value="5">5月份</option>
+							<option value="6">6月份</option>
+							<option value="7">7月份</option>
+							<option value="8">8月份</option>
+							<option value="9">9月份</option>
+							<option value="10">10月份</option>
+							<option value="11" selected="selected">11月份</option>
+							<option value="12">12月份</option>
+							</select>
+						</c:if>
+						<c:if test="${budget.nMonth==12}">
+							<select name="nMonth">
+							<option value="1">1月份</option>
+							<option value="2">2月份</option>
+							<option value="3">3月份</option>
+							<option value="4">4月份</option>
+							<option value="5">5月份</option>
+							<option value="6">6月份</option>
+							<option value="7">7月份</option>
+							<option value="8">8月份</option>
+							<option value="9">9月份</option>
+							<option value="10">10月份</option>
+							<option value="11">11月份</option>
+							<option value="12" selected="selected">12月份</option>
+							</select>
+						</c:if>
+					</td>
+				</tr>
+				<tr>
+					<td>单项费用预算总额</td>
+					<td>
+						<input type="text" name="nTotalcost" value="${budget.nTotalcost}"/>
+					</td>
+				</tr>
+				<tr>
+					<td>余额</td>
+					<td>
+						<input type="text" name="nLastcost" value="${budget.nLastcost}"/>
+					</td>
+				</tr>
+				<tr>
+					<td>预估余额</td>
+					<td>
+						<input type="text" name="nLastcost2" value="${budget.nLastcost2}"/>
+					</td>
+				</tr>
+				<tr>
+					<td colspan="2"><input type="submit" value="提交"
+					 style="background:#ff6600;width: 100px;align:center"/></td>
+				</tr>
+			</table>
+			<input type="hidden" name="lineid" value="${budget.lineid}"/>
+			<input type="hidden" name="nEnable" value="${budget.nEnable}"/>
+			<input type="hidden" name="dtAddstr" value="${budget.dtAdd}"/>
+		</form>	
+	</div>	
+  </body>
+</html>

@@ -1,0 +1,257 @@
+package clt.com.cn.model.entity;
+
+import java.util.Date;
+
+/**
+ * Contract entity. @author MyEclipse Persistence Tools
+ */
+
+public class Contract implements java.io.Serializable
+{
+	
+	// Fields
+	
+	/**
+	 * 
+	 */
+    private static final long serialVersionUID = - 3035578129872990331L;
+	private Integer iLineid;
+	private String vcContractname;
+	private String vcPartya;
+	private String vcPartyb;
+	private Integer iContracttypeid;
+	private Date dtStart;
+	private Date dtEnd;
+	private Integer bNew;
+	private Integer bEmergency;
+	private String vcContent;
+	private Date dtCreate;
+	private Integer bLong;
+	private Integer bMainsign;
+	private Float nOutprice;
+	private Float nStandprice;
+	private String vcContractno;
+	
+	// Constructors
+	
+	/** default constructor */
+	public Contract()
+	{}
+	
+
+	
+	
+	/**
+	 * @param iLineid
+	 * @param vcContractname
+	 * @param vcPartya
+	 * @param vcPartyb
+	 * @param iContracttypeid
+	 * @param dtStart
+	 * @param dtEnd
+	 * @param bNew
+	 * @param bEmergency
+	 * @param vcContent
+	 * @param dtCreate
+	 * @param bLong
+	 * @param bMainsign
+	 * @param nOutprice
+	 * @param nStandprice
+	 * @param vcContractno
+	 */
+    public Contract( java.lang.Integer iLineid , String vcContractname , String vcPartya ,
+            String vcPartyb , java.lang.Integer iContracttypeid , Date dtStart ,
+            Date dtEnd , java.lang.Integer bNew , java.lang.Integer bEmergency ,
+            String vcContent , Date dtCreate , java.lang.Integer bLong ,
+            java.lang.Integer bMainsign , java.lang.Float nOutprice ,
+            java.lang.Float nStandprice , String vcContractno )
+    {
+	    super();
+	    this.iLineid = iLineid;
+	    this.vcContractname = vcContractname;
+	    this.vcPartya = vcPartya;
+	    this.vcPartyb = vcPartyb;
+	    this.iContracttypeid = iContracttypeid;
+	    this.dtStart = dtStart;
+	    this.dtEnd = dtEnd;
+	    this.bNew = bNew;
+	    this.bEmergency = bEmergency;
+	    this.vcContent = vcContent;
+	    this.dtCreate = dtCreate;
+	    this.bLong = bLong;
+	    this.bMainsign = bMainsign;
+	    this.nOutprice = nOutprice;
+	    this.nStandprice = nStandprice;
+	    this.vcContractno = vcContractno;
+    }
+
+
+
+
+	/**
+	 * @return the iLineid
+	 */
+	public Integer getiLineid()
+	{
+		return iLineid;
+	}
+
+	/**
+	 * @param iLineid the iLineid to set
+	 */
+	public void setiLineid( Integer iLineid )
+	{
+		this.iLineid = iLineid;
+	}
+
+	public String getVcContractname()
+	{
+		return this.vcContractname;
+	}
+	
+	public void setVcContractname( String vcContractname )
+	{
+		this.vcContractname = vcContractname;
+	}
+	
+	public String getVcPartya()
+	{
+		return this.vcPartya;
+	}
+	
+	public void setVcPartya( String vcPartya )
+	{
+		this.vcPartya = vcPartya;
+	}
+	
+	public String getVcPartyb()
+	{
+		return this.vcPartyb;
+	}
+	
+	public void setVcPartyb( String vcPartyb )
+	{
+		this.vcPartyb = vcPartyb;
+	}
+	
+	public Integer getiContracttypeid()
+	{
+		return this.iContracttypeid;
+	}
+	
+	public void setiContracttypeid( Integer iContracttypeid )
+	{
+		this.iContracttypeid = iContracttypeid;
+	}
+	
+	public Date getDtStart()
+	{
+		return this.dtStart;
+	}
+	
+	public void setDtStart( Date dtStart )
+	{
+		this.dtStart = dtStart;
+	}
+	
+	public Date getDtEnd()
+	{
+		return this.dtEnd;
+	}
+	
+	public void setDtEnd( Date dtEnd )
+	{
+		this.dtEnd = dtEnd;
+	}
+	
+	public Integer getbNew()
+	{
+		return this.bNew;
+	}
+	
+	public void setbNew( Integer bNew )
+	{
+		this.bNew = bNew;
+	}
+	
+	public Integer getbEmergency()
+	{
+		return this.bEmergency;
+	}
+	
+	public void setbEmergency( Integer bEmergency )
+	{
+		this.bEmergency = bEmergency;
+	}
+	
+	public String getVcContent()
+	{
+		return this.vcContent;
+	}
+	
+	public void setVcContent( String vcContent )
+	{
+		this.vcContent = vcContent;
+	}
+	
+	public Date getDtCreate()
+	{
+		return this.dtCreate;
+	}
+	
+	public void setDtCreate( Date dtCreate )
+	{
+		this.dtCreate = dtCreate;
+	}
+	
+	public Integer getbLong()
+	{
+		return this.bLong;
+	}
+	
+	public void setBLong( Integer bLong )
+	{
+		this.bLong = bLong;
+	}
+	
+	public Integer getbMainsign()
+	{
+		return this.bMainsign;
+	}
+	
+	public void setbMainsign( Integer bMainsign )
+	{
+		this.bMainsign = bMainsign;
+	}
+	
+	public Float getnOutprice()
+	{
+		return this.nOutprice;
+	}
+	
+	public void setnOutprice( Float nOutprice )
+	{
+		this.nOutprice = nOutprice;
+	}
+	
+	public Float getnStandprice()
+	{
+		return this.nStandprice;
+	}
+	
+	public void setnStandprice( Float nStandprice )
+	{
+		this.nStandprice = nStandprice;
+	}
+	
+	public String getVcContractno()
+	{
+		return this.vcContractno;
+	}
+	
+	public void setVcContractno( String vcContractno )
+	{
+		this.vcContractno = vcContractno;
+	}
+	
+}

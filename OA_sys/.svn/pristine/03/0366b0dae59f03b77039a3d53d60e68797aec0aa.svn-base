@@ -1,0 +1,12 @@
+package clt.com.cn.dao;
+
+import clt.com.cn.model.entity.DeptLevel;
+
+public interface IDeptLevelDao
+{
+	public void save( DeptLevel entity );
+	
+	public void update( DeptLevel entity );
+	
+	public DeptLevel get( int id );
+}

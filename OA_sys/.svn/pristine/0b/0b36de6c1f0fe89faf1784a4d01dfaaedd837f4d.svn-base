@@ -1,0 +1,158 @@
+package clt.com.cn.controller.workflow;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import clt.com.cn.model.entity.CostBudget;
+import clt.com.cn.model.entity.Costtype;
+import clt.com.cn.model.entity.Dept;
+import clt.com.cn.service.ICostBudgetService;
+import clt.com.cn.service.ICosttypeService;
+import clt.com.cn.service.IDeptService;
+
+@Controller
+@RequestMapping( "/feeBudgetController" )
+public class FeeBudgetController
+{
+	@Autowired
+	private ICostBudgetService budgetService;
+	@Autowired
+	private IDeptService deptService;
+	@Autowired
+	private ICosttypeService typeService;
+	
+	@RequestMapping( "/findAll" )
+	public String findAll( HttpServletRequest request )
+	{
+		String hql = "from CostBudget where nEnable=0 order by lineid desc";
+		String p = request.getParameter( "page" );
+		int page , pages , count;
+		int pageSize = 5;
+		// String countHql = "from CostApply where nEnable=0 and iUser=" +
+		// userId;
+		count = budgetService.getCountByHql( hql );
+		pages = budgetService.getpages( count , pageSize );
+		
+		if ( p == null || p == "" )
+		{
+			page = 1;
+		}
+		else
+		{
+			page = Integer.parseInt( p );
+			if ( page < 1 )
+			{
+				page = 1;
+			}
+			else if ( page > pages )
+			{
+				page = pages;
+			}
+		}
+		List< CostBudget > costBudgets = budgetService.pageQuery( hql , pageSize , page ,
+		        null );
+		request.setAttribute( "costBudgets" , costBudgets );
+		request.setAttribute( "page" , page );
+		request.setAttribute( "pages" , pages );
+		request.setAttribute( "returnPath" , "feeBudgetController/findAll?op=1&" );
+		return "oa_fee/feeBudgetList";
+	}
+	
+	@RequestMapping( "/toSave" )
+	public String toSave( @RequestParam( value = "id" , required = false ) Integer id ,
+	        HttpServletRequest request )
+	{
+		String hql = "from Dept where pid=0 and active=1";
+		List< Dept > companys = deptService.getAllObjectOrder( hql );// 获取公司
+		if ( id != null )
+		{
+			CostBudget budget = budgetService.get( id );
+			int compId = budget.getiCompany();
+			String sql = "select LINEID,DEPTNAME,PID,ACTIVE,USERNO,CURRDATE,MANAGERUSERID,"
+			        + "ILEVEL from dept where active=1 and pid!=0 start with lineid="
+			        + compId + " connect by prior lineid=pid";
+			List< Dept > depts = ( List< Dept > ) deptService.getDateBySqlQuery( sql , 0 ,
+			        0 );
+			int typeId = budget.getiCosttype();
+			Costtype type = typeService.get( typeId );
+			int typePid = type.getpId();
+			List< Costtype > subTypes = typeService.getTypesById( typePid );
+			request.setAttribute( "depts" , depts );
+			request.setAttribute( "pTypeId" , typePid );// 一级费用类型
+			request.setAttribute( "subTypes" , subTypes );// 二级费用类型
+			request.setAttribute( "budget" , budget );
+		}
+		request.setAttribute( "companys" , companys );
+		return "oa_fee/feeBudgetSave";
+	}
+	
+	@RequestMapping( "/save" )
+	public String save( CostBudget entity , HttpServletRequest request )
+	{
+		try
+		{
+			Integer id = entity.getLineid();
+			int compId = entity.getiCompany();// 公司id
+			Dept comp = deptService.getDeptById( compId );
+			entity.setVcCompany( comp.getDeptname() );
+			int deptId = entity.getiDept();// 部门id
+			Dept dept = deptService.getDeptById( deptId );
+			entity.setVcDeptname( dept.getDeptname() );
+			int typeId = entity.getiCosttype();// 费用类别id
+			Costtype type = typeService.get( typeId );
+			entity.setVcCosttype( type.getVcName() );
+			SimpleDateFormat format = new SimpleDateFormat( "yyyy-MM-dd" );
+			String dtAddStr = request.getParameter( "dtAddstr" );
+			if ( StringUtils.isNotBlank( dtAddStr ) )
+			{
+				Date dtAdd = format.parse( dtAddStr );
+				entity.setDtAdd( dtAdd );// 添加时间
+			}
+			if ( id == null )
+			{
+				// 新增
+				budgetService.save( entity );
+			}
+			else
+			{
+				// 修改
+				budgetService.update( entity );
+			}
+		}
+		catch ( Exception e )
+		{
+			e.printStackTrace();
+		}
+		return "redirect:findAll";
+	}
+	
+	@RequestMapping( "/del" )
+	public String del( @RequestParam( value = "id" ) int id )
+	{
+		CostBudget entity = budgetService.get( id );
+		entity.setnEnable( 1 );
+		budgetService.merge( entity );
+		return "redirect:findAll";
+	}
+	
+	@ResponseBody
+	@RequestMapping( "/getDeptByPid" )
+	public List< Dept > getDeptByPid( @RequestParam( value = "pid" ) int pid )
+	{
+		String sql = "select LINEID,DEPTNAME,PID,ACTIVE,USERNO,CURRDATE,MANAGERUSERID,"
+		        + "ILEVEL from dept where active=1 and pid!=0 start with lineid=" + pid
+		        + " connect by prior lineid=pid";
+		List< Dept > depts = ( List< Dept > ) deptService.getDateBySqlQuery( sql , 0 , 0 );
+		return depts;
+	}
+}

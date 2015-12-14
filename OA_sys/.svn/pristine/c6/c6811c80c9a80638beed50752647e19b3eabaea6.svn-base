@@ -1,0 +1,42 @@
+package clt.com.cn.service.impl;
+
+import java.util.List;
+
+import clt.com.cn.dao.ICosttypeDao;
+import clt.com.cn.model.entity.Costtype;
+import clt.com.cn.service.ICosttypeService;
+
+public class CosttypeServiceImp implements ICosttypeService
+{
+	private ICosttypeDao typeDao;
+	
+	public void setiCosttypeDao( ICosttypeDao iCosttypeDao )
+	{
+		this.typeDao = iCosttypeDao;
+	}
+	
+	/**
+	 * 
+	 * @Description:通过pid获取费用类型
+	 * @param id
+	 * @return 
+	 * @author chengwzh
+	 * @create_date 2015年11月17日 下午4:21:55
+	 */
+	public List< Costtype > getTypesById( int id )
+	{
+		String hql = "from Costtype where pId=" + id;
+		return typeDao.getAllObjectOrder( hql );
+	}
+	
+	public Costtype get( int id )
+	{
+		return typeDao.get( id );
+	}
+	
+	public List< Costtype > getAllObjectOrder( String hql )
+	{
+		return ( List< Costtype > ) typeDao.getAllObjectOrder( hql );
+	}
+	
+}

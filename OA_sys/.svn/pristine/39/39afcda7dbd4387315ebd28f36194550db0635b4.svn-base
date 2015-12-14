@@ -1,0 +1,207 @@
+package clt.com.cn.controller.workflow;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import clt.com.cn.model.entity.CostApply;
+import clt.com.cn.model.entity.Costtype;
+import clt.com.cn.model.entity.Dept;
+import clt.com.cn.model.entity.Employrecord;
+import clt.com.cn.service.ICostApplyService;
+import clt.com.cn.service.ICosttypeService;
+import clt.com.cn.service.IEmployrecordService;
+
+/** 
+ * @Package clt.com.cn.controller.workflow 
+ * @Description:用一句话描述该文件做什么 
+ * @author liuwu
+ * @date 2015年11月16日 下午2:33:38 
+ * @version V1.0 
+ */
+@Controller
+@RequestMapping( "/feeController" )
+public class FeeController
+{
+	@Autowired
+	ICostApplyService costService;
+	@Autowired
+	private ICosttypeService typeService;
+	@Autowired
+	private IEmployrecordService empService;
+	
+	/**
+	 * 
+	 * @Description:查询当前用户的所有费用申请表 按时间排序
+	 * @param request
+	 * @return 
+	 *   String 返回值描述
+	 * @author liuwu
+	 * @create_date 2015年11月16日 下午3:26:00
+	 */
+	@RequestMapping( "/findAll" )
+	public String findAll( HttpServletRequest request )
+	{
+		HttpSession session = request.getSession();
+		int userId = Integer.parseInt( session.getAttribute( "lineid" ).toString() );
+		String hql = "from CostApply where nEnable=0 and iUser=" + userId;
+		String vcCosttypename = request.getParameter( "vcCosttypename" );
+		if ( StringUtils.isNotBlank( vcCosttypename ) )
+		{
+			hql += " and vcCosttypename like '%" + vcCosttypename + "%'";
+		}
+		hql += " order by id desc";
+		String p = request.getParameter( "page" );
+		int page , pages , count;
+		int pageSize = 5;
+		// String countHql = "from CostApply where nEnable=0 and iUser=" +
+		// userId;
+		count = costService.getCountByHql( hql );
+		pages = costService.getpages( count , pageSize );
+		
+		if ( p == null || p == "" )
+		{
+			page = 1;
+		}
+		else
+		{
+			page = Integer.parseInt( p );
+			if ( page < 1 )
+			{
+				page = 1;
+			}
+			else if ( page > pages )
+			{
+				page = pages;
+			}
+		}
+		List< CostApply > feeList = costService.pageQuery( hql , pageSize , page , null );
+		// JSONArray arr = JSONArray.fromObject( feeList );
+		// System.out.println( "json:" + arr );
+		request.setAttribute( "feeList" , feeList );
+		request.setAttribute( "page" , page );
+		request.setAttribute( "pages" , pages );
+		request.setAttribute( "vcCosttypename" , vcCosttypename );
+		request.setAttribute( "returnPath" , "feeController/findAll?op=1&" );
+		return "oa_fee/feeList";
+	}
+	
+	/**
+	 * 
+	 * @Description:新增 编辑
+	 * @param request
+	 * @return 
+	 *   String 返回值描述
+	 * @author liuwu
+	 * @create_date 2015年11月16日 下午3:32:49
+	 */
+	@RequestMapping( "/toSave" )
+	public String toSave( @RequestParam( value = "id" , required = false ) Integer id ,
+	        HttpServletRequest request )
+	{
+		if ( id != null )
+		{
+			CostApply costApply = costService.get( id );
+			int typeId = costApply.getiCosttype();
+			Costtype type = typeService.get( typeId );
+			int pid = type.getpId();
+			List< Costtype > typeList = typeService.getTypesById( pid );
+			request.setAttribute( "pTypeId" , pid );
+			request.setAttribute( "typeList" , typeList );
+			request.setAttribute( "costApply" , costApply );
+		}
+		return "oa_fee/feeSave";
+	}
+	
+	/**
+	 * 
+	 * @Description:保存
+	 * @param request
+	 * @return 
+	 *   String 返回值描述
+	 * @author liuwu
+	 * @create_date 2015年11月16日 下午3:57:26
+	 */
+	@RequestMapping( "/save" )
+	public String save( HttpServletRequest request , CostApply entity )
+	{
+		try
+		{
+			HttpSession session = request.getSession();
+			int userId = Integer.parseInt( session.getAttribute( "lineid" ).toString() );
+			int recordid = Integer.parseInt( session.getAttribute( "recordid" )
+			        .toString() );
+			Employrecord emp = empService.getEmrById( recordid );// 获取员工对象
+			Dept dept = emp.getDept();// 获取所属部门
+			Integer costApplyId = entity.getId();
+			if ( costApplyId == null )
+			{
+				// 新增
+				entity.setiUser( userId );
+				entity.setVcName( emp.getEmployname() );
+				entity.setiDept( dept.getLineid() );
+				entity.setVcDeptName( dept.getDeptname() );
+				Integer typeId = entity.getiCosttype();
+				if ( typeId != null )
+				{
+					Costtype type = typeService.get( typeId );
+					entity.setVcCosttypename( type.getVcName() );
+				}
+				costService.save( entity );
+			}
+			else
+			{
+				// 修改
+				String dateStr = request.getParameter( "dtapply" );
+				SimpleDateFormat format = new SimpleDateFormat( "yyyy-MM-dd" );
+				Date dtApply = format.parse( dateStr );
+				entity.setDtApply( dtApply );
+				entity.setVcDeptName( dept.getDeptname() );
+				int costtypeId = entity.getiCosttype();
+				String vcCosttypename = typeService.get( costtypeId ).getVcName();
+				entity.setVcCosttypename( vcCosttypename );
+				costService.update( entity );
+			}
+			
+		}
+		catch ( Exception e )
+		{
+			e.printStackTrace();
+		}
+		return "redirect:findAll";
+	}
+	
+	/**
+	 * 
+	 * @Description:获取所有的2级费用类型
+	 * @return 
+	 *   List<Costtype> 返回值描述
+	 * @author chengwzh
+	 * @create_date 2015年11月17日 下午3:49:34
+	 */
+	@ResponseBody
+	@RequestMapping( "/getTypes" )
+	public List< Costtype > getTypes( @RequestParam( value = "pId" ) int pId ,
+	        HttpServletRequest request )
+	{
+		List< Costtype > types = typeService.getTypesById( pId );
+		return types;
+	}
+	
+	@RequestMapping( "/del" )
+	public String del( @RequestParam( value = "id" ) int id )
+	{
+		costService.delete( id );
+		return "redirect:findAll";
+	}
+}

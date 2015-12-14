@@ -1,0 +1,43 @@
+package clt.com.cn.util;
+
+/** 
+ * @Package clt.com.cn.util 
+ * @Description:系统常量类
+ * @author chengwzh 
+ * @date 2015年10月27日 上午11:12:00 
+ * @version V1.0 
+ */
+public class SystemConstance
+{	
+	public static final String CONTRACT_FLOWKEY = "contract";
+	
+	/**
+	 * 商务部经理
+	 */
+	public static final String BUSINESS_MANAGE = "zhouyp";
+
+	/**
+	 * 产品规划部总监
+	 */
+	public static final String PRODUCT_MANAGE = "zhangyg";
+	
+	/**
+	 * 总裁助理
+	 */
+	public static final String PRESIDENT_ASSISTANT = "xuguang";
+	
+	/**
+	 * 运力管理部
+	 */
+	public static final String CAPACITY_MANAGE = "cuidy";
+	
+	/**
+	 * 财务总监
+	 */
+	public static final String FINANCIAL_MANAGE="yanyq";
+	
+	/**
+	 * 总裁
+	 */
+	public static final String PRESIDENT = "zhujh";
+}

@@ -1,0 +1,14 @@
+package clt.com.cn.service;
+
+import java.util.List;
+
+import clt.com.cn.model.entity.Costtype;
+
+public interface ICosttypeService
+{
+	public List< Costtype > getTypesById( int id );
+	
+	public Costtype get( int id );
+	
+	public List< Costtype > getAllObjectOrder( String hql );
+}

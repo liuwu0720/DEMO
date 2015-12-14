@@ -1,0 +1,469 @@
+package clt.com.cn.controller.workflow;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import clt.com.cn.model.entity.CostApply;
+import clt.com.cn.model.entity.CostApplyitem;
+import clt.com.cn.model.entity.CostAuditrecord;
+import clt.com.cn.model.entity.Costtype;
+import clt.com.cn.model.entity.Dept;
+import clt.com.cn.model.entity.Employrecord;
+import clt.com.cn.model.entity.FeeTel;
+import clt.com.cn.model.entity.FeeTelForm;
+import clt.com.cn.model.entity.FeeTraffic;
+import clt.com.cn.model.entity.FeeTrafficForm;
+import clt.com.cn.model.entity.PayTypes;
+import clt.com.cn.model.entity.TakeFeeCompany;
+import clt.com.cn.model.entity.TrafficTools;
+import clt.com.cn.model.entity.TravelFeeForm;
+import clt.com.cn.model.entity.Travelfee;
+import clt.com.cn.service.ICostApplyService;
+import clt.com.cn.service.ICosttypeService;
+import clt.com.cn.service.IEmployrecordService;
+import clt.com.cn.service.IWorkflowService;
+
+/** 
+ * @Package clt.com.cn.controller.workflow 
+ * @Description:用一句话描述该文件做什么 
+ * @author liuwu
+ * @date 2015年11月16日 下午2:33:38 
+ * @version V1.0 
+ */
+@Controller
+@RequestMapping( "/feeController" )
+public class FeeController
+{
+	@Autowired
+	ICostApplyService costService;
+	@Autowired
+	private ICosttypeService typeService;
+	@Autowired
+	private IEmployrecordService empService;
+	@Autowired
+	IWorkflowService iWorkflowService;
+	
+	/**
+	 * 
+	 * @Description:查询当前用户的所有费用申请表 按时间排序
+	 * @param request
+	 * @return 
+	 *   String 返回值描述
+	 * @author liuwu
+	 * @create_date 2015年11月16日 下午3:26:00
+	 */
+	@RequestMapping( "/findAll" )
+	public String findAll( HttpServletRequest request )
+	{
+		String returnPath = "feeController/findAll?op=1";
+		HttpSession session = request.getSession();
+		int userId = Integer.parseInt( session.getAttribute( "lineid" ).toString() );
+		String hql = "from CostApply where nEnable=0 and iUser=" + userId;
+		String vcCosttypename = request.getParameter( "vcCosttypename" );
+		if ( StringUtils.isNotBlank( vcCosttypename ) )
+		{
+			hql += " and vcCosttypename like '%" + vcCosttypename + "%'";
+			returnPath += "&vcCosttypename=" + vcCosttypename;
+		}
+		hql += " order by id desc";
+		String p = request.getParameter( "page" );
+		int page , pages , count;
+		int pageSize = 5;
+		// String countHql = "from CostApply where nEnable=0 and iUser=" +
+		// userId;
+		count = costService.getCountByHql( hql );
+		pages = costService.getpages( count , pageSize );
+		
+		if ( p == null || p == "" )
+		{
+			page = 1;
+		}
+		else
+		{
+			page = Integer.parseInt( p );
+			if ( page < 1 )
+			{
+				page = 1;
+			}
+			else if ( page > pages )
+			{
+				page = pages;
+			}
+		}
+		List< CostApply > feeList = costService.pageQuery( hql , pageSize , page , null );
+		// JSONArray arr = JSONArray.fromObject( feeList );
+		// System.out.println( "json:" + arr );
+		request.setAttribute( "feeList" , feeList );
+		request.setAttribute( "page" , page );
+		request.setAttribute( "pages" , pages );
+		request.setAttribute( "vcCosttypename" , vcCosttypename );
+		// request.setAttribute( "returnPath" , "feeController/findAll?op=1&" );
+		request.setAttribute( "returnPath" , returnPath );
+		return "oa_fee/feeList";
+	}
+	
+	/**
+	 * 
+	 * @Description:新增 编辑
+	 * @param request
+	 * @return 
+	 *   String 返回值描述
+	 * @author liuwu
+	 * @create_date 2015年11月16日 下午3:32:49
+	 */
+	@RequestMapping( "/toSave" )
+	public String toSave( @RequestParam( value = "id" , required = false ) Integer id ,
+	        HttpServletRequest request )
+	{
+		String type = "add";
+		int recordid = Integer.parseInt( request.getSession().getAttribute( "recordid" )
+		        .toString() );
+		Employrecord emp = empService.getEmrById( recordid );// 获取员工对象
+		List< TakeFeeCompany > takeFeeCompanies = costService.findAllTakeFeeCompany();
+		// 结算方式
+		List< PayTypes > payTypes = typeService.getAllPayTypes();
+		request.setAttribute( "payTypes" , payTypes );
+		// 交通工具
+		List< TrafficTools > trafficTools = typeService.getAllTrafficTools();
+		request.setAttribute( "trafficTools" , trafficTools );
+		if ( id != null )
+		{
+			CostApply costApply = costService.get( id );
+			int typeId = costApply.getiCosttype();
+			Costtype costype = typeService.get( typeId );
+			int pid = costype.getpId();
+			List< Costtype > typeList = typeService.getTypesById( pid );
+			request.setAttribute( "pTypeId" , pid );
+			request.setAttribute( "typeList" , typeList );
+			request.setAttribute( "costApply" , costApply );
+			
+			// 业务表明细
+			List< CostApplyitem > costApplyitems = costService
+			        .findAllCostItemsById( costApply.getId() );
+			if ( costApplyitems != null && costApplyitems.size() > 0 )
+			{
+				// 差旅费
+				if ( costApplyitems.get( 0 ).getVcTable().equalsIgnoreCase( "Travelfee" ) )
+				{
+					List< Travelfee > travelfees2 = costService
+					        .findAllTravelFee( costApplyitems );
+					TravelFeeForm travelfees = new TravelFeeForm();
+					travelfees.setTravelfees( travelfees2 );
+					request.setAttribute( "travelfees" , travelfees );
+					
+				}
+				// 交通费
+				if ( costApplyitems.get( 0 ).getVcTable().equalsIgnoreCase( "FeeTraffic" ) )
+				{
+					List< FeeTraffic > feeTraffics2 = costService
+					        .findAllFeeTraffic( costApplyitems );
+					FeeTrafficForm feeTraffics = new FeeTrafficForm();
+					feeTraffics.setFeeTraffics( feeTraffics2 );
+					request.setAttribute( "feeTraffics" , feeTraffics );
+					
+				}
+				// 通讯费
+				if ( costApplyitems.get( 0 ).getVcTable().equalsIgnoreCase( "FeeTel" ) )
+				{
+					List< FeeTel > feeTels2 = costService.findAllFeeTel( costApplyitems );
+					FeeTelForm feeTels = new FeeTelForm();
+					feeTels.setFeeTels( feeTels2 );
+					request.setAttribute( "feeTels" , feeTels );
+				}
+			}
+			
+			type = "update";
+		}
+		request.setAttribute( "type" , type );
+		request.setAttribute( "vcAcceptMan" , emp.getEmployname() );
+		request.setAttribute( "takeFeeCompanies" , takeFeeCompanies );
+		return "oa_fee/feeSave";
+	}
+	
+	/**
+	 * 
+	 * @Description:保存
+	 * @param request
+	 * @return 
+	 *   String 返回值描述
+	 * @author liuwu
+	 * @create_date 2015年11月16日 下午3:57:26
+	 */
+	@RequestMapping( "/save" )
+	public String save( HttpServletRequest request , CostApply entity ,
+	        TravelFeeForm travelfees , FeeTrafficForm feeTraffics , FeeTelForm feeTels )
+	{
+		
+		try
+		{
+			HttpSession session = request.getSession();
+			int userId = Integer.parseInt( session.getAttribute( "lineid" ).toString() );
+			int recordid = Integer.parseInt( session.getAttribute( "recordid" )
+			        .toString() );
+			Employrecord emp = empService.getEmrById( recordid );// 获取员工对象
+			Dept dept = emp.getDept();// 获取所属部门
+			Integer costApplyId = entity.getId();
+			// 获取部门所在的分公司
+			Dept deptPi = empService.getCompany( dept.getLineid() );
+			entity.setVcName( emp.getEmployname() );
+			entity.setiDept( dept.getLineid() );
+			entity.setVcDeptName( dept.getDeptname() );
+			Integer typeId = entity.getiCosttype();
+			entity.setiDept2( dept.getLineid() );// 费用承担部门即申请部门
+			entity.setVcDeptName2( dept.getDeptname() );
+			entity.setVcCompany( deptPi.getDeptname() );// 报销公司
+			if ( costApplyId == null )
+			{
+				// 新增
+				entity.setVcApplyNo( getApplyNo() );
+				entity.setiUser( userId );
+				/*entity.setVcName( emp.getEmployname() );
+				entity.setiDept( dept.getLineid() );
+				entity.setVcDeptName( dept.getDeptname() );
+				Integer typeId = entity.getiCosttype();
+				entity.setiDept2( dept.getLineid() );// 费用承担部门即申请部门
+				entity.setVcDeptName2( dept.getDeptname() );
+				entity.setVcCompany( deptPi.getDeptname() );//报销公司
+				*/if ( typeId != null )
+				{
+					Costtype type = typeService.get( typeId );
+					entity.setVcCosttypename( type.getVcName() );
+				}
+				costService.save( entity );
+				// 差旅费
+				if ( travelfees != null
+				        && CollectionUtils.isNotEmpty( travelfees.getTravelfees() ) )
+				{
+					for ( Travelfee travelfee : travelfees.getTravelfees() )
+					{
+						travelfee.setVcUser( emp.getEmployname() );
+						
+						float total = travelfee.getnTotal();
+						System.out.println( "total = " + total );
+						travelfee.setnTotal( travelfee.getnTotal() );
+						costService.saveTravelFee( travelfee );
+						CostApplyitem costApplyitem = new CostApplyitem();
+						costApplyitem.setiCostid( entity.getId() );
+						costApplyitem.setiTableid( travelfee.getId() );
+						costApplyitem.setnCost( travelfee.getnTotal() );
+						costApplyitem.setVcTable( travelfee.getClass().getSimpleName() );
+						costService.saveCosApplyItem( costApplyitem );
+					}
+				}
+				// 交通费
+				if ( feeTraffics != null
+				        && CollectionUtils.isNotEmpty( feeTraffics.getFeeTraffics() ) )
+				{
+					for ( FeeTraffic feeTraffic : feeTraffics.getFeeTraffics() )
+					{
+						feeTraffic.setVcApplyname( emp.getEmployname() );
+						costService.saveFeeTraffic( feeTraffic );
+						CostApplyitem costApplyitem = new CostApplyitem();
+						costApplyitem.setiCostid( entity.getId() );
+						costApplyitem.setiTableid( feeTraffic.getId() );
+						// costApplyitem.setnCost( feeTraffic.getnReimburse() );
+						costApplyitem.setVcTable( feeTraffic.getClass().getSimpleName() );
+						costService.saveCosApplyItem( costApplyitem );
+					}
+				}
+				// 通讯费
+				if ( feeTels != null && CollectionUtils.isNotEmpty( feeTels.getFeeTels() ) )
+				{
+					for ( FeeTel feeTel : feeTels.getFeeTels() )
+					{
+						feeTel.setVcApplyname( emp.getEmployname() );
+						costService.saveFeeTel( feeTel );
+						CostApplyitem costApplyitem = new CostApplyitem();
+						costApplyitem.setiCostid( entity.getId() );
+						costApplyitem.setiTableid( feeTel.getId() );
+						// costApplyitem.setnCost( feeTraffic.getnReimburse() );
+						costApplyitem.setVcTable( feeTel.getClass().getSimpleName() );
+						costService.saveCosApplyItem( costApplyitem );
+					}
+				}
+				
+			}
+			else
+			{
+				// 修改
+				String dateStr = request.getParameter( "dtapply" );
+				SimpleDateFormat format = new SimpleDateFormat( "yyyy-MM-dd" );
+				Date dtApply = format.parse( dateStr );
+				entity.setDtApply( dtApply );
+				entity.setVcDeptName( dept.getDeptname() );
+				int costtypeId = entity.getiCosttype();
+				String vcCosttypename = typeService.get( costtypeId ).getVcName();
+				entity.setVcCosttypename( vcCosttypename );
+				costService.update( entity );
+				// 差旅费
+				if ( travelfees != null
+				        && CollectionUtils.isNotEmpty( travelfees.getTravelfees() ) )
+				{
+					// 先清空以前的
+					costService.deleteTravelFeeHis( entity.getId() );
+					for ( Travelfee travelfee : travelfees.getTravelfees() )
+					{
+						travelfee.setVcUser( emp.getEmployname() );
+						costService.saveTravelFee( travelfee );
+						CostApplyitem costApplyitem = new CostApplyitem();
+						costApplyitem.setiCostid( entity.getId() );
+						costApplyitem.setiTableid( travelfee.getId() );
+						costApplyitem.setnCost( travelfee.getnTotal() );
+						costApplyitem.setVcTable( travelfee.getClass().getSimpleName() );
+						costService.saveOrUpdateCosApplyItem( costApplyitem );
+					}
+				}
+				
+				// 交通费
+				if ( feeTraffics != null
+				        && CollectionUtils.isNotEmpty( feeTraffics.getFeeTraffics() ) )
+				{
+					// 先清空以前的
+					costService.deleteFeeTracfficeHis( entity.getId() );
+					for ( FeeTraffic feeTraffic : feeTraffics.getFeeTraffics() )
+					{
+						feeTraffic.setVcApplyname( emp.getEmployname() );
+						costService.saveFeeTraffic( feeTraffic );
+						CostApplyitem costApplyitem = new CostApplyitem();
+						costApplyitem.setiCostid( entity.getId() );
+						costApplyitem.setiTableid( feeTraffic.getId() );
+						// costApplyitem.setnCost( travelfee.getnTotal() );
+						costApplyitem.setVcTable( feeTraffic.getClass().getSimpleName() );
+						costService.saveOrUpdateCosApplyItem( costApplyitem );
+					}
+				}
+				
+				// 通讯费
+				if ( feeTels != null && CollectionUtils.isNotEmpty( feeTels.getFeeTels() ) )
+				{// 先清空以前的
+					costService.deleFeeTelHis( entity.getId() );
+					for ( FeeTel feeTel : feeTels.getFeeTels() )
+					{
+						feeTel.setVcApplyname( emp.getEmployname() );
+						costService.saveFeeTel( feeTel );
+						CostApplyitem costApplyitem = new CostApplyitem();
+						costApplyitem.setiCostid( entity.getId() );
+						costApplyitem.setiTableid( feeTel.getId() );
+						// costApplyitem.setnCost( feeTraffic.getnReimburse() );
+						costApplyitem.setVcTable( feeTel.getClass().getSimpleName() );
+						costService.saveCosApplyItem( costApplyitem );
+					}
+					
+				}
+			}
+			
+		}
+		catch ( Exception e )
+		{
+			e.printStackTrace();
+		}
+		return "redirect:findAll";
+	}
+	
+	/** 
+	 * @Description:这里用一句话描述这个方法的作用
+	 * @return 
+	 *   String 返回值描述
+	 * @author liuwu
+	 * @create_date 2015年12月9日 上午10:26:19
+	 */
+	private String getApplyNo()
+	{
+		Date date = new Date();
+		SimpleDateFormat sdf = new SimpleDateFormat( "yyyyMMddHHmmss" );
+		String strDate = sdf.format( date );
+		
+		return "BX_" + strDate;
+	}
+	
+	/**
+	 * 
+	 * @Description:获取所有的2级费用类型
+	 * @return 
+	 *   List<Costtype> 返回值描述
+	 * @author chengwzh
+	 * @create_date 2015年11月17日 下午3:49:34
+	 */
+	@ResponseBody
+	@RequestMapping( "/getTypes" )
+	public List< Costtype > getTypes( @RequestParam( value = "pId" ) int pId ,
+	        HttpServletRequest request )
+	{
+		List< Costtype > types = typeService.getTypesById( pId );
+		return types;
+	}
+	
+	@RequestMapping( "/del" )
+	public String del( @RequestParam( value = "id" ) int id )
+	{
+		costService.delete( id );
+		return "redirect:findAll";
+	}
+	
+	/**
+	 * 
+	 * @Description:查看详情
+	 * @param request
+	 * @param id
+	 * @return 
+	 *   String 返回值描述
+	 * @author liuwu
+	 * @create_date 2015年12月9日 上午11:49:52
+	 */
+	@RequestMapping( "/viewFeeContent" )
+	public String viewFeeContent( HttpServletRequest request ,
+	        @RequestParam( value = "id" ) int id )
+	{
+		CostApply costApply = costService.get( id );
+		request.setAttribute( "costApply" , costApply );
+		// 查询审批记录
+		List< CostAuditrecord > costAuditrecords = costService.findAllByCostApplyId( id );
+		
+		// 查找明细
+		List< CostApplyitem > costApplyitems = costService
+		        .findAllCostItemsById( costApply.getId() );
+		if ( costApplyitems != null && costApplyitems.size() > 0 )
+		{
+			if ( costApplyitems.get( 0 ).getVcTable().equalsIgnoreCase( "Travelfee" ) )
+			{
+				List< Travelfee > travelfees2 = costService
+				        .findAllTravelFee( costApplyitems );
+				TravelFeeForm travelfees = new TravelFeeForm();
+				travelfees.setTravelfees( travelfees2 );
+				request.setAttribute( "travelfees" , travelfees );
+			}
+			// 交通费
+			if ( costApplyitems.get( 0 ).getVcTable().equalsIgnoreCase( "FeeTraffic" ) )
+			{
+				List< FeeTraffic > feeTraffics2 = costService
+				        .findAllFeeTraffic( costApplyitems );
+				FeeTrafficForm feeTraffics = new FeeTrafficForm();
+				feeTraffics.setFeeTraffics( feeTraffics2 );
+				request.setAttribute( "feeTraffics" , feeTraffics );
+			}
+			// 通讯费
+			if ( costApplyitems.get( 0 ).getVcTable().equalsIgnoreCase( "FeeTel" ) )
+			{
+				List< FeeTel > feeTels2 = costService.findAllFeeTel( costApplyitems );
+				FeeTelForm feeTels = new FeeTelForm();
+				feeTels.setFeeTels( feeTels2 );
+				request.setAttribute( "feeTels" , feeTels );
+			}
+		}
+		
+		request.setAttribute( "costAuditrecords" , costAuditrecords );
+		return "oa_workflow/viewFeeComment";
+	}
+}

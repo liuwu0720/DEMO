@@ -1,0 +1,37 @@
+package clt.com.cn.service;
+
+import java.util.List;
+
+import clt.com.cn.model.entity.CostApply;
+
+
+/** 
+ * @Package clt.com.cn.service 
+ * @Description:用一句话描述该文件做什么 
+ * @author liuwu
+ * @date 2015年11月16日 下午2:35:59 
+ * @version V1.0 
+ */
+public interface ICostFeeService
+{
+
+	/** 
+	 * @Description:这里用一句话描述这个方法的作用
+	 * @param sql
+	 * @return 
+	 *   List 返回值描述
+	 * @author liuwu
+	 * @create_date 2015年11月16日 下午3:03:30
+	 */ 
+    List findByPage( String sql );
+
+	/** 
+	 * @Description:这里用一句话描述这个方法的作用
+	 * @param costApply 
+	 *   void 返回值描述
+	 * @author liuwu
+	 * @create_date 2015年11月16日 下午3:58:34
+	 */ 
+    void save( CostApply costApply );	
+	
+}

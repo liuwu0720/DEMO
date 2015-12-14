@@ -1,0 +1,13 @@
+package clt.com.cn.dao;
+
+/** 
+ * @Package clt.com.cn.dao 
+ * @Description:用一句话描述该文件做什么 
+ * @author liuwu
+ * @date 2015年11月20日 上午9:41:25 
+ * @version V1.0 
+ */
+public interface IDeptTotalCostDao
+{	
+	
+}

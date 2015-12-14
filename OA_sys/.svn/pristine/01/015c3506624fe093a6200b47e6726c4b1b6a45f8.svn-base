@@ -1,0 +1,96 @@
+<%@ page language="java" import="java.util.*" pageEncoding="utf-8"%>
+<%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
+
+
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <base href="<%=basePath%>">
+    
+    <title>My JSP 'phone_table.jsp' starting page</title>
+    
+	<meta http-equiv="pragma" content="no-cache">
+	<meta http-equiv="cache-control" content="no-cache">
+	<meta http-equiv="expires" content="0">    
+	<meta http-equiv="keywords" content="keyword1,keyword2,keyword3">
+	<meta http-equiv="description" content="This is my page">
+	<!--
+	<link rel="stylesheet" type="text/css" href="styles.css">
+	-->
+<script type="text/javascript" src="<%=path%>/ckeditor/ckeditor.js"></script>
+<script type="text/javascript"
+	src="<%=path%>/My97DatePicker/WdatePicker.js"></script>	
+	
+<script type="text/javascript">
+
+//话费添加按钮
+var index = '${fn:length(feeTels.feeTels)}'-1;
+function addPhoneBtn(obj){
+	
+	index ++;	
+	//$(obj).parent().parent().clone(true).insertAfter($(obj).parent().parent());
+	
+	var temp1 = phonetemp.replace(/\[0]/g,'['+index+']');
+	
+	$("#phone_tbody1").append(temp1);
+}
+//话费按钮删除
+function delPhoneBtn(obj){
+	if(index>0){
+		index --;
+	}
+	
+	var len=$(obj).parent().parent().parent().children().length;
+	if(len>2){
+		var div=$(obj).parent().parent().parent().children().last();
+		//alert(div.html());
+		div.remove();
+	}
+
+	}
+</script>
+  </head>
+  
+  <body>
+   <table class="table">
+		<tbody id="phone_tbody1">
+			<tr style="font-size: 5;height: 20px;">
+				<td>开始日期</td>
+				<td>结束日期</td>
+				<td>累计出差天数</td>
+				<td>出差通讯费标准</td>
+				<td>实际标准</td>
+				<td>报销金额</td>
+				<td>备注</td>
+				<td style="width: 35px;">操作</td>
+				<c:forEach items="${feeTels.feeTels }" var="t"	varStatus="vstatus">	
+				<tr id="phone_tr2">
+				<td><input type="text" name="feeTels[${vstatus.index}].dtStart" style="width: 100px"  value="${t.dtStart }"
+					onFocus="WdatePicker({startDate:'%y-%M-01',dateFmt:'yyyy-MM-dd',alwaysUseStartDate:true})" />
+					<img src="./My97DatePicker/skin/datePicker.gif" width="24"
+					height="33" align="absmiddle" style="cursor:pointer"
+					onClick="WdatePicker({el:'d11',startDate:'%y-%M-01',dateFmt:'yyyy-MM-dd',alwaysUseStartDate:true})" />
+				</td>
+				<td><input type="text" name="feeTels[${vstatus.index}].dtEnd" style="width: 100px"  value="${t.dtEnd }"
+					onFocus="WdatePicker({startDate:'%y-%M-01',dateFmt:'yyyy-MM-dd',alwaysUseStartDate:true})" />
+					<img src="./My97DatePicker/skin/datePicker.gif" width="24"
+					height="33" align="absmiddle" style="cursor:pointer"
+					onClick="WdatePicker({el:'d11',startDate:'%y-%M-01',dateFmt:'yyyy-MM-dd',alwaysUseStartDate:true})" /></td>
+				<td><input type="text" name="feeTels[${vstatus.index}].nDays"  value="${t.nDays }"></td>
+				<td><input type="text" name="feeTels[${vstatus.index}].nStandard"   value="${t.nStandard }"></td>
+				<td><input type="text" name="feeTels[${vstatus.index}].nActStandard"  value="${t.nActStandard }"></td>
+				<td><input type="text" name="feeTels[${vstatus.index}].nMoney"  value="${t.nMoney }"></td>
+				<td><input type="text" name="feeTels[${vstatus.index}].vcNote"  value="${t.vcNote }"></td>
+				<td><img src="<%=path%>/img/add.png"
+					onclick="addPhoneBtn(this)"
+					style="width: 15px;heigth:15px;vertical-align:middle;cursor: pointer;">
+					<img src="<%=path%>/img/bin.png" onclick="delPhoneBtn(this)"
+					style="width: 15px;heigth:15px;vertical-align:middle;cursor: pointer;"></td>
+			</tr>
+			</c:forEach>
+		</tbody>
+	</table>
+  </body>
+</html>

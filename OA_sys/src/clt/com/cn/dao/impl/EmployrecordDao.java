@@ -1,0 +1,211 @@
+package clt.com.cn.dao.impl;
+
+import java.util.List;
+
+import clt.com.cn.base.BaseDao;
+import clt.com.cn.dao.IEmployrecordDao;
+import clt.com.cn.model.entity.ContractType;
+import clt.com.cn.model.entity.Dept;
+import clt.com.cn.model.entity.EmployManager;
+import clt.com.cn.model.entity.Employrecord;
+import clt.com.cn.model.entity.Position;
+
+public class EmployrecordDao extends BaseDao implements IEmployrecordDao
+{
+	public List< Employrecord > getAllEmr()
+	{
+		return super.getAllObject( Employrecord.class );
+	}
+	
+	// 多表连接查询
+	public List getAllEmr2( int page )
+	{
+		String hql = "select em.lineid,em.fileno,em.employname,getCompanyByDeptID(em.deptid)  as companyname, getAllDeptName(em.deptid) as deptid,po.positionname "
+		        + " from Employrecord  em,Position  po where em.positionid=po.lineid";
+		
+		return super.pageSqlQuery( hql , 5 , page );
+	}
+	
+	public List getEmrUserByName( String employname , int page )
+	{
+		// 根据姓名查询档案信息
+		String hql = "select em.lineid,em.fileno,em.employname,getCompanyByDeptID(em.deptid)  as companyname, getAllDeptName(em.deptid) as deptid,po.positionname "
+		        + " from Employrecord  em, Position  po where  em.positionid=po.lineid and ( em.employname like '%"
+		        + employname
+		        + "% ' OR em.fileno  like '%"
+		        + employname
+		        + "%' OR po.positionname like '%" + employname + "%')";
+		return super.pageSqlQuery( hql , 5 , page );
+	}
+	
+	public Employrecord getEmrById( int id )
+	{
+		// 根据ID查询（员工档案）
+		return ( Employrecord ) super.getObjectById( Employrecord.class , id );
+	}
+	
+	public void delEmrById( int id )
+	{
+		// 根据ID删除
+		super.deleteObjectById( Employrecord.class , id );
+	}
+	
+	public void addEmr( Employrecord emr )
+	{
+		// 添加
+		super.addObject( emr );
+	}
+	
+	public void updateEmr( Employrecord emr )
+	{
+		// 修改
+		super.updateObject( emr );
+	}
+	
+	// 得到所有部门
+	public List< Dept > getAllDept()
+	{
+		return super.getAllObject( Dept.class );
+	}
+	
+	// 得到所有职位
+	public List< Position > getAllPosition()
+	{
+		return super.getAllObject( Position.class );
+	}
+	
+	// 根据ID得到相应的部门
+	public Dept getDeptById( int id )
+	{
+		return ( Dept ) super.getObjectById( Dept.class , id );
+	}
+	
+	public Position getPositionById( int id )
+	{
+		return ( Position ) super.getObjectById( Position.class , id );
+	}
+	
+	// 条件查询
+	public List< Employrecord > getEmrInfo( String hql , Object ... p )
+	{
+		return super.getUsersByCondition( hql , p );
+	}
+	
+	public int getCount()
+	{
+		String hql = "select count(*) from Employrecord";
+		List list = super.getUsersByCondition( hql );
+		int count = Integer.parseInt( list.get( 0 ).toString() );
+		return count;
+	}
+	
+	public int getCountByName( String employname )
+	{
+		// String
+		// sql="select count(*) nums from Employrecord  em, Position  po where  em.positionid=po.lineid and ( em.employname like '%"+employname+"% ' OR em.fileno  like '%"+employname+"%' OR po.positionname like '%"+employname+"%')";
+		String sql = " select count(*) nums from Employrecord e where e.employname like '%"
+		        + employname + "%'";
+		int count = getCountBySql( sql );
+		return count;
+	}
+	
+	public int getpages( int count , int pageSize )
+	{
+		int totalpages = 0;
+		try
+		{
+			totalpages = ( count % pageSize == 0 ) ? ( count / pageSize ) : ( count
+			        / pageSize + 1 );
+		}
+		catch ( Exception e )
+		{
+			e.printStackTrace();
+		}
+		return totalpages;
+	}
+	
+	public List< Employrecord > getAllEmrByPage( int page )
+	{
+		String hql = "from Employrecord";
+		return super.pageQuery( hql , 5 , page );
+	}
+	
+	public List getAllEmrByName( String employname , int page )
+	{
+		String hql = "from Employrecord e where e.employname like '%" + employname + "%'";
+		return super.pageQuery( hql , 5 , page );
+	}
+	
+	public int getCountBySQL( String sql )
+	{
+		// TODO Auto-generated method stub
+		return super.getCountBySql( sql );
+	}
+	
+	public List getDateBySqlQuery( String sql , int pageSize , int page )
+	{
+		// TODO Auto-generated method stub
+		return super.getDateBySqlQuery( sql , pageSize , page );
+	}
+	
+	public List getpageDateBySqlQuery( String sql , int page , int pageSize )
+	{
+		// TODO Auto-generated method stub
+		return super.getpageDateBySqlQuery( sql , page , pageSize );
+	}
+	
+	public void saveEmployManager( EmployManager emp )
+	{
+		// 添加
+		super.addObject( emp );
+	}
+	
+	/**
+	 * @Description: TODO(这里用一句话描述这个方法的作用)
+	 * @param id
+	 * @return
+	 * @author chenbin
+	 * @create_date 2014-9-25 下午4:56:42
+	 */
+	public ContractType getContractTypeById( int id )
+	{
+		// TODO Auto-generated method stub
+		return ( ContractType ) super.getObjectById( ContractType.class , id );
+		
+	}
+	
+	/**
+	 * @Description: TODO(这里用一句话描述这个方法的作用)
+	 * @return
+	 * @author chenbin
+	 * @create_date 2014-9-25 下午5:16:10
+	 */
+	public List< ContractType > getAllContractType()
+	{
+		// TODO Auto-generated method stub
+		return super.getAllObject( ContractType.class );
+	}
+	
+	/** 
+	 * @Description:这里用一句话描述这个方法的作用 
+	 * @param userNo
+	 * @return 
+	 * @author liuwu
+	 * @create_date 2015年12月11日 上午10:27:12
+	 */
+	public String getUserNameByUserNo( String userNo )
+	{
+		String sql = "select t.employname from EMPLOYRECORD t ,smuser sm where t.lineid = sm.recordid and sm.userno = '"
+		        + userNo + "'";
+		List users = super.getDateBySqlQuery( sql , 5 , 1 );
+		if ( users != null && users.size() > 0 )
+		{
+			return ( String ) users.get( 0 );
+		}
+		else
+		{
+			return null;
+		}
+		
+	}
+}

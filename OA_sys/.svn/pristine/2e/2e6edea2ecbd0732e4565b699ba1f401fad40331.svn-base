@@ -1,0 +1,665 @@
+package clt.com.cn.controller.workflow;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+
+import clt.com.cn.model.entity.CostBudget;
+import clt.com.cn.model.entity.Costtype;
+import clt.com.cn.model.entity.Dept;
+import clt.com.cn.model.entity.DeptTotalcost;
+import clt.com.cn.service.ICostBudgetService;
+import clt.com.cn.service.ICosttypeService;
+import clt.com.cn.service.IDeptService;
+import clt.com.cn.service.IDeptTotalCostService;
+
+@Controller
+@RequestMapping( "/feeBudgetController" )
+public class FeeBudgetController
+{
+	@Autowired
+	private ICostBudgetService budgetService;
+	@Autowired
+	private IDeptService deptService;
+	@Autowired
+	private ICosttypeService typeService;
+	@Autowired
+	private IDeptTotalCostService totalService;
+	
+	/**
+	 * 
+	 * @Description:查询列表
+	 * @param request
+	 * @return 
+	 *   String 返回值描述
+	 * @author chengwzh
+	 * @create_date 2015年11月25日 下午3:58:48
+	 */
+	@RequestMapping( "/findAll" )
+	public String findAll( HttpServletRequest request )
+	{
+		String returnPath = "feeBudgetController/findAll?op=1";
+		String hql = "from CostBudget where nEnable=0 ";
+		String vcCompany = request.getParameter( "vcCompany" );// 公司名称
+		if ( StringUtils.isNotBlank( vcCompany ) )
+		{
+			hql += " and vcCompany like '%" + vcCompany + "%'";
+			returnPath += "&vcCompany=" + vcCompany;
+		}
+		String vcDeptname = request.getParameter( "vcDeptname" );// 部门名称
+		if ( StringUtils.isNotBlank( vcDeptname ) )
+		{
+			hql += " and vcDeptname like '%" + vcDeptname + "%'";
+			returnPath += "&vcDeptname=" + vcDeptname;
+		}
+		String vcCosttype = request.getParameter( "vcCosttype" );// 费用类别
+		if ( StringUtils.isNotBlank( vcCosttype ) )
+		{
+			hql += " and vcCosttype like '%" + vcCosttype + "%'";
+			returnPath += "&vcCosttype=" + vcCosttype;
+		}
+		String nMonthStr = request.getParameter( "nMonth" );// 月份
+		if ( StringUtils.isNotBlank( nMonthStr ) )
+		{
+			int nMonth = Integer.parseInt( nMonthStr );
+			hql += " and nMonth=" + nMonth;
+			returnPath += "&nMonth=" + nMonth;
+		}
+		hql += " order by lineid desc";
+		String p = request.getParameter( "page" );
+		int page , pages , count;
+		int pageSize = 10;
+		// String countHql = "from CostApply where nEnable=0 and iUser=" +
+		// userId;
+		count = budgetService.getCountByHql( hql );
+		pages = budgetService.getpages( count , pageSize );
+		
+		if ( p == null || p == "" )
+		{
+			page = 1;
+		}
+		else
+		{
+			page = Integer.parseInt( p );
+			if ( page < 1 )
+			{
+				page = 1;
+			}
+			else if ( page > pages )
+			{
+				page = pages;
+			}
+		}
+		List< CostBudget > costBudgets = budgetService.pageQuery( hql , pageSize , page ,
+		        null );
+		request.setAttribute( "costBudgets" , costBudgets );
+		request.setAttribute( "page" , page );
+		request.setAttribute( "pages" , pages );
+		// request.setAttribute( "returnPath" ,
+		// "feeBudgetController/findAll?op=1&" );
+		request.setAttribute( "returnPath" , returnPath );
+		request.setAttribute( "vcCompany" , vcCompany );
+		request.setAttribute( "vcDeptname" , vcDeptname );
+		request.setAttribute( "vcCosttype" , vcCosttype );
+		return "oa_fee/feeBudgetList";
+	}
+	
+	/**
+	 * 
+	 * @Description:进入编辑页面
+	 * @param id
+	 * @param request
+	 * @return 
+	 *   String 返回值描述
+	 * @author chengwzh
+	 * @create_date 2015年11月25日 下午3:58:16
+	 */
+	@RequestMapping( "/toSave" )
+	public String toSave( @RequestParam( value = "id" , required = false ) Integer id ,
+	        HttpServletRequest request )
+	{
+		String hql = "from Dept where pid=0 and active=1";
+		List< Dept > companys = deptService.getAllObjectOrder( hql );// 获取公司
+		if ( id != null )
+		{
+			CostBudget budget = budgetService.get( id );
+			int compId = budget.getiCompany();
+			Dept comp = deptService.getDeptById( compId );
+			String sql = "select LINEID,DEPTNAME,PID,ACTIVE,USERNO,CURRDATE,MANAGERUSERID,"
+			        + "ILEVEL from dept where active=1 and pid!=0 start with lineid="
+			        + compId + " connect by prior lineid=pid";
+			List< Dept > depts = ( List< Dept > ) deptService.getDateBySqlQuery( sql , 0 ,
+			        0 );
+			int typeId = budget.getiCosttype();
+			Costtype type = typeService.get( typeId );
+			int typePid = type.getpId();
+			List< Costtype > subTypes = typeService.getTypesById( typePid );
+			request.setAttribute( "comp" , comp );
+			request.setAttribute( "depts" , depts );
+			request.setAttribute( "pTypeId" , typePid );// 一级费用类型
+			request.setAttribute( "subTypes" , subTypes );// 二级费用类型
+			request.setAttribute( "budget" , budget );
+		}
+		request.setAttribute( "companys" , companys );
+		return "oa_fee/feeBudgetSave";
+	}
+	
+	/**
+	 * 
+	 * @Description:增加或者修改
+	 * @param entity
+	 * @param request
+	 * @return 
+	 *   String 返回值描述
+	 * @author chengwzh
+	 * @create_date 2015年11月25日 下午3:46:38
+	 */
+	@RequestMapping( "/save" )
+	public String save( CostBudget entity , HttpServletRequest request )
+	{
+		try
+		{
+			int iTypePid = Integer.parseInt( request.getParameter( "pcostType" )
+			        .toString() );
+			Integer id = entity.getLineid();
+			int compId = entity.getiCompany();// 公司id
+			Dept comp = deptService.getDeptById( compId );
+			entity.setVcCompany( comp.getDeptname() );
+			int deptId = entity.getiDept();// 部门id
+			Dept dept = deptService.getDeptById( deptId );
+			entity.setVcDeptname( dept.getDeptname() );
+			int typeId = entity.getiCosttype();// 费用类别id
+			Costtype type = typeService.get( typeId );
+			entity.setVcCosttype( type.getVcName() );
+			SimpleDateFormat format = new SimpleDateFormat( "yyyy-MM-dd" );
+			String dtAddStr = request.getParameter( "dtAddstr" );
+			float ntotal = entity.getnTotalcost();// 总额
+			entity.setnLastcost( ntotal );// 余额
+			entity.setnLastcost2( ntotal );// 预估余额
+			entity.setiTypePid( iTypePid );// 费用类别父类ID
+			if ( StringUtils.isNotBlank( dtAddStr ) )
+			{
+				Date dtAdd = format.parse( dtAddStr );
+				entity.setDtAdd( dtAdd );// 添加时间
+			}
+			if ( id == null )
+			{
+				// 新增
+				String[] nMonths = request.getParameterValues( "nMonths" );
+				if ( nMonths != null && nMonths.length > 0 )
+				{
+					for ( String nMonthstr : nMonths )
+					{
+						int nMonth = Integer.parseInt( nMonthstr );
+						CostBudget budget = new CostBudget();
+						budget.setnMonth( nMonth );
+						budget.setiCompany( entity.getiCompany() );
+						budget.setVcCompany( entity.getVcCompany() );
+						budget.setiDept( entity.getiDept() );
+						budget.setVcDeptname( entity.getVcDeptname() );
+						budget.setiCosttype( entity.getiCosttype() );
+						budget.setVcCosttype( entity.getVcCosttype() );
+						budget.setnLastcost( entity.getnLastcost() );
+						budget.setnTotalcost( entity.getnTotalcost() );
+						budget.setnLastcost2( entity.getnLastcost2() );
+						budget.setiTypePid( iTypePid );
+						budgetService.save( budget );
+						// 同时更新到部门总额表
+						updateTotal( budget );
+					}
+				}
+				
+				// budgetService.save( entity );
+			}
+			else
+			{
+				// 修改
+				budgetService.update( entity );
+				// 同时更新到部门总额表
+				updateTotal( entity );
+			}
+			// 同时更新到部门总额表
+			// int month = entity.getnMonth();
+			
+		}
+		catch ( Exception e )
+		{
+			e.printStackTrace();
+		}
+		return "redirect:findAll";
+	}
+	
+	/**
+	 * 
+	 * @Description:删除
+	 * @param id
+	 * @return 
+	 *   String 返回值描述
+	 * @author chengwzh
+	 * @create_date 2015年11月25日 下午3:46:26
+	 */
+	@RequestMapping( "/del" )
+	public String del( @RequestParam( value = "id" ) int id )
+	{
+		CostBudget entity = budgetService.get( id );
+		entity.setnEnable( 1 );
+		budgetService.merge( entity );
+		// 同时更新总额
+		// int deptId = entity.getiDept();
+		// int month = entity.getnMonth();
+		// String hql = "from CostBudget where nEnable=0 and iDept=" + deptId
+		// + " and nMonth=" + month;
+		// List< CostBudget > budgets = budgetService.pageQuery( hql , null ,
+		// null , null );
+		// // 查询总额
+		// String Hql = "from  DeptTotalcost where nEnable=0 and iDept=" +
+		// deptId
+		// + " and nMonth=" + month;
+		// List< DeptTotalcost > totals = totalService.pageQuery( Hql , null ,
+		// null , null );
+		// if ( CollectionUtils.isEmpty( budgets ) )
+		// {
+		// if ( CollectionUtils.isNotEmpty( totals ) )
+		// {
+		// for ( DeptTotalcost totalcost : totals )
+		// {
+		// totalcost.setnEnable( 1 );
+		// totalService.merge( totalcost );
+		// }
+		// }
+		// }
+		// else
+		// {
+		// // 查询总额，余额等
+		// String sql =
+		// "select sum(N_TOTALCOST) N_TOTALCOST,sum(N_LASTCOST) N_LASTCOST,"
+		// +
+		// "sum(N_LASTCOST2) N_LASTCOST2 from cost_budget where N_ENABLE=0 and i_dept="
+		// + deptId + " and n_month=" + month;
+		// List list = budgetService.getpageDateBySqlQuery( sql , 0 , 0 );
+		// Object[] total = ( Object[] ) list.get( 0 );
+		// float totalCost = Float.parseFloat( total[0].toString() );
+		// float lastCost = Float.parseFloat( total[1].toString() );
+		// float lastCost2 = Float.parseFloat( total[2].toString() );
+		// // 更新
+		// DeptTotalcost deptcost = totals.get( 0 );
+		// deptcost.setnTotalcost( totalCost );
+		// deptcost.setnLastcost( lastCost );
+		// deptcost.setnLastcost2( lastCost2 );
+		// deptcost.setDtAdd( new Date() );
+		// totalService.merge( deptcost );
+		// }
+		return "redirect:findAll";
+	}
+	
+	/**
+	 * 
+	 * @Description:通过PID获取部门
+	 * @param pid
+	 * @return 
+	 *   List<Dept> 返回值描述
+	 * @author chengwzh
+	 * @create_date 2015年11月25日 下午3:46:00
+	 */
+	@ResponseBody
+	@RequestMapping( "/getDeptByPid" )
+	public List< Dept > getDeptByPid( @RequestParam( value = "pid" ) int pid )
+	{
+		String sql = "select LINEID,DEPTNAME,PID,ACTIVE,USERNO,CURRDATE,MANAGERUSERID,"
+		        + "ILEVEL from dept where active=1 and pid!=0 start with lineid=" + pid
+		        + " connect by prior lineid=pid";
+		List< Dept > depts = ( List< Dept > ) deptService.getDateBySqlQuery( sql , 0 , 0 );
+		return depts;
+	}
+	
+	@ResponseBody
+	@RequestMapping( "/getMonthsExist" )
+	public List< Integer > getMonthsExist(
+	        @RequestParam( value = "iCosttype" ) int iCosttype ,
+	        @RequestParam( value = "iDept" ) int iDept )
+	{
+		String hql = "from CostBudget where nEnable=0 and iDept=" + iDept
+		        + " and iCosttype=" + iCosttype;
+		List< CostBudget > budgets = budgetService.pageQuery( hql , null , null , null );
+		List< Integer > months = new ArrayList< Integer >();
+		for ( CostBudget budget : budgets )
+		{
+			int month = budget.getnMonth();
+			months.add( month );
+		}
+		return months;
+	}
+	
+	/**
+	 * 
+	 * @Description:修改或者增加单项费用后动态修改总额预算表
+	 * @param entity 
+	 *   void 返回值描述
+	 * @author chengwzh
+	 * @create_date 2015年11月25日 下午3:45:02
+	 */
+	public void updateTotal( CostBudget entity )
+	{
+		int deptId = entity.getiDept();
+		int month = entity.getnMonth();
+		Costtype costtype = typeService.get( entity.getiCosttype() );
+		String hql = "from DeptTotalcost where nEnable=0 and iDept=" + deptId
+		        + " and nMonth=" + month + " and iCosttype = " + costtype.getpId();
+		List< DeptTotalcost > totalCosts = totalService.pageQuery( hql , null , null ,
+		        null );
+		// 查询总额，余额等
+		String sql = "select sum(N_TOTALCOST) N_TOTALCOST,sum(N_LASTCOST) N_LASTCOST,"
+		        + "sum(N_LASTCOST2) N_LASTCOST2 from cost_budget where N_ENABLE=0 and i_dept="
+		        + deptId + " and n_month=" + month + " and I_TYPEPID = "
+		        + entity.getiTypePid();
+		List list = budgetService.getpageDateBySqlQuery( sql , 0 , 0 );
+		Object[] total = ( Object[] ) list.get( 0 );
+		float totalCost = Float.parseFloat( total[0].toString() );
+		float lastCost = Float.parseFloat( total[1].toString() );
+		float lastCost2 = Float.parseFloat( total[2].toString() );
+		if ( CollectionUtils.isEmpty( totalCosts ) )
+		{
+			// 新增
+			DeptTotalcost deptTotalCost = new DeptTotalcost();
+			deptTotalCost.setiCompany( entity.getiCompany() );
+			deptTotalCost.setVcCompany( entity.getVcCompany() );
+			deptTotalCost.setiDept( entity.getiDept() );
+			deptTotalCost.setVcDept( entity.getVcDeptname() );
+			deptTotalCost.setnTotalcost( totalCost );
+			deptTotalCost.setnLastcost( lastCost );
+			deptTotalCost.setnLastcost2( lastCost2 );
+			deptTotalCost.setnMonth( entity.getnMonth() );
+			deptTotalCost.setiCosttype( entity.getiTypePid() );
+			totalService.save( deptTotalCost );
+		}
+		else
+		{
+			// 更新
+			DeptTotalcost deptcost = totalCosts.get( 0 );
+			deptcost.setnTotalcost( totalCost );
+			deptcost.setnLastcost( lastCost );
+			deptcost.setnLastcost2( lastCost2 );
+			deptcost.setDtAdd( new Date() );
+			deptcost.setiCosttype( entity.getiTypePid() );
+			totalService.merge( deptcost );
+		}
+	}
+	
+	/**
+	 * 
+	 * @Description:通过EXCEL导入批量增加
+	 * @return 
+	 *   Map<String,Object> 返回值描述
+	 * @author chengwzh
+	 * @create_date 2015年11月27日 下午4:14:43
+	 */
+	@RequestMapping( "/addByExcel" )
+	public String addByExcel( CostBudget entity ,
+	        @RequestParam( value = "file" ) MultipartFile file )
+	{
+		// Map< String , Object > result = new HashMap< String , Object >();
+		// result.put( "isSuccess" , true );
+		// result.put( "message" , "导入成功！" );
+		Integer id = entity.getLineid();
+		int compId = entity.getiCompany();// 公司id
+		Dept comp = deptService.getDeptById( compId );
+		entity.setVcCompany( comp.getDeptname() );
+		int deptId = entity.getiDept();// 部门id
+		Dept dept = deptService.getDeptById( deptId );
+		entity.setVcDeptname( dept.getDeptname() );
+		if ( file.isEmpty() )
+		{
+			// result.put( "isSuccess" , false );
+			// result.put( "message" , "导入失败，文件为空！" );
+			// return result;
+			return "redirect:intoAddByExcel";
+		}
+		try
+		{
+			InputStream is = file.getInputStream();
+			// 解析excel
+			// POIFSFileSystem fs = new POIFSFileSystem( is );
+			HSSFWorkbook workbook = new HSSFWorkbook( is );
+			for ( int numSheet = 0 ; numSheet < workbook.getNumberOfSheets() ; numSheet++ )
+			{
+				HSSFSheet sheet = workbook.getSheetAt( numSheet );
+				if ( sheet == null )
+				{
+					continue;
+				}
+				// Set< Integer > months = new LinkedHashSet< Integer >();//
+				
+				// 存放月份
+				int[] months = null;
+				// 循环row
+				System.out.println( "行数：" + sheet.getLastRowNum() );
+				for ( int row = 0 ; row <= sheet.getLastRowNum() ; row++ )
+				{
+					HSSFRow hssfRow = sheet.getRow( row );
+					if ( hssfRow == null )
+					{
+						continue;
+					}
+					boolean ifTotal = false;// 是否是总额统计
+					// 遍历col
+					if ( row == 0 )
+					{
+						// 如果是第一行就解析表头
+						months = new int[hssfRow.getLastCellNum() - 1];
+						System.out.println( "列数：" + hssfRow.getLastCellNum() );
+						for ( int col = 1 ; col < hssfRow.getLastCellNum() - 1 ; col++ )
+						{
+							HSSFCell hssfCell = hssfRow.getCell( ( short ) col );
+							String valueStr = getValue( hssfCell ).trim();
+							valueStr = valueStr.substring( 0 , valueStr.indexOf( "月" ) );
+							int month = Integer.parseInt( valueStr );
+							// months.add( month );
+							months[col] = month;
+						}
+						// System.out.println( "months:[" + months + "]" );
+					}
+					else
+					{
+						for ( int col = 0 ; col < hssfRow.getLastCellNum() - 1 ; col++ )
+						{
+							HSSFCell hssfCell = hssfRow.getCell( ( short ) col );
+							String value = getValue( hssfCell ).trim();
+							String vcCosttype = "";
+							if ( col == 0 )
+							{
+								vcCosttype = value;
+								// 如果包含"-"则是总额统计
+								int index = vcCosttype.indexOf( "-" );
+								if ( index != - 1 )
+								{
+									vcCosttype = vcCosttype.substring( index + 1 );
+									ifTotal = true;
+								}
+								String hql = "from Costtype where nEnable=0 and vcName='"
+								        + vcCosttype + "'";
+								List< Costtype > types = typeService
+								        .getAllObjectOrder( hql );
+								if ( CollectionUtils.isEmpty( types ) )
+								{
+									break;
+								}
+								Costtype type = types.get( 0 );
+								entity.setVcCosttype( type.getVcName() );// 费用类型
+								entity.setiCosttype( type.getId() );// 费用类型id
+							}
+							else
+							{
+								if ( StringUtils.isNotBlank( value ) )
+								{
+									if ( ifTotal )
+									{
+										// 总额费用
+										int month = months[col];
+										int iCosttype = entity.getiCosttype();
+										int iDept = entity.getiDept();
+										String hql = "from DeptTotalcost where nEnable=0 and nMonth="
+										        + month
+										        + " and iDept="
+										        + iDept
+										        + " and iCosttype=" + iCosttype;
+										List< DeptTotalcost > totalCosts = totalService
+										        .pageQuery( hql , null , null , null );
+										Float totalcost = Float.parseFloat( value );
+										if ( CollectionUtils.isEmpty( totalCosts ) )
+										{
+											// 新增
+											DeptTotalcost totalCost = new DeptTotalcost();
+											totalCost.setiCompany( entity.getiCompany() );
+											totalCost
+											        .setVcCompany( entity.getVcCompany() );
+											totalCost
+											        .setiCosttype( entity.getiCosttype() );
+											totalCost.setVcCosttype( entity
+											        .getVcCosttype() );
+											totalCost.setiDept( entity.getiDept() );
+											totalCost.setVcDept( entity.getVcDeptname() );
+											totalCost.setnTotalcost( totalcost );
+											totalCost.setnLastcost( totalcost );
+											totalCost.setnLastcost2( totalcost );
+											totalCost.setnMonth( month );
+											totalCost.setDtAdd( new Date() );
+											totalService.save( totalCost );
+										}
+										else
+										{
+											// 修改
+											DeptTotalcost totalCost = totalCosts.get( 0 );
+											totalCost.setnTotalcost( totalcost );
+											totalCost.setnLastcost( totalcost );
+											totalCost.setnLastcost2( totalcost );
+											totalCost.setDtAdd( new Date() );
+											totalService.update( totalCost );
+										}
+									}
+									else
+									{
+										// 单项费用
+										// 判断是新增还是更新
+										int nMonth = months[col];
+										int iCosttype = entity.getiCosttype();
+										int iDept = entity.getiDept();
+										String hql = "from CostBudget where nEnable=0 and nMonth="
+										        + nMonth
+										        + " and iCosttype="
+										        + iCosttype
+										        + " and iDept=" + iDept;
+										List< CostBudget > budgetList = budgetService
+										        .pageQuery( hql , null , null , null );
+										Float totalcost = Float.parseFloat( value );
+										if ( CollectionUtils.isEmpty( budgetList ) )
+										{
+											// 新增
+											// Float totalcost =
+											// Float.parseFloat(
+											// value );
+											CostBudget budget = new CostBudget();
+											budget.setiCompany( entity.getiCompany() );
+											budget.setVcCompany( entity.getVcCompany() );
+											budget.setiDept( entity.getiDept() );
+											budget.setVcDeptname( entity.getVcDeptname() );
+											budget.setnLastcost( totalcost );// 总额
+											budget.setnTotalcost( totalcost );
+											budget.setnLastcost2( totalcost );
+											budget.setDtAdd( new Date() );
+											budget.setnMonth( months[col] );
+											budget.setVcCosttype( entity.getVcCosttype() );
+											budget.setiCosttype( entity.getiCosttype() );
+											budgetService.save( budget );
+										}
+										else
+										{
+											// 更新
+											CostBudget costBudget = budgetList.get( 0 );
+											costBudget.setnTotalcost( totalcost );
+											costBudget.setnLastcost( totalcost );
+											costBudget.setnLastcost2( totalcost );
+											costBudget.setDtAdd( new Date() );
+											budgetService.merge( costBudget );
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		catch ( IOException e )
+		{
+			e.printStackTrace();
+			// result.put( "isSuccess" , false );
+			// result.put( "message" , "导入失败，" + e.getMessage() );
+			return "redirect:intoAddByExcel";
+		}
+		return "redirect:findAll";
+	}
+	
+	/**
+	 * 
+	 * @Description:获取EXCEL单元格数值
+	 * @param cell
+	 * @return 
+	 *   String 返回值描述
+	 * @author chengwzh
+	 * @create_date 2015年11月30日 上午11:30:06
+	 */
+	public String getValue( HSSFCell cell )
+	{
+		if ( cell.getCellType() == cell.CELL_TYPE_BOOLEAN )
+		{
+			// 返回boolean类型
+			return String.valueOf( cell.getBooleanCellValue() );
+		}
+		if ( cell.getCellType() == cell.CELL_TYPE_NUMERIC )
+		{
+			// 返回数值类型
+			return String.valueOf( cell.getNumericCellValue() );
+		}
+		if ( cell.getCellType() == cell.CELL_TYPE_STRING )
+		{
+			// 返回字符串
+			return cell.getStringCellValue();
+		}
+		return "";
+	}
+	
+	/**
+	 * 
+	 * @Description:进入excel导入页面
+	 * @return 
+	 *   String 返回值描述
+	 * @author chengwzh
+	 * @create_date 2015年11月27日 下午4:18:24
+	 */
+	@RequestMapping( "/intoAddByExcel" )
+	public String intoAddByExcel( HttpServletRequest request )
+	{
+		String hql = "from Dept where pid=0 and active=1";
+		List< Dept > companys = deptService.getAllObjectOrder( hql );// 获取公司
+		request.setAttribute( "companys" , companys );
+		return "oa_fee/feeBudgetExcelSave";
+	}
+}

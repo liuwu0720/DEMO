@@ -1,0 +1,116 @@
+package clt.com.cn.controller.workflow;
+
+import java.util.List;
+
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import clt.com.cn.model.entity.Contract;
+import clt.com.cn.service.IContractManageService;
+
+/** 
+ * @Package clt.com.cn.controller.workflow 
+ * @Description: 合同相关
+ * @author liuwu
+ * @date 2015年10月21日 下午4:37:32 
+ * @version V1.0 
+ */
+@Controller
+@RequestMapping( "/contractController" )
+public class ContractManageController
+{
+	@Autowired
+	IContractManageService iContractManageService;
+	
+	/**
+	 * 
+	 * @Description:查看合同列表
+	 * @param request
+	 * @return 
+	 *   String 返回值描述
+	 * @author liuwu
+	 * @create_date 2015年10月21日 下午6:49:24
+	 */
+	@RequestMapping( "/createContract" )
+	public String createContract( HttpServletRequest request )
+	{
+		String p = request.getParameter( "page" );
+		int page , pages , count;
+		count = iContractManageService.getCount();
+		pages = iContractManageService.getpages( count , 5 );
+		if ( p == null || p == "" )
+		{
+			page = 1;
+		}
+		else
+		{
+			page = Integer.parseInt( p );
+			if ( page < 1 )
+			{
+				page = 1;
+			}
+			else if ( page > pages )
+			{
+				page = pages;
+			}
+		}
+		
+		List contracts = iContractManageService.getAllContracts( page );
+		request.setAttribute( "page" , page );
+		request.setAttribute( "pages" , pages );
+		request.setAttribute( "contracts" , contracts );
+		request.setAttribute( "returnPath" , "contractController/createContract?op=1" );
+		
+		return "oa_contract/contractList";
+	}
+	
+	/**
+	 * 
+	 * @Description:新增 编辑时获取合同详情
+	 * @param request
+	 * @return 
+	 *   String 返回值描述
+	 * @author liuwu
+	 * @create_date 2015年10月21日 下午6:58:36
+	 */
+/*	@RequestMapping( "/addContract" )
+	public String addContract( HttpServletRequest request )
+	{
+		// 编辑时获取合同详情的方法
+		System.out.println("add.....");
+		// 根据用户获取用户对应部门，再根据部门获取相关类型的合同
+		
+		return "oa_contract/contractAdd";
+		
+	}*/
+	/**
+	 * 
+	 * @Description:保存合同
+	 * @param request
+	 * @param response 
+	 *   void 返回值描述
+	 * @author liuwu
+	 * @create_date 2015年10月22日 上午9:44:35
+	 */
+	@RequestMapping("/addContract")
+	public String saveContract( HttpServletRequest request , HttpServletResponse response,Contract contract )
+	{	
+		try
+        {
+			
+	        iContractManageService.save( contract );
+	        return "redirect:/contractController/createContract";
+	        
+        }
+        catch ( Exception e )
+        {
+        	return "oa_contract/contractAdd";
+        }
+	}
+	
+}

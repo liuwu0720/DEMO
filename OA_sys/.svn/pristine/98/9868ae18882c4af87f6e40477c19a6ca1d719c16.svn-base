@@ -1,0 +1,83 @@
+package clt.com.cn.dao;
+
+import java.util.List;
+
+import clt.com.cn.model.entity.Dept;
+import clt.com.cn.model.entity.DeptAddress;
+import clt.com.cn.model.entity.DeptMapping;
+import clt.com.cn.model.entity.Smuser;
+
+public interface IDeptDao
+{
+	public abstract List< Dept > getAllDept();
+	
+	public abstract void addDept( Dept dept );
+	
+	public abstract void delDeptById( int id );
+	
+	public abstract Dept getDeptById( int id );
+	
+	public abstract void updateDept( Dept d );
+	
+	// 根据条件查询
+	public abstract List< Dept > getUserInfo( String hql , Object ... p );
+	
+	// 总条数
+	public abstract int getCount();
+	
+	// 总页数
+	public abstract int getpages( int count , int pageSize );
+	
+	// 分页查询
+	public abstract List< Dept > getAllDeptByPage( int page );
+	
+	public Smuser getDeptManageridBydeptid( int deptid );
+	
+	public List getDateBySqlQuery( final String sql , final int pageSize , final int page );
+	
+	public void execSQL( final String sql );
+	
+	public void addDeptmapping( DeptMapping deptmapping );
+	
+	/**
+	 * 
+	 * @Description: 获取所有公司 部门级别=2
+	 * @return List<Dept> 返回值描述
+	 * @author chenbin
+	 * @create_date 2014-7-18 下午1:38:41
+	 */
+	public List< Dept > getAllCompay();
+	
+	/**
+	 * 
+	 * @Description: 根据公司ID获取所有部门 因为会有递归 所有写的sql
+	 * @param compid
+	 * @return List<String[]> 返回值描述
+	 * @author chenbin
+	 * @create_date 2014-7-18 下午1:39:03
+	 */
+	public List< Object[] > getAllDeptByComID( int compid );
+	
+	public List< Object[] > getAllAddressByCompID( int compid );
+	
+	public DeptMapping getDeptMapping( int id );
+	
+	public DeptAddress getDeptAddressByID( int id );
+	
+	public void sendMails( final String rcver_name , final String rcver_mail ,
+	        final String subject , final String subContents );
+
+	/** 
+	 * @Description:这里用一句话描述这个方法的作用
+	 * @param lineid
+	 * @return 
+	 *   Dept 返回值描述
+	 * @author liuwu
+	 * @create_date 2015年11月23日 下午3:22:53
+	 */ 
+    public abstract Dept getdeptByPid( int lineid );
+
+	
+	public List< Dept > getAllObjectOrder( String hql );
+
+}

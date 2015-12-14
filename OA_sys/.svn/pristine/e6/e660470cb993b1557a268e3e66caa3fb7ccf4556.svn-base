@@ -1,0 +1,141 @@
+package clt.com.cn.model.entity;
+
+import java.util.Date;
+
+/**
+ * Contractauditrecord entity. @author MyEclipse Persistence Tools
+ */
+
+public class Contractauditrecord implements java.io.Serializable
+{
+	
+	/**
+	 * 
+	 */
+    private static final long serialVersionUID = 7215712145177548148L;
+	
+	private Integer iLineid;
+	private Integer iContractid;
+	private Integer iUserid;
+	private String vcUserno;
+	private String vcAudit;
+	private Date dtAudit;
+	private Integer iDeptid;
+	private String vcDeptname;
+	/**
+	 * @return the iLineid
+	 */
+	public Integer getiLineid()
+	{
+		return iLineid;
+	}
+	/**
+	 * @param iLineid the iLineid to set
+	 */
+	public void setiLineid( Integer iLineid )
+	{
+		this.iLineid = iLineid;
+	}
+	/**
+	 * @return the iContractid
+	 */
+	public Integer getiContractid()
+	{
+		return iContractid;
+	}
+	/**
+	 * @param iContractid the iContractid to set
+	 */
+	public void setiContractid( Integer iContractid )
+	{
+		this.iContractid = iContractid;
+	}
+	/**
+	 * @return the iUserid
+	 */
+	public Integer getiUserid()
+	{
+		return iUserid;
+	}
+	/**
+	 * @param iUserid the iUserid to set
+	 */
+	public void setiUserid( Integer iUserid )
+	{
+		this.iUserid = iUserid;
+	}
+	/**
+	 * @return the vcUserno
+	 */
+	public String getVcUserno()
+	{
+		return vcUserno;
+	}
+	/**
+	 * @param vcUserno the vcUserno to set
+	 */
+	public void setVcUserno( String vcUserno )
+	{
+		this.vcUserno = vcUserno;
+	}
+	/**
+	 * @return the vcAudit
+	 */
+	public String getVcAudit()
+	{
+		return vcAudit;
+	}
+	/**
+	 * @param vcAudit the vcAudit to set
+	 */
+	public void setVcAudit( String vcAudit )
+	{
+		this.vcAudit = vcAudit;
+	}
+	/**
+	 * @return the dtAudit
+	 */
+	public Date getDtAudit()
+	{
+		return dtAudit;
+	}
+	/**
+	 * @param dtAudit the dtAudit to set
+	 */
+	public void setDtAudit( Date dtAudit )
+	{
+		this.dtAudit = dtAudit;
+	}
+	/**
+	 * @return the iDeptid
+	 */
+	public Integer getiDeptid()
+	{
+		return iDeptid;
+	}
+	/**
+	 * @param iDeptid the iDeptid to set
+	 */
+	public void setiDeptid( Integer iDeptid )
+	{
+		this.iDeptid = iDeptid;
+	}
+	/**
+	 * @return the vcDeptname
+	 */
+	public String getVcDeptname()
+	{
+		return vcDeptname;
+	}
+	/**
+	 * @param vcDeptname the vcDeptname to set
+	 */
+	public void setVcDeptname( String vcDeptname )
+	{
+		this.vcDeptname = vcDeptname;
+	}
+	
+	
+
+	
+}

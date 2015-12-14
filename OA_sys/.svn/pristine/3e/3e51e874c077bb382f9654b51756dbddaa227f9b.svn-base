@@ -1,0 +1,90 @@
+<%@ page language="java" import="java.util.*" pageEncoding="utf-8"%>
+<%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%
+	String path = request.getContextPath();
+	String basePath = request.getScheme() + "://"
+			+ request.getServerName() + ":" + request.getServerPort()
+			+ path + "/";
+%>
+
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8" />
+<base href="<%=basePath%>">
+
+<title>合同信息</title>
+
+<meta http-equiv="pragma" content="no-cache">
+<meta http-equiv="cache-control" content="no-cache">
+<meta http-equiv="expires" content="0">
+<link rel="stylesheet" type="text/css" href="<%=basePath%>css/style.css" />
+
+<script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
+<script type="text/javascript">
+	
+</script>
+
+</head>
+<body>
+	<div class="rightsider" style="width: 1100px;">
+
+		<div class="info_tabs clearfix">
+
+
+			<a class="hover">合同管理</a> <a href="<%=basePath%>contractController/toSave"
+				class="usr_add"><i></i>添加</a>
+
+		</div>
+		<div class="usr_info_t">
+
+			<div class="search_box clearfix">
+				<form action="contractController/searchContract" method="post"
+					id="myform">
+					<button type="button" onclick="checksub();">
+						搜索<i></i>
+					</button>
+					<input name="usname" type="text" style="width: 150px;" id="usname" />
+					&nbsp;姓名:&nbsp;
+				</form>
+			</div>
+		</div>
+
+		<div class="usr_info_cols clearfix">
+			<ul>
+				<li class="date2">合同编号</li>
+				<li class="date1">合同类型</li>
+				<li class="date2">合同名称</li>
+				<li class="date3">生效日期</li>
+				<li class="date2">失效日期</li>
+				<li class="date2">创建日期</li>
+				<li class="date3">是否长期合同</li>
+				<li class="date3">操作</li>
+				
+			</ul>
+		</div>
+
+		<c:forEach items="${contracts}" var="co">
+			<ul class="usr_info_lit clearfix" >
+
+				<li class="date1">${co.vcContractno}</li>
+				<li class="date1">${co.iContracttype}</li>
+				<li class="date2">${co.vcContractname}</li>
+				<li class="date2">${co.dtStart}</li>
+				<li class="date3">${co.dtEnd}</li>
+				<li class="date3">${co.dtCreate}</li>
+				<li class="date3">${co.nLong}</li>
+				 <li class="date3" style="width: 160px;">
+	<a href="<%=basePath%>contractController/del?id=${co.lineid}">删除</a>
+    <a href="<%=basePath%>contractController/toSave?id=${co.lineid}">修改</a>
+    <a href="<%=basePath%>contractController/applyContract?id=${co.lineid}">申请</a>
+   
+    </li>
+			</ul>
+		</c:forEach>
+
+		<%@include file="../page.jsp"%>
+	</div>
+</body>
+</html>

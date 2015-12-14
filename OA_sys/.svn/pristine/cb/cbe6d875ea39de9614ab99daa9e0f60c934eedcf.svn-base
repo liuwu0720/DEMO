@@ -1,0 +1,418 @@
+package clt.com.cn.controller.workflow;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import net.sf.json.JSONArray;
+
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+
+import clt.com.cn.model.entity.Contract;
+import clt.com.cn.model.entity.ContractFile;
+import clt.com.cn.model.entity.ContracttypeB;
+import clt.com.cn.model.entity.Static;
+import clt.com.cn.service.IContractFileService;
+import clt.com.cn.service.IContractManageService;
+import clt.com.cn.service.IContracttypeBService;
+import clt.com.cn.service.IStaticService;
+
+/** 
+ * @Package clt.com.cn.controller.workflow 
+ * @Description: 合同相关
+ * @author liuwu
+ * @date 2015年10月21日 下午4:37:32 
+ * @version V1.0 
+ */
+@Controller
+@RequestMapping( "/contractController" )
+public class ContractController
+{
+	@Autowired
+	IContractManageService contractService;
+	@Autowired
+	private IContracttypeBService typeService;
+	@Autowired
+	private IContractFileService fileService;
+	@Autowired
+	private IStaticService staticService;
+	
+	/**
+	 * 
+	 * @Description:查看合同列表
+	 * @param request
+	 * @return 
+	 *   String 返回值描述
+	 * @author liuwu
+	 * @create_date 2015年10月21日 下午6:49:24
+	 */
+	@RequestMapping( "/createContract" )
+	public String createContract( HttpServletRequest request )
+	{
+		String p = request.getParameter( "page" );
+		HttpSession session = request.getSession();
+		int userId = Integer.parseInt( session.getAttribute( "lineid" ).toString() );
+		int page , pages , count;
+		// count = contractService.getCount();
+		String sql = "select c.lineid,c.vc_contractno,c.vc_contractname,c.vc_partya,c.vc_partyb,c.dt_start,c.dt_end,c.n_state,t.vc_type"
+		        + " from contract c,contracttype_b t where c.i_contracttype=t.id  and c.n_enable=0 and c.i_user="
+		        + userId;
+		System.out.println( "sql:" + sql );
+		String countSQL = "select count(*) from contract c,contracttype_b t where c.i_contracttype=t.id  and c.n_enable=0 and c.i_user="
+		        + userId;
+		System.out.println( "countSQL:" + countSQL );
+		count = contractService.getCountBySQL( countSQL );
+		pages = contractService.getpages( count , 5 );
+		if ( p == null || p == "" )
+		{
+			page = 1;
+		}
+		else
+		{
+			page = Integer.parseInt( p );
+			if ( page < 1 )
+			{
+				page = 1;
+			}
+			else if ( page > pages )
+			{
+				page = pages;
+			}
+		}
+		
+		List contracts = contractService.getDataBySqlQuery( sql , 5 , page );
+		JSONArray arr = JSONArray.fromObject( contracts );
+		System.out.println( "arr:" + arr );
+		request.setAttribute( "page" , page );
+		request.setAttribute( "pages" , pages );
+		request.setAttribute( "contracts" , contracts );
+		request.setAttribute( "returnPath" , "contractController/createContract?op=1" );
+		
+		return "oa_contract/contractList";
+	}
+	
+	/**
+	 * 进入保存页面
+	 * @return
+	 */
+	@RequestMapping( "/toSave" )
+	public String toAdd( HttpServletRequest request )
+	{
+		try
+		{
+			// 获取1级父合同类型
+			List< ContracttypeB > pTypelist = typeService.getByPid( 0 );
+			String idStr = request.getParameter( "id" );
+			if ( StringUtils.isNotBlank( idStr ) )
+			{
+				// 编辑
+				int id = Integer.parseInt( idStr );
+				Contract contract = contractService.get( id );
+				int typeId = contract.getiContracttype();
+				ContracttypeB subtype = typeService.get( typeId );// 获取子合同类型
+				int pid = subtype.getiPid();
+				ContracttypeB partype = typeService.get( pid );// 获取父合同类型
+				List< ContracttypeB > sublist = typeService.getByPid( pid );// 获取父合同下的子合同类型
+				request.setAttribute( "partype" , partype );
+				request.setAttribute( "subtype" , subtype );
+				request.setAttribute( "sublist" , sublist );
+				request.setAttribute( "contract" , contract );
+			}
+			request.setAttribute( "pTypelist" , pTypelist );
+		}
+		catch ( Exception e )
+		{
+			e.printStackTrace();
+		}
+		return "oa_contract/contractAdd";
+	}
+	
+	/**
+	 * 
+	 * @Description:保存合同
+	 * @param request
+	 * @param response
+	 * @param contract
+	 * @return 
+	 *   String 返回值描述
+	 * @author chengwzh
+	 * @create_date 2015年10月26日 下午1:59:43
+	 */
+	@RequestMapping( "/saveContract" )
+	public String saveContract( HttpServletRequest request ,
+	        HttpServletResponse response , Contract contract ,
+	        @RequestParam( value = "files" , required = false ) MultipartFile[] files )
+	{
+		try
+		{
+			HttpSession session = request.getSession();
+			SimpleDateFormat format = new SimpleDateFormat( "yyyy-MM-dd" );
+			String start = request.getParameter( "start" );
+			if ( StringUtils.isNotBlank( start ) )
+			{
+				Date dtStart = format.parse( start );
+				contract.setDtStart( dtStart );
+			}
+			String end = request.getParameter( "end" );
+			if ( StringUtils.isNotBlank( end ) )
+			{
+				Date dtEnd = format.parse( end );
+				contract.setDtEnd( dtEnd );
+			}
+			String dtcreate = request.getParameter( "dtcreate" );
+			if ( StringUtils.isNotBlank( dtcreate ) )
+			{
+				Date dtCreate = format.parse( dtcreate );
+				contract.setDtCreate( dtCreate );
+			}
+			if ( contract.getLineid() == null )
+			{
+				// 增加
+				int userId = Integer.parseInt( session.getAttribute( "lineid" )
+				        .toString() );
+				contract.setiUser( userId );
+				contractService.save( contract );
+			}
+			else
+			{
+				// 修改
+				contractService.update( contract );
+			}
+			upload( files , contract );
+			return "redirect:/contractController/createContract";
+			
+		}
+		catch ( Exception e )
+		{
+			e.printStackTrace();
+			return "oa_contract/contractAdd";
+		}
+	}
+	
+	/**
+	 * 删除合同
+	 * @param id
+	 * @author chengwzh
+	 * @date 2015/10/23
+	 * @return
+	 */
+	@RequestMapping( "/del" )
+	public String del( @RequestParam( "id" ) int id )
+	{
+		try
+		{
+			contractService.delete( id );
+		}
+		catch ( Exception e )
+		{
+			e.printStackTrace();
+		}
+		return "redirect:createContract";
+	}
+	
+	@RequestMapping( "/getTypesByPid" )
+	@ResponseBody
+	public Map< String , Object > getTypesByPid( @RequestParam( value = "pid" ) int pid )
+	{
+		Map< String , Object > result = new HashMap< String , Object >();
+		try
+		{
+			List< ContracttypeB > subTypes = typeService.getByPid( pid );
+			result.put( "isSuccess" , true );
+			result.put( "data" , subTypes );
+			
+		}
+		catch ( Exception e )
+		{
+			result.put( "isSuccess" , false );
+			result.put( "data" , null );
+			e.printStackTrace();
+		}
+		return result;
+	}
+	
+	/**
+	 * 
+	 * @Description:查看合同
+	 * @return 
+	 *   String 返回值描述
+	 * @author chengwzh
+	 * @create_date 2015年10月29日 下午5:54:26
+	 */
+	@RequestMapping( "/viewContract" )
+	public String viewContract( @RequestParam( value = "id" ) int id ,
+	        HttpServletRequest request )
+	{
+		Contract contract = contractService.get( id );
+		int typeId = contract.getiContracttype();
+		ContracttypeB subtype = typeService.get( typeId );// 获取子合同类型
+		int pid = subtype.getiPid();
+		ContracttypeB partype = typeService.get( pid );// 获取父合同类型
+		// 获取上传文件列表
+		int contractId = contract.getLineid();
+		List< ContractFile > files = fileService.findAllByContractId( contractId );
+		request.setAttribute( "partype" , partype );
+		request.setAttribute( "subtype" , subtype );
+		request.setAttribute( "contract" , contract );
+		request.setAttribute( "files" , files );
+		return "oa_contract/contractView";
+	}
+	
+	@RequestMapping( "/downloadFile" )
+	public void downloadFile( @RequestParam( value = "fileName" ) String fileName ,
+	        HttpServletRequest request , HttpServletResponse response )
+	{
+		
+		BufferedInputStream in = null;
+		BufferedOutputStream out = null;
+		try
+		{
+			request.setCharacterEncoding( "utf-8" );
+			// 获取根目录
+			Static sta = staticService.getByname( "contract" );
+			String rootPath = sta.getVcRootpath();
+			if ( ! rootPath.endsWith( "/" ) )
+			{
+				rootPath += "/";
+			}
+			rootPath += "contract/";
+			File file = new File( rootPath );
+			if ( ! file.exists() )
+			{
+				file.mkdirs();
+			}
+			String downloadPath = rootPath + fileName;
+			File downFile = new File( downloadPath );
+			long fileLength = downFile.length();
+			// 设置文件输出类型
+			response.setContentType( "application/octet-stream" );
+			response.setHeader( "Content-disposition" , "attachment; filename="
+			        + new String( fileName.getBytes( "utf-8" ) , "ISO8859-1" ) );
+			// 设置输出长度
+			response.setHeader( "Content-Length" , String.valueOf( fileLength ) );
+			in = new BufferedInputStream( new FileInputStream( downloadPath ) );
+			out = new BufferedOutputStream( response.getOutputStream() );
+			int b = 0;
+			while ( ( b = in.read() ) != - 1 )
+			{
+				out.write( b );
+			}
+		}
+		catch ( UnsupportedEncodingException e )
+		{
+			e.printStackTrace();
+		}
+		catch ( IOException e )
+		{
+			e.printStackTrace();
+		}
+		finally
+		{
+			try
+			{
+				if ( in != null )
+				{
+					in.close();
+				}
+				if ( out != null )
+				{
+					out.close();
+				}
+			}
+			catch ( IOException e )
+			{
+				e.printStackTrace();
+			}
+		}
+		
+	}
+	
+	/**
+	 * 
+	 * @Description:上传文件方法
+	 * @param files
+	 * @param contract 
+	 *   void 返回值描述
+	 * @author chengwzh
+	 * @create_date 2015年10月30日 下午5:03:06
+	 */
+	public void upload( MultipartFile[] files , Contract contract )
+	{
+		if ( files != null )
+		{
+			Static sta = staticService.getByname( "contract" );
+			String rootPath = sta.getVcRootpath();
+			if ( ! rootPath.endsWith( "/" ) )
+			{
+				rootPath += "/";
+			}
+			rootPath += "contract/";
+			File file = new File( rootPath );
+			if ( ! file.exists() )
+			{
+				file.mkdirs();
+			}
+			for ( MultipartFile mulFile : files )
+			{
+				if ( ! mulFile.isEmpty() )
+				{
+					BufferedOutputStream out = null;
+					try
+					{
+						String fileName = mulFile.getOriginalFilename();
+						String uploadPath = rootPath + fileName;
+						byte[] buf = mulFile.getBytes();
+						out = new BufferedOutputStream( new FileOutputStream( uploadPath ) );
+						out.write( buf );
+						ContractFile contractFile = new ContractFile();
+						contractFile.setiContract( contract.getLineid() );
+						contractFile.setVcFilename( fileName );
+						fileService.save( contractFile );
+					}
+					catch ( FileNotFoundException e )
+					{
+						e.printStackTrace();
+					}
+					catch ( IOException e )
+					{
+						e.printStackTrace();
+					}
+					finally
+					{
+						if ( out != null )
+						{
+							try
+							{
+								out.close();
+							}
+							catch ( IOException e )
+							{
+								e.printStackTrace();
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}

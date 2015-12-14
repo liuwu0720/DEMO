@@ -1,0 +1,471 @@
+package clt.com.cn.service.impl;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import clt.com.cn.dao.ICostApplyDao;
+import clt.com.cn.dao.ICostApplyItemDao;
+import clt.com.cn.dao.ICostAuditRecordDao;
+import clt.com.cn.dao.IFeeTelDao;
+import clt.com.cn.dao.IFeeTrafficDao;
+import clt.com.cn.dao.ITakeFeeCompanyDao;
+import clt.com.cn.dao.ITravelFeeDao;
+import clt.com.cn.model.entity.CostApply;
+import clt.com.cn.model.entity.CostApplyitem;
+import clt.com.cn.model.entity.CostAuditrecord;
+import clt.com.cn.model.entity.FeeTel;
+import clt.com.cn.model.entity.FeeTraffic;
+import clt.com.cn.model.entity.TakeFeeCompany;
+import clt.com.cn.model.entity.Travelfee;
+import clt.com.cn.service.ICostApplyService;
+
+/** 
+ * @Package clt.com.cn.service.impl 
+ * @Description:用一句话描述该文件做什么 
+ * @author liuwu
+ * @date 2015年11月16日 下午2:36:30 
+ * @version V1.0 
+ */
+public class CostApplyServiceImp implements ICostApplyService
+{
+	private ICostApplyDao iCostApplyDao;
+	
+	private ICostAuditRecordDao iCostAuditRecordDao;
+	
+	private ITakeFeeCompanyDao iTakeFeeCompanyDao;
+	
+	private ITravelFeeDao iTravelFeeDao;
+	
+	private ICostApplyItemDao iCostApplyItemDao;
+	
+	private IFeeTrafficDao iFeeTrafficDao;
+	
+	private IFeeTelDao iFeeTelDao;
+	
+	
+	
+	
+	
+	/**
+	 * @return the iFeeTelDao
+	 */
+	public IFeeTelDao getiFeeTelDao()
+	{
+		return iFeeTelDao;
+	}
+
+	/**
+	 * @param iFeeTelDao the iFeeTelDao to set
+	 */
+	public void setiFeeTelDao( IFeeTelDao iFeeTelDao )
+	{
+		this.iFeeTelDao = iFeeTelDao;
+	}
+
+	/**
+	 * @return the iFeeTrafficDao
+	 */
+	public IFeeTrafficDao getiFeeTrafficDao()
+	{
+		return iFeeTrafficDao;
+	}
+
+	/**
+	 * @param iFeeTrafficDao the iFeeTrafficDao to set
+	 */
+	public void setiFeeTrafficDao( IFeeTrafficDao iFeeTrafficDao )
+	{
+		this.iFeeTrafficDao = iFeeTrafficDao;
+	}
+
+	/**
+	 * @return the iCostApplyItemDao
+	 */
+	public ICostApplyItemDao getiCostApplyItemDao()
+	{
+		return iCostApplyItemDao;
+	}
+	
+	/**
+	 * @param iCostApplyItemDao the iCostApplyItemDao to set
+	 */
+	public void setiCostApplyItemDao( ICostApplyItemDao iCostApplyItemDao )
+	{
+		this.iCostApplyItemDao = iCostApplyItemDao;
+	}
+	
+	/**
+	 * @return the iTravelFeeDao
+	 */
+	public ITravelFeeDao getiTravelFeeDao()
+	{
+		return iTravelFeeDao;
+	}
+	
+	/**
+	 * @param iTravelFeeDao the iTravelFeeDao to set
+	 */
+	public void setiTravelFeeDao( ITravelFeeDao iTravelFeeDao )
+	{
+		this.iTravelFeeDao = iTravelFeeDao;
+	}
+	
+	/**
+	 * @return the iTakeFeeCompanyDao
+	 */
+	public ITakeFeeCompanyDao getiTakeFeeCompanyDao()
+	{
+		return iTakeFeeCompanyDao;
+	}
+	
+	/**
+	 * @param iTakeFeeCompanyDao the iTakeFeeCompanyDao to set
+	 */
+	public void setiTakeFeeCompanyDao( ITakeFeeCompanyDao iTakeFeeCompanyDao )
+	{
+		this.iTakeFeeCompanyDao = iTakeFeeCompanyDao;
+	}
+	
+	/**
+	 * @return the iCostAuditRecordDao
+	 */
+	public ICostAuditRecordDao getiCostAuditRecordDao()
+	{
+		return iCostAuditRecordDao;
+	}
+	
+	/**
+	 * @param iCostAuditRecordDao the iCostAuditRecordDao to set
+	 */
+	public void setiCostAuditRecordDao( ICostAuditRecordDao iCostAuditRecordDao )
+	{
+		this.iCostAuditRecordDao = iCostAuditRecordDao;
+	}
+	
+	/**
+	 * @return the iCostApplyDao
+	 */
+	public ICostApplyDao getiCostApplyDao()
+	{
+		return iCostApplyDao;
+	}
+	
+	/**
+	 * @param iCostApplyDao the iCostApplyDao to set
+	 */
+	public void setiCostApplyDao( ICostApplyDao iCostApplyDao )
+	{
+		this.iCostApplyDao = iCostApplyDao;
+	}
+	
+	/** 
+	 * @Description:这里用一句话描述这个方法的作用 
+	 * @param sql
+	 * @return 
+	 * @author liuwu
+	 * @create_date 2015年11月16日 下午3:03:44
+	 */
+	public List findByPage( String sql )
+	{
+		return iCostApplyDao.findAllByPage( sql );
+	}
+	
+	/** 
+	 * @Description:这里用一句话描述这个方法的作用 
+	 * @param costApply 
+	 * @author liuwu
+	 * @create_date 2015年11月16日 下午3:58:41
+	 */
+	public void save( CostApply costApply )
+	{
+		// TODO Auto-generated method stub
+		iCostApplyDao.save( costApply );
+	}
+	
+	public List< CostApply > pageQuery( String hql , Integer pageSize , Integer page ,
+	        Object ... p )
+	{
+		
+		return iCostApplyDao.pageQuery( hql , pageSize , page , p );
+	}
+	
+	/**
+	 * 
+	 * @Description:获取总条数
+	 * @param hql
+	 * @return 
+	 * @author chengwzh
+	 * @create_date 2015年11月17日 下午1:58:40
+	 */
+	public int getCountByHql( String hql )
+	{
+		return iCostApplyDao.getCountByHql( hql );
+	}
+	
+	/**
+	 * 
+	 * @Description:获取总页数
+	 * @param count
+	 * @param pageSize
+	 * @return 
+	 * @author chengwzh
+	 * @create_date 2015年11月17日 下午1:58:17
+	 */
+	public int getpages( int count , int pageSize )
+	{
+		return iCostApplyDao.getpages( count , pageSize );
+	}
+	
+	public void update( CostApply entity )
+	{
+		iCostApplyDao.update( entity );
+	}
+	
+	public CostApply get( int id )
+	{
+		return iCostApplyDao.get( id );
+	}
+	
+	public void delete( int id )
+	{
+		CostApply entity = iCostApplyDao.get( id );
+		entity.setnEnable( 1 );
+		iCostApplyDao.merge( entity );
+	}
+	
+	/** 
+	 * @Description:这里用一句话描述这个方法的作用 
+	 * @param id
+	 * @return 
+	 * @author liuwu
+	 * @create_date 2015年11月25日 下午3:34:38
+	 */
+	public List< CostAuditrecord > findAllByCostApplyId( Integer id )
+	{
+		String hql = "from CostAuditrecord where iCostapply = " + id
+		        + "  order by lineid desc";
+		return iCostAuditRecordDao.getByHql( hql );
+	}
+	
+	/** 
+	 * @Description:这里用一句话描述这个方法的作用 
+	 * @param countSQL
+	 * @return 
+	 * @author liuwu
+	 * @create_date 2015年11月26日 上午11:29:04
+	 */
+	public int getCountBySql( String countSQL )
+	{
+		// TODO Auto-generated method stub
+		return iCostApplyDao.getCountBySql( countSQL );
+	}
+	
+	/** 
+	 * @Description:这里用一句话描述这个方法的作用 
+	 * @param sql
+	 * @param i
+	 * @param page
+	 * @return 
+	 * @author liuwu
+	 * @create_date 2015年11月26日 上午11:35:25
+	 */
+	public List getDataBySqlQuery( String sql , int pageSize , int page )
+	{
+		// TODO Auto-generated method stub
+		return iCostApplyDao.getDataBySqlQuery( sql , pageSize , page );
+	}
+	
+	/** 
+	 * @Description:这里用一句话描述这个方法的作用 
+	 * @return 
+	 * @author liuwu
+	 * @create_date 2015年12月2日 上午11:13:46
+	 */
+	public List< TakeFeeCompany > findAllTakeFeeCompany()
+	{
+		// TODO Auto-generated method stub
+		return iTakeFeeCompanyDao.findAll();
+	}
+	
+	/** 
+	 * @Description:这里用一句话描述这个方法的作用 
+	 * @param travelfee 
+	 * @author liuwu
+	 * @create_date 2015年12月2日 下午4:40:21
+	 */
+	public void saveTravelFee( Travelfee travelfee )
+	{
+		// TODO Auto-generated method stub
+		iTravelFeeDao.save( travelfee );
+	}
+	
+	/** 
+	 * @Description:这里用一句话描述这个方法的作用 
+	 * @param costApplyitem 
+	 * @author liuwu
+	 * @create_date 2015年12月2日 下午4:41:26
+	 */
+	public void saveCosApplyItem( CostApplyitem costApplyitem )
+	{
+		// TODO Auto-generated method stub
+		iCostApplyItemDao.save( costApplyitem );
+	}
+	
+	/** 
+	 * @Description:这里用一句话描述这个方法的作用 
+	 * @param id
+	 * @return 
+	 * @author liuwu
+	 * @create_date 2015年12月3日 下午2:04:00
+	 */
+	public List< CostApplyitem > findAllCostItemsById( Integer id )
+	{
+		String hql = "from CostApplyitem  where iCostid=" + id + " order by id desc";
+		return iCostApplyItemDao.findByHql( hql );
+	}
+	
+	/** 
+	 * @Description:这里用一句话描述这个方法的作用 
+	 * @param costApplyitems
+	 * @return 
+	 * @author liuwu
+	 * @create_date 2015年12月3日 下午2:15:22
+	 */
+	public List< Travelfee > findAllTravelFee( List< CostApplyitem > costApplyitems )
+	{
+		List< Travelfee > travelfees = new ArrayList< Travelfee >();
+		for ( CostApplyitem costApplyitem : costApplyitems )
+		{
+			Travelfee travelfee = iTravelFeeDao.findById( costApplyitem.getiTableid() );
+			travelfees.add( travelfee );
+		}
+		return travelfees;
+	}
+
+	/** 
+	 * @Description:这里用一句话描述这个方法的作用 
+	 * @param costApplyitem 
+	 * @author liuwu
+	 * @create_date 2015年12月3日 下午3:44:51
+	 */ 
+    public void saveOrUpdateCosApplyItem( CostApplyitem costApplyitem )
+    {
+	    // TODO Auto-generated method stub
+	    iCostApplyItemDao.saveUpdate(costApplyitem);
+    }
+
+	/** 
+	 * @Description:这里用一句话描述这个方法的作用 
+	 * @param id 主表ID
+	 * @author liuwu
+	 * @create_date 2015年12月3日 下午4:32:24
+	 */ 
+    public void deleteTravelFeeHis( Integer id )
+    {
+	    // TODO Auto-generated method stub
+    	String hql = "from CostApplyitem where iCostid="+id;
+	    List< CostApplyitem > costApplyitems = iCostApplyItemDao.findByHql( hql );
+	    iCostApplyDao.deleteAll(costApplyitems);
+	    for(CostApplyitem costApplyitem:costApplyitems){
+	    	int travefeeId = costApplyitem.getiTableid();
+	    	iTravelFeeDao.deleteById(travefeeId);
+	    }
+    }
+
+	/** 
+	 * @Description:这里用一句话描述这个方法的作用 
+	 * @param feeTraffic 
+	 * @author liuwu
+	 * @create_date 2015年12月3日 下午8:03:10
+	 */ 
+    public void saveFeeTraffic( FeeTraffic feeTraffic )
+    {
+	    // TODO Auto-generated method stub
+	    iFeeTrafficDao.save(feeTraffic);
+    }
+
+	/** 
+	 * @Description:这里用一句话描述这个方法的作用 
+	 * @param feeTel 
+	 * @author liuwu
+	 * @create_date 2015年12月3日 下午8:11:29
+	 */ 
+    public void saveFeeTel( FeeTel feeTel )
+    {
+	    // TODO Auto-generated method stub
+	    iFeeTelDao.save( feeTel );
+    }
+
+	/** 
+	 * @Description:这里用一句话描述这个方法的作用 
+	 * @param id 
+	 * @author liuwu
+	 * @create_date 2015年12月3日 下午8:19:41
+	 */ 
+    public void deleteFeeTracfficeHis( Integer id )
+    {
+    	String hql = "from CostApplyitem where iCostid="+id;
+	    List< CostApplyitem > costApplyitems = iCostApplyItemDao.findByHql( hql );
+	    iCostApplyDao.deleteAll(costApplyitems);
+	    for(CostApplyitem costApplyitem:costApplyitems){
+	    	int feeid = costApplyitem.getiTableid();
+	    	iFeeTrafficDao.deleteById(feeid);
+	    }
+    }
+
+	/** 
+	 * @Description:这里用一句话描述这个方法的作用 
+	 * @param id 
+	 * @author liuwu
+	 * @create_date 2015年12月3日 下午8:21:48
+	 */ 
+    public void deleFeeTelHis( Integer id )
+    {
+	    // TODO Auto-generated method stub
+    	String hql = "from CostApplyitem where iCostid="+id;
+	    List< CostApplyitem > costApplyitems = iCostApplyItemDao.findByHql( hql );
+	    iCostApplyDao.deleteAll(costApplyitems);
+	    for(CostApplyitem costApplyitem:costApplyitems){
+	    	int telid = costApplyitem.getiTableid();
+	    	iFeeTelDao.deleteById(telid);
+	    }
+    }
+
+	/** 
+	 * @Description:这里用一句话描述这个方法的作用 
+	 * @param costApplyitems
+	 * @return 
+	 * @author liuwu
+	 * @create_date 2015年12月3日 下午8:30:58
+	 */ 
+    public List< FeeTraffic > findAllFeeTraffic( List< CostApplyitem > costApplyitems )
+    {
+    	List< FeeTraffic > feeTraffics = new ArrayList< FeeTraffic >();
+		for ( CostApplyitem costApplyitem : costApplyitems )
+		{
+			FeeTraffic FeeTraffic = iFeeTrafficDao.getById( costApplyitem.getiTableid() );
+			feeTraffics.add( FeeTraffic );
+		}
+		return feeTraffics;
+    }
+
+	/** 
+	 * @Description:这里用一句话描述这个方法的作用 
+	 * @param costApplyitems
+	 * @return 
+	 * @author liuwu
+	 * @create_date 2015年12月3日 下午8:33:34
+	 */ 
+    public List< FeeTel > findAllFeeTel( List< CostApplyitem > costApplyitems )
+    {
+	    List< FeeTel > feeTels = new ArrayList< FeeTel >();
+	    for(CostApplyitem costApplyitem : costApplyitems){
+	    	FeeTel feeTel = iFeeTelDao.getById(costApplyitem.getiTableid());
+	    	feeTels.add( feeTel );
+	    }
+	    return feeTels;
+    }
+    
+    
+	
+}

@@ -1,0 +1,127 @@
+<%@ page language="java" import="java.util.*" pageEncoding="utf-8"%>
+<%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%
+	String path = request.getContextPath();
+	String basePath = request.getScheme() + "://" + request.getServerName() + ":"
+	        + request.getServerPort() + path + "/";
+%>
+
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8" />
+<base href="<%=basePath%>">
+<title>任务列表</title>
+<meta http-equiv="pragma" content="no-cache">
+<meta http-equiv="cache-control" content="no-cache">
+<meta http-equiv="expires" content="0">
+<meta http-equiv="keywords" content="keyword1,keyword2,keyword3">
+<meta http-equiv="description" content="This is my page">
+<link rel="stylesheet" type="text/css" href="<%=basePath%>css/style.css" />
+
+<script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
+<style type="text/css">
+.nave {
+	margin-bottom: 20px;
+	margin-left: 0;
+	list-style: none;
+}
+
+.nave li {
+	float: left;
+	margin: 10px;
+	cursor: pointer;
+}
+
+.nave>li>a {
+	display: block;
+	height: 35px;
+}
+
+a:link {
+	color: red;
+	text-decoration: underline;
+}
+
+.active {
+	color: red;
+}
+</style>
+</head>
+
+<body>
+	<div class="rightsider" style="width: 1100px;">
+		<div class="nave" id="tab">
+			<nav>
+				<ul>
+					<li><a href="<%=basePath%>workFlowController/listTask"><h2>当前任务</h2></a></li>
+					<li><a href="<%=basePath%>workFlowController/listHisTask"
+						class="active"><h2>历史任务</h2></a></li>
+				</ul>
+			</nav>
+		</div>
+		<div class="usr_info_t">
+			<form action="workFlowController/listHisTask" method="post"
+				id="myform">
+
+				<table style="width:100%">
+					<tr>
+						<td width="120px;"></td>
+						<td>合同名称 :<input type="text" name="vcContractname" />
+						</td>
+						<td>合同类型 :<input type="text" name="vcType" />
+						</td>
+						<td>甲方: <input type="text" name="vcPartya" />
+						</td>
+						<td>乙方: <input type="text" name="vcPartyb" />
+						</td>
+						<td><input type="submit" value="查询"
+							style="width:100px;background-color:#ff6600" /></td>
+					</tr>
+				</table>
+			</form>
+
+		</div>
+		<br />
+		<div>
+			<table class="table">
+				<tr>
+					<td>合同编号</td>
+					<td>合同名称</td>
+					<td>合同类型</td>
+					<td>甲方</td>
+					<td>乙方</td>
+					<td>生效日期</td>
+					<td>失效日期</td>
+					<td>合同状态</td>
+					<td>操作</td>
+				</tr>
+				<c:forEach items="${contracts}" var="co">
+					<tr>
+						<td>${co[1]}</td>
+						<td><a
+							href="<%=basePath%>contractController/viewContract?id=${co[0]}">${co[2]}</a></td>
+						<td>${co[8]}</td>
+						<td>${co[3]}</td>
+						<td>${co[4]}</td>
+						<td><fmt:formatDate value="${co[5]}" pattern="yyyy/MM/dd" /></td>
+						<td><fmt:formatDate value="${co[6]}" pattern="yyyy/MM/dd" /></td>
+						<td><c:if test="${co[7]==0}">初始录入</c:if> <c:if
+								test="${co[7]==1}">审核中</c:if> <c:if test="${co[7]==2}">审核通过</c:if>
+							<c:if test="${co[7]==3}">审核中(驳回)</c:if></td>
+						<td><c:if test="${co[7]!=2}">
+								<a target="_blank"
+									href="<%=basePath%>workFlowController/viewImageBycontractid?id=${co[0]}">查看流程图</a>
+							</c:if> 
+							<a href="<%=basePath%>workFlowController/viewHisComment?id=${co[0]}">查看审核记录</a>
+						</td>
+					</tr>
+				</c:forEach>
+			</table>
+
+		</div>
+		<%@include file="../page.jsp"%>
+	</div>
+</body>
+</html>

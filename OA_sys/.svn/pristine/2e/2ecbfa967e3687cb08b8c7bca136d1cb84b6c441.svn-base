@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>traffic_table.html</title>
+
+<meta name="keywords" content="keyword1,keyword2,keyword3">
+<meta name="description" content="this is my page">
+<meta name="content-type" content="text/html; charset=UTF-8">
+
+<!--<link rel="stylesheet" type="text/css" href="./styles.css">-->
+
+</head>
+
+<body>
+	<table  class="table">
+		<tbody id="traffic_tbody1">
+			<tr style="font-size: 5;height: 20px;">
+				<td>出发日期</td>
+				<td>出发地点</td>
+				<td>到达时间</td>
+				<td>到达地点</td>
+				<td>交通工具</td>
+				<td>事由</td>
+				<td>报销金额</td>
+				<td>出差补贴</td>
+				<td>备注</td>
+				<td style="width: 35px;">操作</td>
+			</tr>
+			<tr id="traffic_tr2">
+				<td><input type="text" name="dtStart" style="width: 100px"
+					onFocus="WdatePicker({startDate:'%y-%M-01',dateFmt:'yyyy-MM-dd',alwaysUseStartDate:true})" />
+					<img src="./My97DatePicker/skin/datePicker.gif" width="24"
+					height="33" align="absmiddle" style="cursor:pointer"
+					onClick="WdatePicker({el:'d11',startDate:'%y-%M-01',dateFmt:'yyyy-MM-dd',alwaysUseStartDate:true})" />
+				</td>
+				<td><input type="text" name="vcStartPlace"></td>
+				<td><input type="text" name="dtEnd"></td>
+				<td><input type="text" name="vcEndPlace"></td>
+				<td><select name="vcTool">
+						<option value="0">-请选择-</option>
+						<option value="火车">火车</option>
+						<option value="轮船">轮船</option>
+						<option value="飞机">飞机</option>
+						<option value="大巴">大巴</option>
+						<option value="公交">公交</option>
+						<option value="的士">的士</option>
+				</select></td>
+				<td><input type="text" name="vcWhy"></td>
+				<td><input type="text" name="nMoney"></td>
+				<td><input type="text" size="5" name="nSubsidies"></td>
+				<td><input type="text" name="vcNote"></td>
+				<td><img src="<%=path%>/img/add.png"
+					onclick="addTrafficBtn(this)"
+					style="width: 15px;heigth:15px;vertical-align:middle;cursor: pointer;">
+					<img src="<%=path%>/img/bin.png" onclick="delTrafficBtn(this)"
+					style="width: 15px;heigth:15px;vertical-align:middle;cursor: pointer;"></td>
+			</tr>
+		</tbody>
+	</table>
+</body>
+</html>

@@ -1,0 +1,198 @@
+package clt.com.cn.model.entity;
+
+import java.sql.Timestamp;
+
+
+/**
+ * CostApply entity. @author MyEclipse Persistence Tools
+ */
+
+public class CostApply implements java.io.Serializable
+{
+	
+	// Fields
+	
+	/**
+	 * 
+	 */
+    private static final long serialVersionUID = 4385885697665381654L;
+	private Integer lineid;
+	private Integer iUserid;
+	private String vcUserno;
+	private Timestamp dtApply;
+	private Integer iCosttype;
+	private String vcCosttypename;
+	private Float nCost;
+	private String vcNote;
+	private Integer nEnable;
+	private Integer nState;
+	
+	// Constructors
+	
+	/** default constructor */
+	public CostApply()
+	{}
+
+	/**
+	 * @return the lineid
+	 */
+	public Integer getLineid()
+	{
+		return lineid;
+	}
+
+	/**
+	 * @param lineid the lineid to set
+	 */
+	public void setLineid( Integer lineid )
+	{
+		this.lineid = lineid;
+	}
+
+	/**
+	 * @return the iUserid
+	 */
+	public Integer getiUserid()
+	{
+		return iUserid;
+	}
+
+	/**
+	 * @param iUserid the iUserid to set
+	 */
+	public void setiUserid( Integer iUserid )
+	{
+		this.iUserid = iUserid;
+	}
+
+	/**
+	 * @return the vcUserno
+	 */
+	public String getVcUserno()
+	{
+		return vcUserno;
+	}
+
+	/**
+	 * @param vcUserno the vcUserno to set
+	 */
+	public void setVcUserno( String vcUserno )
+	{
+		this.vcUserno = vcUserno;
+	}
+
+
+	/**
+	 * @return the dtApply
+	 */
+	public Timestamp getDtApply()
+	{
+		return dtApply;
+	}
+
+	/**
+	 * @param dtApply the dtApply to set
+	 */
+	public void setDtApply( Timestamp dtApply )
+	{
+		this.dtApply = dtApply;
+	}
+
+	/**
+	 * @return the iCosttype
+	 */
+	public Integer getiCosttype()
+	{
+		return iCosttype;
+	}
+
+	/**
+	 * @param iCosttype the iCosttype to set
+	 */
+	public void setiCosttype( Integer iCosttype )
+	{
+		this.iCosttype = iCosttype;
+	}
+
+	/**
+	 * @return the vcCosttypename
+	 */
+	public String getVcCosttypename()
+	{
+		return vcCosttypename;
+	}
+
+	/**
+	 * @param vcCosttypename the vcCosttypename to set
+	 */
+	public void setVcCosttypename( String vcCosttypename )
+	{
+		this.vcCosttypename = vcCosttypename;
+	}
+
+	/**
+	 * @return the nCost
+	 */
+	public Float getnCost()
+	{
+		return nCost;
+	}
+
+	/**
+	 * @param nCost the nCost to set
+	 */
+	public void setnCost( Float nCost )
+	{
+		this.nCost = nCost;
+	}
+
+	/**
+	 * @return the vcNote
+	 */
+	public String getVcNote()
+	{
+		return vcNote;
+	}
+
+	/**
+	 * @param vcNote the vcNote to set
+	 */
+	public void setVcNote( String vcNote )
+	{
+		this.vcNote = vcNote;
+	}
+
+	/**
+	 * @return the nEnable
+	 */
+	public Integer getnEnable()
+	{
+		return nEnable;
+	}
+
+	/**
+	 * @param nEnable the nEnable to set
+	 */
+	public void setnEnable( Integer nEnable )
+	{
+		this.nEnable = nEnable;
+	}
+
+	/**
+	 * @return the nState
+	 */
+	public Integer getnState()
+	{
+		return nState;
+	}
+
+	/**
+	 * @param nState the nState to set
+	 */
+	public void setnState( Integer nState )
+	{
+		this.nState = nState;
+	}
+	
+	
+}
