@@ -77,8 +77,8 @@ public class BackHomeAction
 		TUser user = ( TUser ) session.getAttribute( "user" );
 		request.setAttribute( "user" , user );
 		// 获取消息总数
-		int msgCount = msgService.getMsgCountByCurrentUser();
-		request.setAttribute( "msgCount" , msgCount );
+		/*int msgCount = msgService.getMsgCountByCurrentUser();
+		request.setAttribute( "msgCount" , msgCount );*/
 		return "back/header";
 	}
 	
@@ -231,7 +231,7 @@ public class BackHomeAction
 		HttpSession session = request.getSession();
 		TUser user = ( TUser ) session.getAttribute( "user" );
 		
-		if ( user.getIArchiveType() == SystemConstants.SYS_TARCHIVE_SUB )
+		/*if ( user.getIArchiveType() == SystemConstants.SYS_TARCHIVE_SUB )
 		{
 			TSubsuppliers sub = subService.get( user.getiArchive() );
 			
@@ -241,7 +241,7 @@ public class BackHomeAction
 				
 				return "redirect:/subsuppliersAction/SubsuppliersSaveBefore";
 			}
-		}
+		}*/
 		
 		return "back/main";
 	}

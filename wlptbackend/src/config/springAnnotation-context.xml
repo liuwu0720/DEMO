@@ -38,10 +38,10 @@
 	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource"
 		destroy-method="close">
 		<property name="driverClass" value="oracle.jdbc.OracleDriver" />
-		<property name="jdbcUrl" value="jdbc:oracle:thin:@10.20.30.172:1521:orcl" />
+		<property name="jdbcUrl" value="jdbc:oracle:thin:@192.168.0.57:1521:orcl" />
 		<!--<property name="jdbcUrl" value="jdbc:oracle:thin:@127.0.0.1:1521:orcl" />--> 
-		<property name="user" value="cltwl1" />
-		<property name="password" value="cltwl1" />
+		<property name="user" value="cltwl" />
+		<property name="password" value="cltwl" />
 		<!-- 指定连接数据库连接池的最大连接数 -->
 		<property name="maxPoolSize" value="40" />
 		<!-- 指定连接数据库连接池的最小连接数 -->
